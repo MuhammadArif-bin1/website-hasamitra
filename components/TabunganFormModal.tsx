@@ -2,6 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { contactData } from "@/data/contact";
+import {
+  generateRegistrationCsvContent,
+  generateCsvFilename,
+  downloadCsvFile,
+} from "@/lib/csv";
 
 interface TabunganFormModalProps {
   isOpen: boolean;
@@ -32,6 +37,8 @@ export default function TabunganFormModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [waUrl, setWaUrl] = useState("");
+  const [currentCsvFilename, setCurrentCsvFilename] = useState("");
+  const [currentCsvContent, setCurrentCsvContent] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -66,24 +73,46 @@ export default function TabunganFormModal({
 
     const waNumber = contactData.whatsappNumber || "6285772780037";
 
-    // Format CSV Data Line
-    const csvHeader = `Produk,Nama,Alamat,Email,${fieldLabel}`;
-    const csvRow = `"${productName}","${formData.nama.trim()}","${formData.alamat.trim().replace(/"/g, '""')}","${formData.email.trim()}","${formData.pilihan}"`;
+    const dateFormatted = new Date().toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-    // Formatted text with explicit CSV section for WhatsApp
+    // Generate CSV data content & filename
+    const csvContent = generateRegistrationCsvContent({
+      produk: productName,
+      nama: formData.nama.trim(),
+      alamat: formData.alamat.trim(),
+      email: formData.email.trim(),
+      pilihanLabel: fieldLabel,
+      pilihanValue: formData.pilihan,
+      tanggal: dateFormatted,
+    });
+
+    const filename = generateCsvFilename(productName, formData.nama.trim());
+
+    setCurrentCsvContent(csvContent);
+    setCurrentCsvFilename(filename);
+
+    // Automatically trigger browser CSV file download
+    downloadCsvFile(csvContent, filename);
+
+    // Formatted text with explicit CSV file reference for WhatsApp
     const formattedMessage =
       `*FORM PENDAFTARAN NASABAH - BANK HASAMITRA JAWA BARAT*\n\n` +
-      `*FORMAT DATA CSV:*\n` +
-      `\`${csvHeader}\`\n` +
-      `\`${csvRow}\`\n\n` +
+      `Halo Bank Hasamitra Jawa Barat, saya ingin mendaftar produk *${productName}*.\n\n` +
       `--------------------------------------------------\n` +
       `📌 *Produk:* ${productName}\n` +
       `👤 *Nama Lengkap:* ${formData.nama.trim()}\n` +
       `🏠 *Alamat Domisili:* ${formData.alamat.trim()}\n` +
       `✉️ *Email Nasabah:* ${formData.email.trim()}\n` +
       `⏱️ *${fieldLabel}:* ${formData.pilihan}\n` +
+      `📁 *File CSV Pendaftaran:* \`${filename}\`\n` +
       `--------------------------------------------------\n` +
-      `Halo Hasamitra Jawa Barat, berikut data pendaftaran nasabah dalam format CSV. Mohon informasi dan proses lebih lanjut. Terima kasih!`;
+      `Saya telah mengunduh file CSV pendaftaran ini dan melampirkannya di pesan ini untuk pendataan pihak Bank Hasamitra. Mohon proses lebih lanjut. Terima kasih!`;
 
     const generatedWaUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(formattedMessage)}`;
     setWaUrl(generatedWaUrl);
@@ -137,22 +166,43 @@ export default function TabunganFormModal({
         {/* Modal Body */}
         <div className="p-6 sm:p-8">
           {submitted ? (
-            <div className="text-center py-4 space-y-5">
+            <div className="text-center py-2 space-y-4">
               <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
                 <svg className="w-9 h-9 fill-current" viewBox="0 0 24 24">
                   <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.099 4.019 4.142-1.087z" />
                 </svg>
               </div>
+
               <div>
-                <h4 className="text-2xl font-bold text-slate-900">Data CSV Dialihkan ke WhatsApp!</h4>
+                <h4 className="text-2xl font-bold text-slate-900">Formulir &amp; File CSV Siap!</h4>
                 <p className="text-xs text-emerald-700 font-semibold mt-1">
-                  Nomor Resmi: {contactData.whatsapp} ({contactData.whatsappNumber})
+                  WhatsApp Resmi: {contactData.whatsapp} ({contactData.whatsappNumber})
                 </p>
               </div>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                Data pendaftaran <strong>{productName}</strong> atas nama <strong>{formData.nama}</strong> ({fieldLabel.toLowerCase()}: <strong>{formData.pilihan}</strong>) telah disusun dalam format data <strong>CSV</strong> dan dialihkan ke WhatsApp Bank Hasamitra Jawa Barat.
-              </p>
-              <div className="flex flex-col gap-2 pt-2">
+
+              {/* Status Alert Download CSV */}
+              <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-left text-xs space-y-1 text-emerald-900 shadow-sm">
+                <div className="flex items-center gap-2 font-bold text-emerald-700">
+                  <svg className="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>File CSV Terunduh Otomatis</span>
+                </div>
+                <p className="text-slate-600 font-mono text-[11px] break-all bg-white/70 p-1.5 rounded border border-emerald-100">
+                  📄 {currentCsvFilename}
+                </p>
+              </div>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-left text-xs text-amber-900 space-y-1">
+                <span className="font-bold text-amber-800 block">💡 Petunjuk Pendaftaran Bank:</span>
+                <ol className="list-decimal list-inside space-y-0.5 text-amber-950">
+                  <li>File CSV data pendaftaran Anda telah otomatis terunduh di HP / komputer Anda.</li>
+                  <li>Kirimkan file CSV tersebut ke WhatsApp Bank Hasamitra untuk pendataan resmi.</li>
+                </ol>
+              </div>
+
+              {/* Action buttons */}
+              <div className="flex flex-col gap-2 pt-1">
                 <a
                   href={waUrl}
                   target="_blank"
@@ -162,12 +212,24 @@ export default function TabunganFormModal({
                   <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                     <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.099 4.019 4.142-1.087z" />
                   </svg>
-                  Buka WhatsApp ({contactData.whatsapp})
+                  Buka WhatsApp &amp; Kirim File CSV
                 </a>
+
+                <button
+                  type="button"
+                  onClick={() => downloadCsvFile(currentCsvContent, currentCsvFilename)}
+                  className="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs rounded-lg transition-colors flex items-center justify-center gap-1.5 border border-slate-300"
+                >
+                  <svg className="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Unduh Ulang File CSV (.csv)
+                </button>
+
                 <button
                   type="button"
                   onClick={handleResetAndClose}
-                  className="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg transition-colors mt-1"
+                  className="w-full py-2 px-4 text-slate-500 hover:text-slate-700 font-medium text-xs rounded-lg transition-colors mt-1"
                 >
                   Selesai &amp; Tutup
                 </button>
