@@ -14,25 +14,23 @@ export interface RegistrationCsvData {
  */
 export function generateRegistrationCsvContent(data: RegistrationCsvData): string {
   const headers = [
-    "No",
-    "Tanggal Pendaftaran",
-    "Produk Pilihan",
-    "Nama Nasabah",
-    "Alamat Domisili",
-    "Email Nasabah",
+    "Nama",
+    "Alamat",
+    "Email",
     data.pilihanLabel,
+    "Produk",
+    "Tanggal Pendaftaran",
   ];
 
   const escapeCsv = (val: string) => `"${(val || "").replace(/"/g, '""')}"`;
 
   const row = [
-    "1",
-    data.tanggal,
-    data.produk,
     data.nama,
     data.alamat,
     data.email,
     data.pilihanValue,
+    data.produk,
+    data.tanggal,
   ];
 
   return "\uFEFF" + headers.map(escapeCsv).join(",") + "\n" + row.map(escapeCsv).join(",");
