@@ -24,16 +24,21 @@ export function generateRegistrationCsvContent(data: RegistrationCsvData): strin
 
   const escapeCsv = (val: string) => `"${(val || "").replace(/"/g, '""')}"`;
 
-  const row = [
+  const delimiter = ";";
+
+  const headerLine = headers.map(escapeCsv).join(delimiter);
+  const rowLine = [
     data.nama,
     data.alamat,
     data.email,
     data.pilihanValue,
     data.produk,
     data.tanggal,
-  ];
+  ].map(escapeCsv).join(delimiter);
 
-  return "\uFEFF" + headers.map(escapeCsv).join(",") + "\n" + row.map(escapeCsv).join(",");
+  // \uFEFF (UTF-8 BOM) + 'sep=;\n' ensures Microsoft Excel, WPS Office, and Google Sheets
+  // automatically parse data into neatly separated table columns (A, B, C, D, E, F).
+  return "\uFEFFsep=;\n" + headerLine + "\n" + rowLine;
 }
 
 /**
