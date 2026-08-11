@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+
 
 interface ContactRequestBody {
   nama?: string;
@@ -160,14 +162,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Process contact form message (e.g. logging or preparing for future email integration)
-    console.log("Form Kontak diterima:", {
-      nama: cleanNama,
-      email: cleanEmail,
-      telepon: cleanTelepon,
-      layanan: cleanLayanan,
-      message: cleanMessage,
+    // Process contact form message & save to database
+    await prisma.contactMessage.create({
+      data: {
+        nama: cleanNama,
+        email: cleanEmail,
+        telepon: cleanTelepon,
+        layanan: cleanLayanan,
+        message: cleanMessage,
+      },
     });
+
 
     return NextResponse.json(
       {
