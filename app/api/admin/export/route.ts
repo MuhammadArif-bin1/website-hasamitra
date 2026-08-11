@@ -8,7 +8,7 @@ export async function GET() {
     });
 
     // CSV Header
-    const headers = ["ID", "Produk", "Nama", "Alamat", "Email", "Pilihan", "Status", "Tanggal Daftar"];
+    const headers = ["ID", "Produk", "Nama", "Alamat", "Email", "Telepon", "Pilihan", "Status", "Tanggal Daftar"];
     
     // CSV Rows
     const rows = registrations.map((r) => [
@@ -17,6 +17,7 @@ export async function GET() {
       `"${(r.nama || "").replace(/"/g, '""')}"`,
       `"${(r.alamat || "").replace(/"/g, '""')}"`,
       `"${(r.email || "").replace(/"/g, '""')}"`,
+      `"${(r.telepon || "").replace(/"/g, '""')}"`,
       `"${(r.pilihan || "").replace(/"/g, '""')}"`,
       `"${(r.status || "").replace(/"/g, '""')}"`,
       `"${r.createdAt.toISOString()}"`,

@@ -8,6 +8,7 @@ CREATE TABLE "Registration" (
     "nama" TEXT NOT NULL,
     "alamat" TEXT NOT NULL,
     "email" TEXT NOT NULL,
+    "telepon" TEXT NOT NULL DEFAULT '',
     "pilihan" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'Baru',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

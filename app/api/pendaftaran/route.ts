@@ -6,6 +6,7 @@ interface PendaftaranRequestBody {
   nama?: string;
   alamat?: string;
   email?: string;
+  telepon?: string;
   jangka_waktu?: string | number;
   berat_emas_gram?: string | number;
 }
@@ -32,16 +33,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { produk, nama, alamat, email, jangka_waktu, berat_emas_gram } = body;
+    const { produk, nama, alamat, email, telepon, jangka_waktu, berat_emas_gram } = body;
 
     // Standard string sanitization check
     const cleanProduk = typeof produk === "string" ? produk.trim() : "";
     const cleanNama = typeof nama === "string" ? nama.trim() : "";
     const cleanAlamat = typeof alamat === "string" ? alamat.trim() : "";
     const cleanEmail = typeof email === "string" ? email.trim() : "";
+    const cleanTelepon = typeof telepon === "string" ? telepon.trim() : "";
 
     // 1. Basic field presence checks
-    if (!cleanProduk || !cleanNama || !cleanAlamat || !cleanEmail) {
+    if (!cleanProduk || !cleanNama || !cleanAlamat || !cleanEmail || !cleanTelepon) {
       return NextResponse.json(
         {
           success: false,
@@ -107,15 +109,38 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Save to PostgreSQL database via Prisma
-    await prisma.registration.create({
+    const newReg = await prisma.registration.create({
       data: {
         produk: cleanProduk,
         nama: cleanNama,
         alamat: cleanAlamat,
         email: cleanEmail,
+        telepon: cleanTelepon,
         pilihan: finalPilihan,
       },
     });
+
+    // 5. Otomatis bertambah ke file CSV lokal secara real-time
+    try {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      
+      const csvPath = path.join(process.cwd(), "data", "pendaftaran", "pendaftaran-hasamitra.csv");
+      const regId = `REG-${String(newReg.id).padStart(4, "0")}`;
+      const dateStr = newReg.createdAt.toISOString().split("T")[0];
+      const jkWaktu = cleanProduk !== "Cicil Emas" ? String(jangka_waktu ?? "") : "";
+      const beratEmas = cleanProduk === "Cicil Emas" ? String(berat_emas_gram ?? "") : "";
+
+      const csvLine = `${regId},${dateStr},"${cleanProduk.replace(/"/g, '""')}","${cleanNama.replace(/"/g, '""')}","${cleanAlamat.replace(/"/g, '""')}","${cleanEmail.replace(/"/g, '""')}",${jkWaktu},${beratEmas}\n`;
+
+      if (!fs.existsSync(path.dirname(csvPath))) {
+        fs.mkdirSync(path.dirname(csvPath), { recursive: true });
+      }
+
+      fs.appendFileSync(csvPath, csvLine, "utf-8");
+    } catch (csvError) {
+      console.warn("Peringatan: Gagal menulis data ke CSV lokal:", csvError);
+    }
 
     return NextResponse.json(
       {
@@ -124,6 +149,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
+
   } catch (error) {
     console.error("Error saving registration:", error);
     return NextResponse.json(

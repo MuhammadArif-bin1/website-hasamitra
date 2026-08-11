@@ -15,25 +15,41 @@ async function exportData() {
 
   console.log(`📊 Ditemukan ${registrations.length} data pendaftaran.`);
 
-  const headers = ["ID", "Produk", "Nama", "Alamat", "Email", "Pilihan", "Status", "Tanggal Daftar"];
+  const headers = ["ID", "Produk", "Nama", "Alamat", "Email", "Telepon", "Pilihan", "Status", "Tanggal Daftar"];
   const rows = registrations.map((r) => [
     r.id,
     `"${(r.produk || "").replace(/"/g, '""')}"`,
     `"${(r.nama || "").replace(/"/g, '""')}"`,
     `"${(r.alamat || "").replace(/"/g, '""')}"`,
     `"${(r.email || "").replace(/"/g, '""')}"`,
+    `"${(r.telepon || "").replace(/"/g, '""')}"`,
     `"${(r.pilihan || "").replace(/"/g, '""')}"`,
     `"${(r.status || "").replace(/"/g, '""')}"`,
     `"${r.createdAt.toISOString()}"`,
   ]);
 
   const csvContent = [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
-  const filename = `data_nasabah_pendaftaran_${new Date().toISOString().split("T")[0]}.csv`;
-  const outputPath = path.join(process.cwd(), filename);
+  const dateStr = new Date().toISOString().split("T")[0];
+  const filename = `data_nasabah_pendaftaran_${dateStr}.csv`;
+  let targetPath = path.join(process.cwd(), filename);
 
-  fs.writeFileSync(outputPath, csvContent, "utf-8");
-  console.log(`✅ File CSV berhasil diekstrak ke: ${outputPath}`);
+  try {
+    fs.writeFileSync(targetPath, csvContent, "utf-8");
+  } catch (err: any) {
+    if (err && err.code === "EBUSY") {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(11, 19);
+      const fallbackFilename = `data_nasabah_pendaftaran_${dateStr}_${timestamp}.csv`;
+      targetPath = path.join(process.cwd(), fallbackFilename);
+      fs.writeFileSync(targetPath, csvContent, "utf-8");
+      console.log(`⚠️ File ${filename} sedang dibuka di Excel. Disimpan ke file baru.`);
+    } else {
+      throw err;
+    }
+  }
+
+  console.log(`✅ File CSV berhasil diekstrak ke: ${targetPath}`);
 }
+
 
 exportData()
   .catch((err) => {

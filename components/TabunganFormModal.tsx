@@ -38,6 +38,7 @@ export default function TabunganFormModal({
     nama: "",
     alamat: "",
     email: "",
+    telepon: "",
     selectedValue: defaultOptionValue,
   });
 
@@ -51,6 +52,7 @@ export default function TabunganFormModal({
         nama: "",
         alamat: "",
         email: "",
+        telepon: "",
         selectedValue: isEmas ? "1" : "1",
       });
       setSubmitted(false);
@@ -71,7 +73,7 @@ export default function TabunganFormModal({
     e.preventDefault();
     setError("");
 
-    if (!formData.nama.trim() || !formData.alamat.trim() || !formData.email.trim()) {
+    if (!formData.nama.trim() || !formData.alamat.trim() || !formData.email.trim() || !formData.telepon.trim()) {
       setError("Data belum lengkap atau tidak valid.");
       return;
     }
@@ -84,6 +86,7 @@ export default function TabunganFormModal({
         nama: formData.nama.trim(),
         alamat: formData.alamat.trim(),
         email: formData.email.trim(),
+        telepon: formData.telepon.trim(),
       };
 
       if (isEmas) {
@@ -120,11 +123,13 @@ export default function TabunganFormModal({
       nama: "",
       alamat: "",
       email: "",
+      telepon: "",
       selectedValue: defaultOptionValue,
     });
     setError("");
     onClose();
   };
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
@@ -233,6 +238,24 @@ export default function TabunganFormModal({
                   className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 outline-none text-sm text-slate-900"
                 />
               </div>
+
+              {/* Telepon / No. WhatsApp */}
+              <div>
+                <label htmlFor="modal-telepon" className="block text-sm font-semibold text-slate-800 mb-1">
+                  Nomor Telepon / WhatsApp <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  id="modal-telepon"
+                  name="telepon"
+                  required
+                  value={formData.telepon}
+                  onChange={handleChange}
+                  placeholder="081234567890"
+                  className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 outline-none text-sm text-slate-900"
+                />
+              </div>
+
 
               {/* Product specific choice: Jangka Waktu OR Berat Emas (Gram) */}
               <div>

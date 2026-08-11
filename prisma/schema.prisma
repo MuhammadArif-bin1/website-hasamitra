@@ -17,6 +17,7 @@ model Registration {
   nama      String
   alamat    String
   email     String
+  telepon   String   @default("")
   pilihan   String
   status    String   @default("Baru")
   createdAt DateTime @default(now())
