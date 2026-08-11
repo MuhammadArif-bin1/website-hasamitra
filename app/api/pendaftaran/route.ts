@@ -94,7 +94,25 @@ async function safeAppendCsv(
       ) {
         await new Promise((res) => setTimeout(res, delayMs * attempt));
       } else {
-        throw err;
+        // Fallback file write if primary file is locked by external app (e.g. Microsoft Excel)
+        try {
+          const fallbackPath = path.join(path.dirname(csvFilePath), "pendaftaran-hasamitra-backup.csv");
+          const fallbackExists = fs.existsSync(fallbackPath);
+          if (!fallbackExists) {
+            fs.writeFileSync(fallbackPath, csvHeader, "utf-8");
+          }
+          const fdBack = fs.openSync(fallbackPath, "a");
+          try {
+            fs.writeSync(fdBack, newRow, null, "utf-8");
+          } finally {
+            fs.closeSync(fdBack);
+          }
+          console.warn(`Primary CSV file locked (EBUSY). Saved registration to backup file: ${fallbackPath}`);
+          return;
+        } catch (backupErr) {
+          console.error("Failed to write to both primary and backup CSV files:", backupErr);
+          throw err;
+        }
       }
     }
   }
