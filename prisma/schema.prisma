@@ -10,6 +10,7 @@ datasource db {
   provider = "postgresql"
 }
 
+// 1. Pendaftaran Produk
 model Registration {
   id        Int      @id @default(autoincrement())
   produk    String
@@ -22,6 +23,7 @@ model Registration {
   updatedAt DateTime @updatedAt
 }
 
+// 2. Pesan & Pengaduan Kontak
 model ContactMessage {
   id        Int      @id @default(autoincrement())
   nama      String
@@ -34,3 +36,75 @@ model ContactMessage {
   updatedAt DateTime @updatedAt
 }
 
+// 3. Produk Bank Hasamitra
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  category    String
+  description String
+  features    String[]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 4. Informasi, Berita & Transparansi
+model Article {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  category    String
+  content     String
+  image       String?
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 5. Kantor & Cabang
+model BranchOffice {
+  id        Int      @id @default(autoincrement())
+  name      String
+  address   String
+  phone     String
+  email     String?
+  isHead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 6. Pengurus & Direksi
+model Management {
+  id        Int      @id @default(autoincrement())
+  name      String
+  position  String
+  category  String
+  photo     String?
+  bio       String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 7. Penghargaan Perusahaan
+model Award {
+  id          Int      @id @default(autoincrement())
+  title       String
+  issuer      String
+  year        Int
+  description String?
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 8. User / Admin
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("Admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
