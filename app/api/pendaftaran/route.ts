@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { isValidEmail } from "@/lib/utils";
 
 interface PendaftaranRequestBody {
   produk?: string;
@@ -9,12 +10,6 @@ interface PendaftaranRequestBody {
   telepon?: string;
   jangka_waktu?: string | number;
   berat_emas_gram?: string | number;
-}
-
-// Function to validate email format
-function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
 }
 
 export async function POST(request: NextRequest) {

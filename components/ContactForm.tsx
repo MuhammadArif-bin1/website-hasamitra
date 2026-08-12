@@ -22,7 +22,6 @@ declare global {
   }
 }
 
-
 export default function ContactForm() {
   const [formData, setFormData] = useState({
     nama: "",
@@ -45,7 +44,7 @@ export default function ContactForm() {
     process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ||
     "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
 
-  const renderRecaptcha = () => {
+  const renderRecaptcha = React.useCallback(() => {
     if (
       typeof window !== "undefined" &&
       window.grecaptcha?.render &&
@@ -70,7 +69,7 @@ export default function ContactForm() {
         console.error("reCAPTCHA render error:", e);
       }
     }
-  };
+  }, [siteKey]);
 
   useEffect(() => {
     window.onRecaptchaLoad = () => {
@@ -80,7 +79,7 @@ export default function ContactForm() {
     if (typeof window !== "undefined" && window.grecaptcha?.render) {
       renderRecaptcha();
     }
-  }, []);
+  }, [renderRecaptcha]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -93,7 +92,6 @@ export default function ContactForm() {
     e.preventDefault();
     setStatusMessage(null);
 
-    // Get recaptcha token from state or grecaptcha instance
     let currentToken = recaptchaToken;
     if (!currentToken && typeof window !== "undefined" && window.grecaptcha?.getResponse) {
       currentToken = window.grecaptcha.getResponse(
@@ -142,7 +140,6 @@ export default function ContactForm() {
           type: "success",
           text: result.message || "Pesan Anda berhasil dikirim.",
         });
-        // Reset form
         setFormData({
           nama: "",
           email: "",
@@ -212,7 +209,7 @@ export default function ContactForm() {
             value={formData.nama}
             onChange={handleChange}
             placeholder="Masukkan nama lengkap Anda"
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-colors text-slate-900 text-sm"
+            className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors text-slate-900 text-sm"
           />
         </div>
 
@@ -229,7 +226,7 @@ export default function ContactForm() {
               value={formData.email}
               onChange={handleChange}
               placeholder="nama@email.com"
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-colors text-slate-900 text-sm"
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors text-slate-900 text-sm"
             />
           </div>
           <div>
@@ -244,7 +241,7 @@ export default function ContactForm() {
               value={formData.telepon}
               onChange={handleChange}
               placeholder="081234567890"
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-colors text-slate-900 text-sm"
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors text-slate-900 text-sm"
             />
           </div>
         </div>
@@ -259,7 +256,7 @@ export default function ContactForm() {
             required
             value={formData.layanan}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-colors text-slate-900 text-sm bg-white"
+            className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors text-slate-900 text-sm bg-white"
           >
             <option value="Pertanyaan">Pertanyaan</option>
             <option value="Pengaduan">Pengaduan</option>
@@ -278,7 +275,7 @@ export default function ContactForm() {
             value={formData.message}
             onChange={handleChange}
             placeholder="Tuliskan pesan, pertanyaan, atau pengaduan Anda secara detail di sini..."
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-colors text-slate-900 text-sm"
+            className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors text-slate-900 text-sm"
           />
         </div>
 
@@ -293,7 +290,7 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 px-6 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full py-3 px-6 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg shadow-md shadow-orange-500/25 hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {loading ? (
             <>

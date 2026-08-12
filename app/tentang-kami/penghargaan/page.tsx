@@ -1,69 +1,51 @@
 import React from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import Link from "next/link";
+import Image from "next/image";
+import TentangKamiTabs from "@/components/tentang-kami/TentangKamiTabs";
+import WhatsAppBanner from "@/components/common/WhatsAppBanner";
+import OjkLpsNotice from "@/components/common/OjkLpsNotice";
 
 export const metadata = {
-  title: "Penghargaan - Bank Hasamitra Jawa Barat",
+  title: "Penghargaan",
   description: "Penghargaan & Prestasi PT BPR Hasamitra Jawa Barat.",
 };
 
 export default function PenghargaanPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-800">
-      <Navbar />
+    <div className="py-12 lg:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        {/* Submenu Tabs Navigation */}
+        <TentangKamiTabs />
 
-      <main className="flex-1 py-12 lg:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          {/* Submenu Tabs Navigation */}
-          <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2 border-b border-slate-200">
-            <Link
-              href="/tentang-kami/profil-perusahaan"
-              className="px-5 py-2.5 rounded-full text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-colors shrink-0"
-            >
-              Profil Perusahaan
-            </Link>
-            <Link
-              href="/tentang-kami/logo-makna"
-              className="px-5 py-2.5 rounded-full text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-colors shrink-0"
-            >
-              Logo & Makna
-            </Link>
-            <Link
-              href="/tentang-kami/pengurus"
-              className="px-5 py-2.5 rounded-full text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-colors shrink-0"
-            >
-              Pengurus
-            </Link>
-            <Link
-              href="/tentang-kami/struktur-organisasi"
-              className="px-5 py-2.5 rounded-full text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-colors shrink-0"
-            >
-              Struktur Organisasi
-            </Link>
-            <Link
-              href="/tentang-kami/penghargaan"
-              className="px-5 py-2.5 rounded-full text-sm font-bold bg-emerald-600 text-white shadow-sm shrink-0"
-            >
-              Penghargaan
-            </Link>
-          </div>
-
-          <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-md text-center space-y-6">
-            <span className="px-3.5 py-1 rounded-full bg-blue-100 text-blue-800 font-bold text-xs uppercase tracking-wider">
-              Tentang Kami
-            </span>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
-              Penghargaan
-            </h1>
-            <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              Silakan lampirkan gambar/materi Penghargaan berikutnya untuk kami implementasikan.
-            </p>
-          </div>
+        {/* Section Banner Header */}
+        <div className="w-full bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 rounded-2xl py-4 shadow-md text-center">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-wide">
+            - Penghargaan -
+          </h1>
         </div>
-      </main>
 
-      <Footer />
+        {/* Piagam & Penghargaan Image Card */}
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-md text-center space-y-6">
+          <div className="relative w-full overflow-hidden rounded-2xl border border-slate-100 shadow-sm">
+            <Image
+              src="/piagam hasamitra.png"
+              alt="Piagam dan Penghargaan PT BPR Hasa Mitra Jawa Barat"
+              width={1200}
+              height={700}
+              className="w-full h-auto object-contain"
+              priority
+            />
+          </div>
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-3xl mx-auto">
+            Berbagai piagam dan penghargaan yang diraih oleh <strong className="text-slate-900">PT BPR Hasa Mitra Jawa Barat</strong> atas kinerja keuangan dan pelayanan terbaik, termasuk penghargaan dari Infobank dan The Finance.
+          </p>
+        </div>
+
+        {/* OJK & LPS Guarantees Notice */}
+        <OjkLpsNotice />
+
+        {/* Bottom WhatsApp CS Banner */}
+        <WhatsAppBanner title="Ada Pertanyaan Seputar Layanan Hasamitra?" />
+      </div>
     </div>
   );
 }

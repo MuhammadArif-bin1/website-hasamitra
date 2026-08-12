@@ -35,8 +35,9 @@ async function exportData() {
 
   try {
     fs.writeFileSync(targetPath, csvContent, "utf-8");
-  } catch (err: any) {
-    if (err && err.code === "EBUSY") {
+  } catch (err: unknown) {
+    const error = err as { code?: string };
+    if (error && error.code === "EBUSY") {
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(11, 19);
       const fallbackFilename = `data_nasabah_pendaftaran_${dateStr}_${timestamp}.csv`;
       targetPath = path.join(process.cwd(), fallbackFilename);

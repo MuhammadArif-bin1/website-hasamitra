@@ -5,20 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import WhatsAppButton from "./WhatsAppButton";
+import { tentangKamiSubmenu } from "@/data/navigation";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isTentangKamiOpen, setIsTentangKamiOpen] = useState(false);
   const [isMobileTentangKamiOpen, setIsMobileTentangKamiOpen] = useState(false);
   const pathname = usePathname();
-
-  const tentangKamiSubmenu = [
-    { name: "Profil Perusahaan", href: "/tentang-kami/profil-perusahaan" },
-    { name: "Logo & Makna", href: "/tentang-kami/logo-makna" },
-    { name: "Pengurus", href: "/tentang-kami/pengurus" },
-    { name: "Struktur Organisasi", href: "/tentang-kami/struktur-organisasi" },
-    { name: "Penghargaan", href: "/tentang-kami/penghargaan" },
-  ];
 
   const isTentangKamiActive = pathname.startsWith("/tentang-kami");
 
@@ -42,10 +35,10 @@ export default function Navbar() {
           <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
             <Link
               href="/"
-              className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
+              className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 pathname === "/"
-                  ? "text-blue-700 bg-blue-50"
-                  : "text-slate-700 hover:text-blue-700 hover:bg-slate-50"
+                  ? "text-orange-600 bg-orange-50"
+                  : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
               }`}
             >
               HASAMITRA
@@ -59,15 +52,15 @@ export default function Navbar() {
             >
               <Link
                 href="/tentang-kami/profil-perusahaan"
-                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
+                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
                   isTentangKamiActive
-                    ? "text-blue-700 bg-blue-50"
-                    : "text-slate-700 hover:text-blue-700 hover:bg-slate-50"
+                    ? "text-orange-600 bg-orange-50"
+                    : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
                 }`}
               >
                 TENTANG KAMI
                 <svg
-                  className={`w-4 h-4 text-emerald-600 transition-transform ${
+                  className={`w-4 h-4 text-orange-500 transition-transform ${
                     isTentangKamiOpen ? "rotate-180" : ""
                   }`}
                   fill="none"
@@ -88,8 +81,8 @@ export default function Navbar() {
                         href={sub.href}
                         className={`block px-4 py-2.5 text-sm font-semibold transition-colors ${
                           pathname === sub.href
-                            ? "text-blue-700 bg-blue-50"
-                            : "text-slate-800 hover:bg-slate-50 hover:text-blue-700"
+                            ? "text-orange-600 bg-orange-50"
+                            : "text-slate-800 hover:bg-orange-50/60 hover:text-orange-600"
                         }`}
                       >
                         {sub.name}
@@ -102,10 +95,10 @@ export default function Navbar() {
 
             <Link
               href="/produk"
-              className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
+              className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 pathname === "/produk"
-                  ? "text-blue-700 bg-blue-50"
-                  : "text-slate-700 hover:text-blue-700 hover:bg-slate-50"
+                  ? "text-orange-600 bg-orange-50"
+                  : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
               }`}
             >
               PRODUK
@@ -113,10 +106,10 @@ export default function Navbar() {
 
             <Link
               href="/informasi"
-              className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
+              className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 pathname === "/informasi"
-                  ? "text-blue-700 bg-blue-50"
-                  : "text-slate-700 hover:text-blue-700 hover:bg-slate-50"
+                  ? "text-orange-600 bg-orange-50"
+                  : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
               }`}
             >
               INFORMASI
@@ -124,10 +117,10 @@ export default function Navbar() {
 
             <Link
               href="/contact"
-              className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
+              className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 pathname === "/contact"
-                  ? "text-blue-700 bg-blue-50"
-                  : "text-slate-700 hover:text-blue-700 hover:bg-slate-50"
+                  ? "text-orange-600 bg-orange-50"
+                  : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
               }`}
             >
               CONTACT
@@ -145,7 +138,7 @@ export default function Navbar() {
             <button
               onClick={() => setIsOpen(!isOpen)}
               type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-slate-700 hover:text-blue-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="inline-flex items-center justify-center p-2 rounded-md text-slate-700 hover:text-orange-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500"
               aria-controls="mobile-menu"
               aria-expanded={isOpen}
             >
@@ -171,7 +164,7 @@ export default function Navbar() {
             <Link
               href="/"
               onClick={() => setIsOpen(false)}
-              className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-blue-50 hover:text-blue-700"
+              className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600"
             >
               HASAMITRA
             </Link>
@@ -180,11 +173,11 @@ export default function Navbar() {
             <div>
               <button
                 onClick={() => setIsMobileTentangKamiOpen(!isMobileTentangKamiOpen)}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-blue-50 hover:text-blue-700"
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600"
               >
                 <span>TENTANG KAMI</span>
                 <svg
-                  className={`w-4 h-4 text-emerald-600 transition-transform ${
+                  className={`w-4 h-4 text-orange-500 transition-transform ${
                     isMobileTentangKamiOpen ? "rotate-180" : ""
                   }`}
                   fill="none"
@@ -204,8 +197,8 @@ export default function Navbar() {
                       onClick={() => setIsOpen(false)}
                       className={`block px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
                         pathname === sub.href
-                          ? "text-blue-700 bg-blue-50"
-                          : "text-slate-700 hover:text-blue-700 hover:bg-slate-50"
+                          ? "text-orange-600 bg-orange-50"
+                          : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
                       }`}
                     >
                       {sub.name}
@@ -218,7 +211,7 @@ export default function Navbar() {
             <Link
               href="/produk"
               onClick={() => setIsOpen(false)}
-              className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-blue-50 hover:text-blue-700"
+              className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600"
             >
               PRODUK
             </Link>
@@ -226,7 +219,7 @@ export default function Navbar() {
             <Link
               href="/informasi"
               onClick={() => setIsOpen(false)}
-              className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-blue-50 hover:text-blue-700"
+              className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600"
             >
               INFORMASI
             </Link>
@@ -234,7 +227,7 @@ export default function Navbar() {
             <Link
               href="/contact"
               onClick={() => setIsOpen(false)}
-              className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-blue-50 hover:text-blue-700"
+              className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600"
             >
               CONTACT
             </Link>

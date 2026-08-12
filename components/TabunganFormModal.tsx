@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 interface TabunganFormModalProps {
   isOpen: boolean;
@@ -14,8 +14,7 @@ export default function TabunganFormModal({
   productName = "New Tabungan Sabar",
 }: TabunganFormModalProps) {
   const isEmas = productName.toLowerCase().includes("emas");
-  
-  // Define options and default selections
+
   const options = isEmas
     ? [
         { label: "1 Gram", value: "1" },
@@ -32,7 +31,7 @@ export default function TabunganFormModal({
         { label: "12 Bulan", value: "12" },
       ];
 
-  const defaultOptionValue = isEmas ? "1" : "1";
+  const defaultOptionValue = "1";
 
   const [formData, setFormData] = useState({
     nama: "",
@@ -45,20 +44,6 @@ export default function TabunganFormModal({
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (isOpen) {
-      setFormData({
-        nama: "",
-        alamat: "",
-        email: "",
-        telepon: "",
-        selectedValue: isEmas ? "1" : "1",
-      });
-      setSubmitted(false);
-      setError("");
-    }
-  }, [isOpen, isEmas]);
 
   if (!isOpen) return null;
 
@@ -130,7 +115,6 @@ export default function TabunganFormModal({
     onClose();
   };
 
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
       <div
@@ -138,16 +122,16 @@ export default function TabunganFormModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="bg-emerald-600 text-white p-6 flex items-center justify-between">
+        <div className="bg-orange-500 text-white p-6 flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-100 block">
+            <span className="text-xs font-semibold uppercase tracking-wider text-orange-100 block">
               Form Pendaftaran Produk
             </span>
             <h3 className="text-xl font-bold">{productName}</h3>
           </div>
           <button
             onClick={handleResetAndClose}
-            className="w-8 h-8 rounded-full bg-emerald-700/50 hover:bg-emerald-800 text-white flex items-center justify-center transition-colors focus:outline-none"
+            className="w-8 h-8 rounded-full bg-orange-600/50 hover:bg-orange-700 text-white flex items-center justify-center transition-colors focus:outline-none"
             aria-label="Tutup modal"
           >
             ✕
@@ -158,7 +142,7 @@ export default function TabunganFormModal({
         <div className="p-6 sm:p-8">
           {submitted ? (
             <div className="text-center py-6 space-y-6">
-              <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
+              <div className="w-16 h-16 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mx-auto shadow-inner">
                 <svg className="w-9 h-9 fill-current" viewBox="0 0 24 24">
                   <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                 </svg>
@@ -174,7 +158,7 @@ export default function TabunganFormModal({
                 <button
                   type="button"
                   onClick={handleResetAndClose}
-                  className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-md transition-all"
+                  className="w-full py-3 px-4 bg-orange-500 hover:bg-orange-600 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-md transition-all"
                 >
                   Tutup
                 </button>
@@ -201,7 +185,7 @@ export default function TabunganFormModal({
                   value={formData.nama}
                   onChange={handleChange}
                   placeholder="Masukkan nama lengkap Anda"
-                  className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 outline-none text-sm text-slate-900"
+                  className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm text-slate-900"
                 />
               </div>
 
@@ -218,7 +202,7 @@ export default function TabunganFormModal({
                   value={formData.alamat}
                   onChange={handleChange}
                   placeholder="Masukkan alamat domisili Anda"
-                  className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 outline-none text-sm text-slate-900"
+                  className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm text-slate-900"
                 />
               </div>
 
@@ -235,7 +219,7 @@ export default function TabunganFormModal({
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="nama@email.com"
-                  className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 outline-none text-sm text-slate-900"
+                  className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm text-slate-900"
                 />
               </div>
 
@@ -252,12 +236,11 @@ export default function TabunganFormModal({
                   value={formData.telepon}
                   onChange={handleChange}
                   placeholder="081234567890"
-                  className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 outline-none text-sm text-slate-900"
+                  className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm text-slate-900"
                 />
               </div>
 
-
-              {/* Product specific choice: Jangka Waktu OR Berat Emas (Gram) */}
+              {/* Product specific choice */}
               <div>
                 <label className="block text-sm font-semibold text-slate-800 mb-2">
                   {isEmas ? "Berat Emas (Gram)" : "Jangka Waktu"}{" "}
@@ -273,7 +256,7 @@ export default function TabunganFormModal({
                       key={opt.value}
                       className={`flex items-center justify-center p-2.5 rounded-lg border text-xs font-bold cursor-pointer transition-all ${
                         formData.selectedValue === opt.value
-                          ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                          ? "bg-orange-500 text-white border-orange-500 shadow-sm"
                           : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                       }`}
                     >
@@ -303,7 +286,7 @@ export default function TabunganFormModal({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold shadow-md hover:shadow-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold shadow-md shadow-orange-500/20 transition-colors flex items-center gap-2 disabled:opacity-50"
                 >
                   {loading ? "Mengirim..." : "Kirim Pendaftaran"}
                 </button>

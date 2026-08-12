@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-
+import { isValidEmail, sanitizeInput } from "@/lib/utils";
 
 interface ContactRequestBody {
   nama?: string;
@@ -9,23 +9,6 @@ interface ContactRequestBody {
   layanan?: string;
   message?: string;
   recaptchaToken?: string;
-}
-
-// Function to validate email format
-function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
-// Function to sanitize basic HTML string inputs to prevent XSS
-function sanitizeInput(str: string): string {
-  return str
-    .trim()
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
 }
 
 // Function to verify Google reCAPTCHA token with secret key
