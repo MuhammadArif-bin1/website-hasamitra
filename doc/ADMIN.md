@@ -22,7 +22,7 @@ Panduan lengkap penggunaan dan keamanan Admin Panel website Hasamitra Jawa Barat
 | Login | `/admin/login` | Halaman login admin |
 | Dashboard | `/admin` | Ringkasan statistik (pendaftaran, pesan, produk) |
 | Kelola Produk | `/admin/produk` | CRUD produk yang tampil di landing page |
-| Pendaftaran | `/admin/pendaftaran` | *(segera)* Kelola data pendaftaran nasabah |
+| Pendaftaran | `/admin/pendaftaran` | Kelola data pendaftaran nasabah, ubah status (Baru/Diproses/Selesai), WhatsApp direct link, dan Scrap Data CSV |
 | Pesan | `/admin/pesan` | *(segera)* Kelola pesan & pengaduan |
 | Pengaturan | `/admin/pengaturan` | *(segera)* Edit profil perusahaan, visi/misi, kontak |
 
