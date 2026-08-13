@@ -53,57 +53,50 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: "Data belum lengkap atau tidak valid.",
+          message: "Format email tidak valid.",
         },
         { status: 400 }
       );
     }
 
-    const validProducts = ["New Tabungan Sabar", "Deposito Si Deka", "Cicil Emas"];
-    if (!validProducts.includes(cleanProduk)) {
+    // 3. Dynamic Product Validation from Database
+    const dbProducts = await prisma.product.findMany({
+      where: { isActive: true },
+      select: { name: true },
+    });
+
+    const validProducts = dbProducts.map((p) => p.name.trim().toLowerCase());
+    // Fallback default list if database table is empty during initial setup
+    const defaultValid = ["new tabungan sabar", "deposito si deka", "cicil emas"];
+
+    const isProductValid =
+      validProducts.length > 0
+        ? validProducts.includes(cleanProduk.toLowerCase())
+        : defaultValid.includes(cleanProduk.toLowerCase());
+
+    if (!isProductValid) {
       return NextResponse.json(
         {
           success: false,
-          message: "Data belum lengkap atau tidak valid.",
+          message: "Produk yang dipilih tidak ditemukan atau sudah tidak aktif.",
         },
         { status: 400 }
       );
     }
 
+    // 4. Determine final choice label (Jangka Waktu / Berat Emas)
     let finalPilihan = "";
+    const isEmas = cleanProduk.toLowerCase().includes("emas");
 
-    // 3. Product-specific validations
-    if (cleanProduk === "New Tabungan Sabar" || cleanProduk === "Deposito Si Deka") {
-      const allowedJangkaWaktu = ["1", "3", "6", "12"];
-      const jkWaktuStr = String(jangka_waktu ?? "").trim();
-
-      if (!allowedJangkaWaktu.includes(jkWaktuStr)) {
-        return NextResponse.json(
-          {
-            success: false,
-            message: "Data belum lengkap atau tidak valid.",
-          },
-          { status: 400 }
-        );
-      }
-      finalPilihan = `${jkWaktuStr} Bulan`;
-    } else if (cleanProduk === "Cicil Emas") {
-      const allowedBeratEmas = ["1", "2", "5", "10", "25", "50"];
+    if (isEmas) {
       const beratStr = String(berat_emas_gram ?? "").trim();
-
-      if (!allowedBeratEmas.includes(beratStr)) {
-        return NextResponse.json(
-          {
-            success: false,
-            message: "Data belum lengkap atau tidak valid.",
-          },
-          { status: 400 }
-        );
-      }
-      finalPilihan = `${beratStr} Gram`;
+      finalPilihan = beratStr ? `${beratStr} Gram` : "Standard";
+    } else {
+      const jkWaktuStr = String(jangka_waktu ?? "").trim();
+      finalPilihan = jkWaktuStr ? `${jkWaktuStr} Bulan` : "Standard";
     }
 
-    // 4. Save to PostgreSQL database via Prisma
+    // 5. Save registration record to PostgreSQL database via Prisma
     const newReg = await prisma.registration.create({
       data: {
         produk: cleanProduk,
@@ -115,7 +108,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // 5. Otomatis bertambah ke file CSV lokal secara real-time
+    // 6. Otomatis bertambah ke file CSV lokal secara real-time
     try {
       const fs = await import("node:fs");
       const path = await import("node:path");
@@ -123,8 +116,8 @@ export async function POST(request: NextRequest) {
       const csvPath = path.join(process.cwd(), "data", "pendaftaran", "pendaftaran-hasamitra.csv");
       const regId = `REG-${String(newReg.id).padStart(4, "0")}`;
       const dateStr = newReg.createdAt.toISOString().split("T")[0];
-      const jkWaktu = cleanProduk !== "Cicil Emas" ? String(jangka_waktu ?? "") : "";
-      const beratEmas = cleanProduk === "Cicil Emas" ? String(berat_emas_gram ?? "") : "";
+      const jkWaktu = !isEmas ? String(jangka_waktu ?? "") : "";
+      const beratEmas = isEmas ? String(berat_emas_gram ?? "") : "";
 
       const csvLine = `${regId},${dateStr},"${cleanProduk.replace(/"/g, '""')}","${cleanNama.replace(/"/g, '""')}","${cleanAlamat.replace(/"/g, '""')}","${cleanEmail.replace(/"/g, '""')}",${jkWaktu},${beratEmas}\n`;
 
