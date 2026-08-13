@@ -1,5 +1,4 @@
 import React from "react";
-import InformasiTabs from "@/components/informasi/InformasiTabs";
 import OjkLpsNotice from "@/components/common/OjkLpsNotice";
 
 export const metadata = {
@@ -11,8 +10,7 @@ export default function LaporanGcgPage() {
   return (
     <div className="py-12 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-        {/* Submenu Tabs Navigation */}
-        <InformasiTabs />
+
 
         {/* Section Banner Header */}
         <div className="w-full bg-gradient-to-r from-[#59C173] via-[#FBC02D] to-[#E57A44] rounded-2xl py-4 shadow-md text-center">

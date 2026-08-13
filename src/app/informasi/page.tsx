@@ -1,6 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import InformasiTabs from "@/components/informasi/InformasiTabs";
 import WhatsAppBanner from "@/components/common/WhatsAppBanner";
 import OjkLpsNotice from "@/components/common/OjkLpsNotice";
 
@@ -58,8 +57,7 @@ export default function InformasiPage() {
   return (
     <div className="py-12 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Submenu Tabs Navigation */}
-        <InformasiTabs />
+
 
         {/* Header Section */}
         <div className="w-full bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 rounded-2xl py-6 shadow-md text-center text-white space-y-2">
