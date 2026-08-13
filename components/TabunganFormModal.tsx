@@ -172,6 +172,22 @@ export default function TabunganFormModal({
                 </div>
               )}
 
+              {isEmas && (
+                <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+                  <span className="text-amber-900 font-medium text-center sm:text-left">
+                    Tersedia Google Form Resmi pendaftaran Cicil Emas.
+                  </span>
+                  <a
+                    href="https://docs.google.com/forms/d/e/1FAIpQLSdYUYQqVCdL-ivWTeEycZdvIo_a1ruNXPsGgVaL_droYCPCFQ/viewform"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shrink-0 transition-colors inline-flex items-center gap-1 shadow-sm"
+                  >
+                    Buka Google Form ↗
+                  </a>
+                </div>
+              )}
+
               {/* Nama */}
               <div>
                 <label htmlFor="modal-nama" className="block text-sm font-semibold text-slate-800 mb-1">
@@ -272,6 +288,21 @@ export default function TabunganFormModal({
                     </label>
                   ))}
                 </div>
+              </div>
+
+              {/* Download Form Permohonan Kredit Link */}
+              <div className="p-3.5 bg-orange-50/80 border border-orange-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+                <span className="text-slate-700 font-medium text-center sm:text-left">
+                  Membutuhkan berkas cetak Form Permohonan Kredit (PDF)?
+                </span>
+                <a
+                  href="https://hasamitrajabar.com/wp-content/uploads/2021/05/Permohonan-Kredit.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-orange-600 font-bold hover:underline inline-flex items-center gap-1 shrink-0"
+                >
+                  Unduh Form Kredit (PDF) ↗
+                </a>
               </div>
 
               {/* Action Buttons */}
