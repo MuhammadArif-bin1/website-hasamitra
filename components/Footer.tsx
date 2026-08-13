@@ -76,13 +76,8 @@ export default function Footer() {
               Layanan WhatsApp
             </h3>
             <div className="bg-slate-800/80 p-4 rounded-xl border border-slate-700 space-y-3">
-              <div>
-                <span className="text-xs text-slate-400 block">WhatsApp Resmi</span>
-                <span className="text-white font-bold text-base tracking-wide">
-                  {contactData.whatsapp}
-                </span>
-              </div>
-              <WhatsAppButton text="WhatsApp" variant="primary" className="w-full" />
+              <span className="text-xs text-slate-400 block">WhatsApp Resmi</span>
+              <WhatsAppButton text="Hubungi via WhatsApp" variant="primary" className="w-full" />
             </div>
 
             {/* Social Media */}
@@ -137,7 +132,7 @@ export default function Footer() {
             </Link>
             <span>•</span>
             <a href={`https://wa.me/${contactData.whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors">
-              WhatsApp ({contactData.whatsapp})
+              WhatsApp
             </a>
           </div>
         </div>

@@ -1,7 +1,6 @@
 import React from "react";
 import Link from "next/link";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import { contactData } from "@/data/contact";
 
 export default function Home() {
   return (
@@ -10,43 +9,25 @@ export default function Home() {
       <section id="hasamitra" className="relative bg-gradient-to-br from-slate-900 via-slate-900 to-orange-950/70 text-white py-20 lg:py-28 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-600/20 via-transparent to-transparent"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/20 border border-orange-400/30 text-orange-300 font-semibold text-xs uppercase tracking-wider">
-                <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse"></span>
-                Mitra Keuangan Terpercaya Jawa Barat
-              </span>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
-                PT BPR Hasamitra <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-orange-200">Jawa Barat</span>
-              </h1>
-              <p className="text-lg text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                PT BPR Hasamitra Jawa Barat berizin dan diawasi oleh OJK serta merupakan peserta penjaminan LPS, memberikan pelayanan keuangan profesional, transparan, dan terpercaya.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-                <Link
-                  href="/contact"
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-base shadow-lg shadow-orange-500/25 hover:shadow-xl transition-all text-center"
-                >
-                  Hubungi Kami
-                </Link>
-                <WhatsAppButton variant="primary" text="Hubungi Kami via WhatsApp" />
-              </div>
-            </div>
-            <div className="lg:col-span-5 flex justify-center">
-              <div className="relative w-full max-w-md bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700/80 rounded-3xl p-8 shadow-2xl space-y-6">
-                <div className="flex items-center justify-between border-b border-slate-700/60 pb-4">
-                  <span className="text-xs uppercase font-bold tracking-widest text-slate-400">Hubungi Langsung</span>
-                  <span className="px-2.5 py-1 rounded bg-orange-500/20 text-orange-300 font-bold text-xs">Resmi</span>
-                </div>
-                <div className="space-y-4 text-center">
-                  <p className="text-sm text-slate-300">Butuh bantuan atau informasi layanan perbankan?</p>
-                  <div className="py-3 px-4 bg-slate-950/60 rounded-2xl border border-slate-700/50">
-                    <span className="text-xs text-slate-400 block">WhatsApp Customer Service</span>
-                    <span className="text-xl font-bold text-white tracking-wider">{contactData.whatsapp}</span>
-                  </div>
-                  <WhatsAppButton variant="primary" className="w-full justify-center" text="Hubungi Kami via WhatsApp" />
-                </div>
-              </div>
+          <div className="max-w-3xl mx-auto space-y-6 text-center">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/20 border border-orange-400/30 text-orange-300 font-semibold text-xs uppercase tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse"></span>
+              Mitra Keuangan Terpercaya Jawa Barat
+            </span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+              PT BPR Hasamitra <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-orange-200">Jawa Barat</span>
+            </h1>
+            <p className="text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
+              PT BPR Hasamitra Jawa Barat berizin dan diawasi oleh OJK serta merupakan peserta penjaminan LPS, memberikan pelayanan keuangan profesional, transparan, dan terpercaya.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+              <Link
+                href="/contact"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-base shadow-lg shadow-orange-500/25 hover:shadow-xl transition-all text-center"
+              >
+                Hubungi Kami
+              </Link>
+              <WhatsAppButton variant="primary" text="Hubungi Kami via WhatsApp" />
             </div>
           </div>
         </div>

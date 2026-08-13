@@ -93,7 +93,7 @@ export default function ProfilPerusahaanPage() {
           <div className="pt-4">
             <div className="rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-lg">
               <Image
-                src="/foto seluruh karyawan.png"
+                src="foto asosiasi.jpg"
                 alt="Foto Seluruh Karyawan PT BPR Hasamitra Jawa Barat - Sosialisasi RBB 2024"
                 width={1200}
                 height={700}
