@@ -40,11 +40,14 @@ model ContactMessage {
 // 3. Produk Bank Hasamitra
 model Product {
   id          Int      @id @default(autoincrement())
+  slug        String   @unique
   name        String
-  category    String
-  description String
+  category    String   @default("produk")
+  description String   @default("")
   features    String[]
+  buttonText  String   @default("Isi datamu sekarang")
   isActive    Boolean  @default(true)
+  order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

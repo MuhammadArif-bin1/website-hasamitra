@@ -1088,11 +1088,14 @@ export type ContactMessageScalarFieldEnum = (typeof ContactMessageScalarFieldEnu
 
 export const ProductScalarFieldEnum = {
   id: 'id',
+  slug: 'slug',
   name: 'name',
   category: 'category',
   description: 'description',
   features: 'features',
+  buttonText: 'buttonText',
   isActive: 'isActive',
+  order: 'order',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
