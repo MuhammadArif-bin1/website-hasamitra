@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import WhatsAppButton from "./WhatsAppButton";
+import WhatsAppButton from "@/components/common/WhatsAppButton";
 import { tentangKamiSubmenu, informasiSubmenu } from "@/data/navigation";
 
 export default function Navbar() {

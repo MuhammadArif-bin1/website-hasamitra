@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { contactData } from "@/data/contact";
 import { footerNavigation } from "@/data/navigation";
-import WhatsAppButton from "./WhatsAppButton";
+import WhatsAppButton from "@/components/common/WhatsAppButton";
 
 export default function Footer() {
   return (
