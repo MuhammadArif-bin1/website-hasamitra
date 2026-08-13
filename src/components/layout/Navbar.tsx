@@ -5,14 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import WhatsAppButton from "@/components/common/WhatsAppButton";
-import { tentangKamiSubmenu, informasiSubmenu } from "@/data/navigation";
+import { tentangKamiSubmenu } from "@/data/navigation";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isTentangKamiOpen, setIsTentangKamiOpen] = useState(false);
   const [isMobileTentangKamiOpen, setIsMobileTentangKamiOpen] = useState(false);
-  const [isInformasiOpen, setIsInformasiOpen] = useState(false);
-  const [isMobileInformasiOpen, setIsMobileInformasiOpen] = useState(false);
   const pathname = usePathname();
 
   const isTentangKamiActive = pathname.startsWith("/tentang-kami");
@@ -107,54 +105,16 @@ export default function Navbar() {
               PRODUK
             </Link>
 
-            {/* Dropdown Informasi */}
-            <div
-              className="relative"
-              onMouseEnter={() => setIsInformasiOpen(true)}
-              onMouseLeave={() => setIsInformasiOpen(false)}
+            <Link
+              href="/informasi"
+              className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                isInformasiActive
+                  ? "text-orange-600 bg-orange-50"
+                  : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
+              }`}
             >
-              <Link
-                href="/informasi"
-                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                  isInformasiActive
-                    ? "text-orange-600 bg-orange-50"
-                    : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
-                }`}
-              >
-                INFORMASI
-                <svg
-                  className={`w-4 h-4 text-orange-500 transition-transform ${
-                    isInformasiOpen ? "rotate-180" : ""
-                  }`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                </svg>
-              </Link>
-
-              {/* Dropdown Menu Informasi */}
-              {isInformasiOpen && (
-                <div className="absolute top-full left-0 w-60 pt-2 z-50">
-                  <div className="bg-white rounded-xl shadow-xl border border-slate-100 py-2 animate-fade-in">
-                    {informasiSubmenu.map((sub) => (
-                      <Link
-                        key={sub.name}
-                        href={sub.href}
-                        className={`block px-4 py-2.5 text-sm font-semibold transition-colors ${
-                          pathname === sub.href
-                            ? "text-orange-600 bg-orange-50"
-                            : "text-slate-800 hover:bg-orange-50/60 hover:text-orange-600"
-                        }`}
-                      >
-                        {sub.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+              INFORMASI
+            </Link>
 
             <Link
               href="/contact"
@@ -257,44 +217,13 @@ export default function Navbar() {
               PRODUK
             </Link>
 
-            {/* Mobile Submenu Informasi */}
-            <div>
-              <button
-                onClick={() => setIsMobileInformasiOpen(!isMobileInformasiOpen)}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600"
-              >
-                <span>INFORMASI</span>
-                <svg
-                  className={`w-4 h-4 text-orange-500 transition-transform ${
-                    isMobileInformasiOpen ? "rotate-180" : ""
-                  }`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              {isMobileInformasiOpen && (
-                <div className="pl-6 space-y-1 mt-1 border-l-2 border-slate-200">
-                  {informasiSubmenu.map((sub) => (
-                    <Link
-                      key={sub.name}
-                      href={sub.href}
-                      onClick={() => setIsOpen(false)}
-                      className={`block px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                        pathname === sub.href
-                          ? "text-orange-600 bg-orange-50"
-                          : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      {sub.name}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
+            <Link
+              href="/informasi"
+              onClick={() => setIsOpen(false)}
+              className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600"
+            >
+              INFORMASI
+            </Link>
 
             <Link
               href="/contact"

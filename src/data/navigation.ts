@@ -32,11 +32,7 @@ export const mainNavigation: NavItemWithSubmenu[] = [
     submenu: tentangKamiSubmenu,
   },
   { name: "PRODUK", href: "/produk" },
-  {
-    name: "INFORMASI",
-    href: "/informasi/karir",
-    submenu: informasiSubmenu,
-  },
+  { name: "INFORMASI", href: "/informasi" },
   { name: "CONTACT", href: "/contact" },
 ];
 
