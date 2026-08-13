@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { prisma } from "../lib/db";
+import { prisma } from "../src/lib/db";
 
 async function clearRegistrations() {
   console.log("🗑️ Menghapus seluruh data pendaftaran di tabel Registration...");

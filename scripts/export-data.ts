@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { prisma } from "../lib/db";
+import { prisma } from "../src/lib/db";
 import fs from "node:fs";
 import path from "node:path";
 
