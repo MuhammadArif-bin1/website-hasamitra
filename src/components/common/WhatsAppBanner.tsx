@@ -16,7 +16,7 @@ export default function WhatsAppBanner({
         <h3 className="text-xl sm:text-2xl font-bold">{title}</h3>
         <p className="text-sm text-orange-100">{subtitle}</p>
       </div>
-      <WhatsAppButton variant="primary" text="Hubungi via WhatsApp" className="shrink-0" />
+      <WhatsAppButton variant="primary" text="HUBUNGI CS" className="shrink-0 font-bold tracking-wide" />
     </div>
   );
 }

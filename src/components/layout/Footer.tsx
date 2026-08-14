@@ -87,7 +87,7 @@ export default function Footer() {
             </h3>
             <div className="bg-slate-800/80 p-4 rounded-xl border border-slate-700 space-y-3">
               <span className="text-xs text-slate-400 block">WhatsApp Resmi</span>
-              <WhatsAppButton text="Hubungi via WhatsApp" variant="primary" className="w-full" />
+              <WhatsAppButton text="HUBUNGI CS" variant="primary" className="w-full font-bold tracking-wide" />
             </div>
 
             {/* Social Media */}
