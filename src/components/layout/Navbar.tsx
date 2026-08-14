@@ -5,14 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import WhatsAppButton from "@/components/common/WhatsAppButton";
-import { hasamitraSubmenu, informasiSubmenu } from "@/data/navigation";
+import { hasamitraSubmenu } from "@/data/navigation";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isHasamitraOpen, setIsHasamitraOpen] = useState(false);
   const [isMobileHasamitraOpen, setIsMobileHasamitraOpen] = useState(false);
-  const [isInformasiOpen, setIsInformasiOpen] = useState(false);
-  const [isMobileInformasiOpen, setIsMobileInformasiOpen] = useState(false);
   const pathname = usePathname();
 
   // Sembunyikan navbar publik di semua halaman admin
@@ -23,8 +21,7 @@ export default function Navbar() {
   const isHasamitraActive =
     pathname === "/" ||
     pathname.startsWith("/tentang-kami/penghargaan") ||
-    pathname === "/penghargaan";
-  const isInformasiActive = pathname.startsWith("/informasi");
+    pathname.startsWith("/penghargaan");
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
@@ -43,8 +40,8 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
-            {/* Dropdown HASAMITRA (Beranda & Penghargaan) */}
+          <nav className="hidden md:flex items-center space-x-2 lg:space-x-3">
+            {/* Dropdown HASAMITRA (Beranda & Piagam / Penghargaan) */}
             <div
               className="relative"
               onMouseEnter={() => setIsHasamitraOpen(true)}
@@ -52,7 +49,7 @@ export default function Navbar() {
             >
               <Link
                 href="/"
-                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
                   isHasamitraActive
                     ? "text-orange-600 bg-orange-50"
                     : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
@@ -73,8 +70,8 @@ export default function Navbar() {
 
               {/* Dropdown Menu Hasamitra */}
               {isHasamitraOpen && (
-                <div className="absolute top-full left-0 w-52 pt-2 z-50">
-                  <div className="bg-white rounded-xl shadow-xl border border-slate-100 py-2 animate-fade-in">
+                <div className="absolute top-full left-0 w-60 pt-2 z-50">
+                  <div className="bg-white rounded-xl shadow-xl border border-slate-100 py-2 animate-fade-in divide-y divide-slate-50">
                     <Link
                       href="/"
                       className={`block px-4 py-2.5 text-sm font-semibold transition-colors ${
@@ -89,13 +86,16 @@ export default function Navbar() {
                       <Link
                         key={sub.name}
                         href={sub.href}
-                        className={`block px-4 py-2.5 text-sm font-semibold transition-colors ${
-                          pathname === sub.href
+                        className={`flex items-center justify-between px-4 py-2.5 text-sm font-semibold transition-colors ${
+                          pathname === sub.href || pathname.startsWith("/tentang-kami/penghargaan")
                             ? "text-orange-600 bg-orange-50"
                             : "text-slate-800 hover:bg-orange-50/60 hover:text-orange-600"
                         }`}
                       >
-                        {sub.name}
+                        <span>{sub.name}</span>
+                        <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">
+                          Piagam
+                        </span>
                       </Link>
                     ))}
                   </div>
@@ -103,75 +103,16 @@ export default function Navbar() {
               )}
             </div>
 
+            {/* Produk */}
             <Link
               href="/produk"
-              className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 pathname === "/produk"
                   ? "text-orange-600 bg-orange-50"
                   : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
               }`}
             >
               PRODUK
-            </Link>
-
-            {/* Dropdown Informasi */}
-            <div
-              className="relative"
-              onMouseEnter={() => setIsInformasiOpen(true)}
-              onMouseLeave={() => setIsInformasiOpen(false)}
-            >
-              <Link
-                href="/informasi"
-                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                  isInformasiActive
-                    ? "text-orange-600 bg-orange-50"
-                    : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
-                }`}
-              >
-                INFORMASI
-                <svg
-                  className={`w-4 h-4 text-orange-500 transition-transform ${
-                    isInformasiOpen ? "rotate-180" : ""
-                  }`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                </svg>
-              </Link>
-
-              {/* Dropdown Menu Informasi */}
-              {isInformasiOpen && (
-                <div className="absolute top-full left-0 w-60 pt-2 z-50">
-                  <div className="bg-white rounded-xl shadow-xl border border-slate-100 py-2 animate-fade-in">
-                    {informasiSubmenu.map((sub) => (
-                      <Link
-                        key={sub.name}
-                        href={sub.href}
-                        className={`block px-4 py-2.5 text-sm font-semibold transition-colors ${
-                          pathname === sub.href
-                            ? "text-orange-600 bg-orange-50"
-                            : "text-slate-800 hover:bg-orange-50/60 hover:text-orange-600"
-                        }`}
-                      >
-                        {sub.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <Link
-              href="/contact"
-              className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                pathname === "/contact"
-                  ? "text-orange-600 bg-orange-50"
-                  : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
-              }`}
-            >
-              CONTACT
             </Link>
           </nav>
 
@@ -247,7 +188,7 @@ export default function Navbar() {
                       href={sub.href}
                       onClick={() => setIsOpen(false)}
                       className={`block px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                        pathname === sub.href
+                        pathname === sub.href || pathname.startsWith("/tentang-kami/penghargaan")
                           ? "text-orange-600 bg-orange-50"
                           : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
                       }`}
@@ -259,59 +200,13 @@ export default function Navbar() {
               )}
             </div>
 
+            {/* Mobile Produk */}
             <Link
               href="/produk"
               onClick={() => setIsOpen(false)}
               className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600"
             >
               PRODUK
-            </Link>
-
-            {/* Mobile Submenu Informasi */}
-            <div>
-              <button
-                onClick={() => setIsMobileInformasiOpen(!isMobileInformasiOpen)}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600 cursor-pointer"
-              >
-                <span>INFORMASI</span>
-                <svg
-                  className={`w-4 h-4 text-orange-500 transition-transform ${
-                    isMobileInformasiOpen ? "rotate-180" : ""
-                  }`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              {isMobileInformasiOpen && (
-                <div className="pl-6 space-y-1 mt-1 border-l-2 border-slate-200">
-                  {informasiSubmenu.map((sub) => (
-                    <Link
-                      key={sub.name}
-                      href={sub.href}
-                      onClick={() => setIsOpen(false)}
-                      className={`block px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                        pathname === sub.href
-                          ? "text-orange-600 bg-orange-50"
-                          : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      {sub.name}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <Link
-              href="/contact"
-              onClick={() => setIsOpen(false)}
-              className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600"
-            >
-              CONTACT
             </Link>
           </div>
         </div>
