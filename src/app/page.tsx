@@ -68,7 +68,10 @@ export default function Home() {
   useEffect(() => {
     async function loadProducts() {
       try {
-        const res = await fetch("/api/produk");
+        const res = await fetch("/api/produk", {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" },
+        });
         const json = await res.json();
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {
           setProducts(json.data);
@@ -81,6 +84,39 @@ export default function Home() {
     }
 
     loadProducts();
+
+    // 1. Polling check every 6 seconds
+    const interval = setInterval(loadProducts, 6000);
+
+    // 2. BroadcastChannel trigger when admin updates product in real time
+    let bc: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+        bc = new BroadcastChannel("hasamitra_sync_channel");
+        bc.onmessage = (event) => {
+          if (event.data?.type === "PRODUCTS_UPDATED") {
+            loadProducts();
+          }
+        };
+      }
+    } catch {}
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "hasamitra_last_product_update") {
+        loadProducts();
+      }
+    };
+    const handleFocus = () => loadProducts();
+
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      if (bc) bc.close();
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("focus", handleFocus);
+    };
   }, []);
 
   const openProductForm = (productName: string) => {

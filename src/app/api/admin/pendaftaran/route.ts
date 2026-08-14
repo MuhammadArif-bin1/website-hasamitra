@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getAdmin } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 // GET: Fetch list of registrations with search and status filters
 export async function GET(request: NextRequest) {
   try {
@@ -46,16 +48,23 @@ export async function GET(request: NextRequest) {
       prisma.registration.count({ where: { status: "Selesai" } }),
     ]);
 
-    return NextResponse.json({
-      success: true,
-      data: registrations,
-      stats: {
-        total,
-        baru: countBaru,
-        diproses: countDiproses,
-        selesai: countSelesai,
+    return NextResponse.json(
+      {
+        success: true,
+        data: registrations,
+        stats: {
+          total,
+          baru: countBaru,
+          diproses: countDiproses,
+          selesai: countSelesai,
+        },
       },
-    });
+      {
+        headers: {
+          "Cache-Control": "no-store, max-age=0, must-revalidate",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error fetching registrations:", error);
     return NextResponse.json(

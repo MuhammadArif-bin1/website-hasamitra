@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getAdmin } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 // GET: List all products
 export async function GET() {
   try {
@@ -14,7 +16,14 @@ export async function GET() {
       orderBy: { order: "asc" },
     });
 
-    return NextResponse.json({ success: true, data: products });
+    return NextResponse.json(
+      { success: true, data: products },
+      {
+        headers: {
+          "Cache-Control": "no-store, max-age=0, must-revalidate",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error fetching products:", error);
     return NextResponse.json(
@@ -64,7 +73,15 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true, data: product }, { status: 201 });
+    return NextResponse.json(
+      { success: true, data: product },
+      {
+        status: 201,
+        headers: {
+          "Cache-Control": "no-store, max-age=0",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error creating product:", error);
     return NextResponse.json(

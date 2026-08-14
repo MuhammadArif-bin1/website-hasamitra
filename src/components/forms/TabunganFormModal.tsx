@@ -94,6 +94,18 @@ export default function TabunganFormModal({
 
       if (res.ok && resData.success) {
         setSubmitted(true);
+
+        // Real-time broadcast sync across tabs / admin panel
+        try {
+          if (typeof window !== "undefined") {
+            const bc = new BroadcastChannel("hasamitra_sync_channel");
+            bc.postMessage({ type: "NEW_REGISTRATION", timestamp: Date.now() });
+            bc.close();
+            localStorage.setItem("hasamitra_last_registration", String(Date.now()));
+          }
+        } catch {
+          // Fallback if BroadcastChannel not available
+        }
       } else {
         setError(resData.message || "Gagal mengirim pendaftaran. Silakan periksa kembali data Anda.");
       }
@@ -155,7 +167,7 @@ export default function TabunganFormModal({
                   Pendaftaran Berhasil Dikirim!
                 </h4>
                 <p className="text-xs sm:text-sm text-slate-600">
-                  Terima kasih, tim Customer Service Bank Hasamitra akan segera menghubungi Anda untuk konfirmasi proses selanjutnya.
+                  Terima kasih, data Anda telah tersimpan secara otomatis dan tim Customer Service Bank Hasamitra akan segera menghubungi Anda.
                 </p>
               </div>
 

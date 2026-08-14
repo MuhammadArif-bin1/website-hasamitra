@@ -1,25 +1,93 @@
-import React from "react";
-import { prisma } from "@/lib/db";
+"use client";
+
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
+interface RecentRegistration {
+  id: number;
+  nama: string;
+  produk: string;
+  telepon: string;
+  status: string;
+  createdAt: string;
+}
 
-export default async function AdminDashboard() {
-  const [totalRegistrations, totalProducts, totalArticles] = await Promise.all([
-    prisma.registration.count(),
-    prisma.product.count(),
-    prisma.article.count(),
-  ]);
+interface DashboardData {
+  totalRegistrations: number;
+  totalProducts: number;
+  totalArticles: number;
+  recentRegistrations: RecentRegistration[];
+}
 
-  const recentRegistrations = await prisma.registration.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 6,
+export default function AdminDashboard() {
+  const [data, setData] = useState<DashboardData>({
+    totalRegistrations: 0,
+    totalProducts: 0,
+    totalArticles: 0,
+    recentRegistrations: [],
   });
+  const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState("");
+
+  const fetchDashboardData = useCallback(async (isSilent = false) => {
+    if (!isSilent) setLoading(true);
+    setIsRefreshing(true);
+    try {
+      const res = await fetch("/api/admin/dashboard", {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache" },
+      });
+      const json = await res.json();
+      if (json.success && json.data) {
+        setData(json.data);
+        setLastSyncTime(new Date().toLocaleTimeString("id-ID"));
+      }
+    } catch (err) {
+      console.error("Gagal memuat statistik dashboard:", err);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData(false);
+
+    // Auto-polling every 5 seconds
+    const interval = setInterval(() => {
+      fetchDashboardData(true);
+    }, 5000);
+
+    // BroadcastChannel listener
+    let bc: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+        bc = new BroadcastChannel("hasamitra_sync_channel");
+        bc.onmessage = () => {
+          fetchDashboardData(true);
+        };
+      }
+    } catch {}
+
+    const handleFocus = () => fetchDashboardData(true);
+    const handleStorage = () => fetchDashboardData(true);
+
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      clearInterval(interval);
+      if (bc) bc.close();
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, [fetchDashboardData]);
 
   const stats = [
     {
       label: "Total Pendaftaran",
-      value: totalRegistrations,
+      value: data.totalRegistrations,
       subtext: "Nasabah baru masuk",
       href: "/admin/pendaftaran",
       gradient: "from-orange-500 to-amber-500",
@@ -32,7 +100,7 @@ export default async function AdminDashboard() {
     },
     {
       label: "Katalog Produk",
-      value: totalProducts,
+      value: data.totalProducts,
       subtext: "Produk aktif di web",
       href: "/admin/produk",
       gradient: "from-emerald-500 to-teal-500",
@@ -45,7 +113,7 @@ export default async function AdminDashboard() {
     },
     {
       label: "Artikel & Berita",
-      value: totalArticles,
+      value: data.totalArticles,
       subtext: "Dipublikasikan",
       href: "/admin/berita",
       gradient: "from-blue-500 to-indigo-500",
@@ -61,19 +129,45 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-8">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div className="absolute right-0 top-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="relative z-10 space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-orange-400">
-            Overview Sistem
-          </span>
+        <div className="relative z-10 space-y-2 max-w-2xl">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-orange-400">
+              Overview Sistem
+            </span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 text-emerald-400 text-xs font-semibold backdrop-blur-md border border-white/10">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span>Live Sync Real-Time</span>
+              {lastSyncTime && (
+                <span className="text-[10px] text-slate-300 font-mono">({lastSyncTime})</span>
+              )}
+            </div>
+          </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
             Selamat Datang di Portal Admin Hasamitra
           </h1>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-            Pantau dan kelola seluruh transaksi pendaftaran nasabah online, pembaruan katalog produk perbankan, dan publikasi artikel berita resmi secara terpadu.
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Data pendaftaran dan pembaruan produk terpantau secara real-time tanpa perlu me-refresh halaman.
           </p>
         </div>
+
+        <button
+          onClick={() => fetchDashboardData(false)}
+          disabled={isRefreshing}
+          className="relative z-10 px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition border border-white/20 backdrop-blur-md cursor-pointer inline-flex items-center justify-center gap-2 shrink-0 shadow-lg"
+          title="Perbarui data sekarang"
+        >
+          <svg
+            className={`w-4 h-4 text-orange-400 ${isRefreshing ? "animate-spin" : ""}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>Refresh Data</span>
+        </button>
       </div>
 
       {/* Stats Grid */}
@@ -95,7 +189,9 @@ export default async function AdminDashboard() {
               </div>
             </div>
             <div>
-              <p className="text-3xl sm:text-4xl font-black text-slate-900">{stat.value}</p>
+              <p className="text-3xl sm:text-4xl font-black text-slate-900">
+                {loading ? "..." : stat.value}
+              </p>
               <p className="text-xs text-slate-400 mt-1 font-medium">{stat.subtext}</p>
             </div>
           </Link>
@@ -107,7 +203,7 @@ export default async function AdminDashboard() {
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
             <h2 className="font-extrabold text-base text-slate-900">Pendaftaran Nasabah Terbaru</h2>
-            <p className="text-xs text-slate-500">Data masuk dari form online beranda</p>
+            <p className="text-xs text-slate-500">Data masuk dari form online beranda secara real-time</p>
           </div>
           <Link
             href="/admin/pendaftaran"
@@ -127,14 +223,23 @@ export default async function AdminDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {recentRegistrations.length === 0 ? (
+              {loading && data.recentRegistrations.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-12 text-center text-sm text-slate-400">
+                    <div className="inline-flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
+                      <span>Memuat data...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : data.recentRegistrations.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-12 text-center text-sm text-slate-400">
                     Belum ada data pendaftaran yang masuk.
                   </td>
                 </tr>
               ) : (
-                recentRegistrations.map((reg) => (
+                data.recentRegistrations.map((reg) => (
                   <tr key={reg.id} className="hover:bg-slate-50/60 transition-colors">
                     <td className="px-6 py-4">
                       <p className="text-sm font-bold text-slate-900">{reg.nama}</p>
@@ -159,7 +264,7 @@ export default async function AdminDashboard() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-xs text-slate-500 text-right font-mono">
-                      {reg.createdAt.toLocaleDateString("id-ID", {
+                      {new Date(reg.createdAt).toLocaleDateString("id-ID", {
                         day: "2-digit",
                         month: "short",
                         year: "numeric",

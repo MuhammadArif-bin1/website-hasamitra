@@ -14,7 +14,7 @@ const defaultProducts = [
       "Bebas biaya administrasi",
       "Jangka waktu mulai 6 sampai 12 bulan",
     ],
-    buttonText: "Isi datamu sekarang",
+    buttonText: "Daftar Tabungan Online",
     order: 0,
     isActive: true,
   },
@@ -28,21 +28,21 @@ const defaultProducts = [
       "Suku bunga relatif tinggi",
       "Dijamin LPS",
     ],
-    buttonText: "Isi datamu sekarang",
+    buttonText: "Buka Deposito Online",
     order: 1,
     isActive: true,
   },
   {
     slug: "cicil-emas",
-    name: "Cicil Ema",
-    category: "Investasi",
+    name: "Program Cicil Emas",
+    category: "Investasi Emas",
     description: "Investasi emas logam mulia murni dengan angsuran ringan.",
     features: [
-      "Angsuran Tetap",
-      "Keamanan Terjamin",
-      "Cocok Sebagai Investasi Jangka Panjang",
+      "Angsuran Tetap & Terjangkau",
+      "Keamanan Terjamin & Logam Asli",
+      "Pilihan 1gr hingga 50gr",
     ],
-    buttonText: "Isi datamu sekarang",
+    buttonText: "Formulir Cicil Emas Online",
     order: 2,
     isActive: true,
   },
@@ -91,15 +91,29 @@ export async function GET() {
       });
     }
 
-    return NextResponse.json({
-      success: true,
-      data: products.length > 0 ? products : defaultProducts,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: products.length > 0 ? products : defaultProducts,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, max-age=0, must-revalidate",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error fetching public products:", error);
-    return NextResponse.json({
-      success: true,
-      data: defaultProducts,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: defaultProducts,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, max-age=0, must-revalidate",
+        },
+      }
+    );
   }
 }

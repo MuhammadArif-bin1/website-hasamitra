@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 
 interface Registration {
   id: number;
@@ -25,42 +25,113 @@ export default function AdminPendaftaranPage() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [stats, setStats] = useState<Stats>({ total: 0, baru: 0, diproses: 0, selesai: 0 });
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua");
   const [selectedReg, setSelectedReg] = useState<Registration | null>(null);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [lastSyncTime, setLastSyncTime] = useState<string>("");
 
-  const fetchRegistrations = useCallback(async () => {
-    setLoading(true);
+  const searchRef = useRef(search);
+  const statusFilterRef = useRef(statusFilter);
+
+  useEffect(() => {
+    searchRef.current = search;
+    statusFilterRef.current = statusFilter;
+  }, [search, statusFilter]);
+
+  const fetchRegistrations = useCallback(async (isSilent = false) => {
+    if (!isSilent) setLoading(true);
+    setIsRefreshing(true);
     try {
       const query = new URLSearchParams();
-      if (search) query.append("search", search);
-      if (statusFilter && statusFilter !== "Semua") query.append("status", statusFilter);
+      if (searchRef.current) query.append("search", searchRef.current);
+      if (statusFilterRef.current && statusFilterRef.current !== "Semua") {
+        query.append("status", statusFilterRef.current);
+      }
 
-      const res = await fetch(`/api/admin/pendaftaran?${query.toString()}`);
+      const res = await fetch(`/api/admin/pendaftaran?${query.toString()}`, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache" },
+      });
       const data = await res.json();
       if (data.success) {
         setRegistrations(data.data);
         if (data.stats) setStats(data.stats);
+        setLastSyncTime(new Date().toLocaleTimeString("id-ID"));
       }
     } catch {
-      setErrorMsg("Gagal memuat data pendaftaran.");
+      if (!isSilent) setErrorMsg("Gagal memuat data pendaftaran.");
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
-  }, [search, statusFilter]);
+  }, []);
 
+  // Initial load and debounce when typing search
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchRegistrations();
+      fetchRegistrations(false);
     }, 300);
     return () => clearTimeout(timer);
+  }, [search, statusFilter, fetchRegistrations]);
+
+  // Real-time automatic polling & BroadcastChannel listener
+  useEffect(() => {
+    // 1. Periodic background polling every 4 seconds
+    const interval = setInterval(() => {
+      fetchRegistrations(true);
+    }, 4000);
+
+    // 2. BroadcastChannel real-time trigger from customer form submission
+    let bc: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+        bc = new BroadcastChannel("hasamitra_sync_channel");
+        bc.onmessage = (event) => {
+          if (event.data?.type === "NEW_REGISTRATION") {
+            fetchRegistrations(true);
+          }
+        };
+      }
+    } catch {
+      // Ignore if not supported
+    }
+
+    // 3. Window focus and Storage event listeners
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "hasamitra_last_registration") {
+        fetchRegistrations(true);
+      }
+    };
+    const handleFocus = () => {
+      fetchRegistrations(true);
+    };
+
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      if (bc) bc.close();
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("focus", handleFocus);
+    };
   }, [fetchRegistrations]);
 
   const handleUpdateStatus = async (id: number, newStatus: string) => {
     setUpdatingId(id);
+
+    // Optimistic UI update
+    setRegistrations((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r))
+    );
+    if (selectedReg && selectedReg.id === id) {
+      setSelectedReg((prev) => (prev ? { ...prev, status: newStatus } : null));
+    }
+
     try {
       const res = await fetch(`/api/admin/pendaftaran/${id}`, {
         method: "PATCH",
@@ -72,15 +143,14 @@ export default function AdminPendaftaranPage() {
       if (data.success) {
         setSuccessMsg(`Status pendaftaran berhasil diubah ke "${newStatus}".`);
         setTimeout(() => setSuccessMsg(""), 3000);
-        fetchRegistrations();
-        if (selectedReg && selectedReg.id === id) {
-          setSelectedReg((prev) => (prev ? { ...prev, status: newStatus } : null));
-        }
+        fetchRegistrations(true);
       } else {
         setErrorMsg(data.message || "Gagal mengubah status.");
+        fetchRegistrations(true);
       }
     } catch {
       setErrorMsg("Terjadi kesalahan jaringan.");
+      fetchRegistrations(true);
     } finally {
       setUpdatingId(null);
     }
@@ -89,6 +159,10 @@ export default function AdminPendaftaranPage() {
   const handleDelete = async (reg: Registration) => {
     if (!confirm(`Hapus data pendaftaran dari "${reg.nama}"?`)) return;
 
+    // Optimistic deletion
+    setRegistrations((prev) => prev.filter((r) => r.id !== reg.id));
+    if (selectedReg?.id === reg.id) setSelectedReg(null);
+
     try {
       const res = await fetch(`/api/admin/pendaftaran/${reg.id}`, { method: "DELETE" });
       const data = await res.json();
@@ -96,13 +170,14 @@ export default function AdminPendaftaranPage() {
       if (data.success) {
         setSuccessMsg("Data pendaftaran berhasil dihapus.");
         setTimeout(() => setSuccessMsg(""), 3000);
-        if (selectedReg?.id === reg.id) setSelectedReg(null);
-        fetchRegistrations();
+        fetchRegistrations(true);
       } else {
         setErrorMsg(data.message || "Gagal menghapus data.");
+        fetchRegistrations(true);
       }
     } catch {
       setErrorMsg("Terjadi kesalahan jaringan.");
+      fetchRegistrations(true);
     }
   };
 
@@ -124,27 +199,56 @@ export default function AdminPendaftaranPage() {
       {/* Top Header Card */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider">
-            Manajemen Nasabah
+          <div className="flex items-center gap-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider">
+              Manajemen Nasabah
+            </div>
+            {/* Live Real-time Sync Indicator */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+              <span>Live Auto-Sync</span>
+              {lastSyncTime && (
+                <span className="text-[10px] text-slate-400 font-mono">({lastSyncTime})</span>
+              )}
+            </div>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Pendaftaran Nasabah Online
           </h1>
           <p className="text-xs sm:text-sm text-slate-500">
-            Kelola data permohonan produk simpanan, deposito, dan kredit yang masuk secara online.
+            Data pemohon masuk secara otomatis (real-time tanpa perlu refresh halaman).
           </p>
         </div>
 
-        {/* Export Data CSV / Excel Button */}
-        <button
-          onClick={handleExportCSV}
-          className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-sm font-bold rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 hover:-translate-y-0.5 cursor-pointer shrink-0"
-        >
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-          </svg>
-          <span>Export Excel (CSV)</span>
-        </button>
+        {/* Action Buttons: Manual Sync & Export */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => fetchRegistrations(false)}
+            disabled={isRefreshing}
+            className="p-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition border border-slate-200 cursor-pointer inline-flex items-center gap-2"
+            title="Perbarui data sekarang"
+          >
+            <svg
+              className={`w-4 h-4 text-slate-600 ${isRefreshing ? "animate-spin text-orange-500" : ""}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span className="hidden sm:inline">Perbarui</span>
+          </button>
+
+          <button
+            onClick={handleExportCSV}
+            className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-sm font-bold rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 hover:-translate-y-0.5 cursor-pointer shrink-0"
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+            </svg>
+            <span>Export Excel (CSV)</span>
+          </button>
+        </div>
       </div>
 
       {/* Messages */}
@@ -237,7 +341,7 @@ export default function AdminPendaftaranPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {loading ? (
+              {loading && registrations.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-16 text-center text-sm text-slate-400">
                     <div className="inline-flex items-center gap-2">

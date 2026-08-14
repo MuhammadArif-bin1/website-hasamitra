@@ -17,6 +17,7 @@ interface Product {
 export default function AdminProdukPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [saving, setSaving] = useState(false);
@@ -35,21 +36,68 @@ export default function AdminProdukPage() {
     order: 0,
   });
 
-  const fetchProducts = useCallback(async () => {
-    setLoading(true);
+  const broadcastProductUpdate = () => {
     try {
-      const res = await fetch("/api/admin/produk");
+      if (typeof window !== "undefined") {
+        if ("BroadcastChannel" in window) {
+          const bc = new BroadcastChannel("hasamitra_sync_channel");
+          bc.postMessage({ type: "PRODUCTS_UPDATED", timestamp: Date.now() });
+          bc.close();
+        }
+        localStorage.setItem("hasamitra_last_product_update", String(Date.now()));
+      }
+    } catch {
+      // Ignore
+    }
+  };
+
+  const fetchProducts = useCallback(async (isSilent = false) => {
+    if (!isSilent) setLoading(true);
+    setIsRefreshing(true);
+    try {
+      const res = await fetch("/api/admin/produk", {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache" },
+      });
       const data = await res.json();
       if (data.success) setProducts(data.data);
     } catch {
-      setError("Gagal memuat data produk.");
+      if (!isSilent) setError("Gagal memuat data produk.");
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(false);
+
+    // Auto-polling every 5 seconds
+    const interval = setInterval(() => {
+      fetchProducts(true);
+    }, 5000);
+
+    // BroadcastChannel listener
+    let bc: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+        bc = new BroadcastChannel("hasamitra_sync_channel");
+        bc.onmessage = (event) => {
+          if (event.data?.type === "PRODUCTS_UPDATED") {
+            fetchProducts(true);
+          }
+        };
+      }
+    } catch {}
+
+    const handleFocus = () => fetchProducts(true);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      if (bc) bc.close();
+      window.removeEventListener("focus", handleFocus);
+    };
   }, [fetchProducts]);
 
   const openCreate = () => {
@@ -129,7 +177,8 @@ export default function AdminProdukPage() {
         );
         setTimeout(() => setSuccessMsg(""), 3000);
         setShowModal(false);
-        fetchProducts();
+        fetchProducts(true);
+        broadcastProductUpdate();
       } else {
         setError(data.message || "Gagal menyimpan produk.");
       }
@@ -143,6 +192,9 @@ export default function AdminProdukPage() {
   const handleDelete = async (product: Product) => {
     if (!confirm(`Yakin ingin menghapus produk "${product.name}"?`)) return;
 
+    // Optimistic delete
+    setProducts((prev) => prev.filter((p) => p.id !== product.id));
+
     try {
       const res = await fetch(`/api/admin/produk/${product.id}`, {
         method: "DELETE",
@@ -152,25 +204,35 @@ export default function AdminProdukPage() {
       if (data.success) {
         setSuccessMsg("Produk berhasil dihapus.");
         setTimeout(() => setSuccessMsg(""), 3000);
-        fetchProducts();
+        fetchProducts(true);
+        broadcastProductUpdate();
       } else {
         setError(data.message || "Gagal menghapus produk.");
+        fetchProducts(true);
       }
     } catch {
       setError("Gagal menghapus produk.");
+      fetchProducts(true);
     }
   };
 
   const toggleActive = async (product: Product) => {
+    // Optimistic update
+    setProducts((prev) =>
+      prev.map((p) => (p.id === product.id ? { ...p, isActive: !p.isActive } : p))
+    );
+
     try {
       await fetch(`/api/admin/produk/${product.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isActive: !product.isActive }),
       });
-      fetchProducts();
+      fetchProducts(true);
+      broadcastProductUpdate();
     } catch {
       setError("Gagal mengubah status produk.");
+      fetchProducts(true);
     }
   };
 
@@ -179,25 +241,51 @@ export default function AdminProdukPage() {
       {/* Page Header Banner */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-xs font-bold uppercase tracking-wider">
-            Katalog Landing Page
+          <div className="flex items-center gap-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-xs font-bold uppercase tracking-wider">
+              Katalog Landing Page
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+              <span>Live Auto-Sync</span>
+            </div>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Kelola Produk Perbankan
           </h1>
           <p className="text-xs sm:text-sm text-slate-500">
-            Tambah, sunting urutan, dan atur produk yang tampil di landing page utama.
+            Perubahan produk langsung tampil otomatis di landing page utama tanpa perlu refresh.
           </p>
         </div>
-        <button
-          onClick={openCreate}
-          className="px-6 py-3.5 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-sm font-bold rounded-2xl transition-all duration-300 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:-translate-y-0.5 inline-flex items-center justify-center gap-2 cursor-pointer shrink-0"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-          </svg>
-          <span>Tambah Produk</span>
-        </button>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => fetchProducts(false)}
+            disabled={isRefreshing}
+            className="p-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition border border-slate-200 cursor-pointer inline-flex items-center gap-2"
+            title="Perbarui daftar produk"
+          >
+            <svg
+              className={`w-4 h-4 text-slate-600 ${isRefreshing ? "animate-spin text-orange-500" : ""}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span className="hidden sm:inline">Perbarui</span>
+          </button>
+
+          <button
+            onClick={openCreate}
+            className="px-6 py-3.5 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-sm font-bold rounded-2xl transition-all duration-300 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:-translate-y-0.5 inline-flex items-center justify-center gap-2 cursor-pointer shrink-0"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Tambah Produk</span>
+          </button>
+        </div>
       </div>
 
       {/* Success/Error Alerts */}
@@ -229,7 +317,7 @@ export default function AdminProdukPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {loading ? (
+              {loading && products.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-16 text-center text-sm text-slate-400">
                     <div className="inline-flex items-center gap-2">

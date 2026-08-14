@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { isValidEmail } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 interface PendaftaranRequestBody {
   produk?: string;
   nama?: string;
   alamat?: string;
   email?: string;
   telepon?: string;
+  pilihan?: string;
   jangka_waktu?: string | number;
   berat_emas_gram?: string | number;
 }
@@ -22,15 +25,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: "Data belum lengkap atau tidak valid.",
+          message: "Data formulir tidak valid.",
         },
         { status: 400 }
       );
     }
 
-    const { produk, nama, alamat, email, telepon, jangka_waktu, berat_emas_gram } = body;
+    const { produk, nama, alamat, email, telepon, pilihan, jangka_waktu, berat_emas_gram } = body;
 
-    // Standard string sanitization check
+    // Standard string sanitization
     const cleanProduk = typeof produk === "string" ? produk.trim() : "";
     const cleanNama = typeof nama === "string" ? nama.trim() : "";
     const cleanAlamat = typeof alamat === "string" ? alamat.trim() : "";
@@ -42,7 +45,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: "Data belum lengkap atau tidak valid.",
+          message: "Data belum lengkap. Mohon isi semua kolom bertanda bintang (*).",
         },
         { status: 400 }
       );
@@ -59,44 +62,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. Dynamic Product Validation from Database
-    const dbProducts = await prisma.product.findMany({
-      where: { isActive: true },
-      select: { name: true },
-    });
-
-    const validProducts = dbProducts.map((p) => p.name.trim().toLowerCase());
-    // Fallback default list if database table is empty during initial setup
-    const defaultValid = ["new tabungan sabar", "deposito si deka", "cicil emas"];
-
-    const isProductValid =
-      validProducts.length > 0
-        ? validProducts.includes(cleanProduk.toLowerCase())
-        : defaultValid.includes(cleanProduk.toLowerCase());
-
-    if (!isProductValid) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Produk yang dipilih tidak ditemukan atau sudah tidak aktif.",
-        },
-        { status: 400 }
-      );
-    }
-
-    // 4. Determine final choice label (Jangka Waktu / Berat Emas)
-    let finalPilihan = "";
+    // 3. Determine final choice label (Jangka Waktu / Berat Emas / Pilihan)
+    let finalPilihan = typeof pilihan === "string" && pilihan.trim() ? pilihan.trim() : "";
     const isEmas = cleanProduk.toLowerCase().includes("emas");
 
-    if (isEmas) {
-      const beratStr = String(berat_emas_gram ?? "").trim();
-      finalPilihan = beratStr ? `${beratStr} Gram` : "Standard";
-    } else {
-      const jkWaktuStr = String(jangka_waktu ?? "").trim();
-      finalPilihan = jkWaktuStr ? `${jkWaktuStr} Bulan` : "Standard";
+    if (!finalPilihan) {
+      if (isEmas) {
+        const beratStr = String(berat_emas_gram ?? "").trim();
+        finalPilihan = beratStr ? (beratStr.includes("Gram") ? beratStr : `${beratStr} Gram`) : "1 Gram";
+      } else {
+        const jkWaktuStr = String(jangka_waktu ?? "").trim();
+        finalPilihan = jkWaktuStr ? (jkWaktuStr.includes("Bulan") ? jkWaktuStr : `${jkWaktuStr} Bulan`) : "Standard";
+      }
     }
 
-    // 5. Save registration record to PostgreSQL database via Prisma
+    // 4. Save registration record to PostgreSQL database via Prisma
     const newReg = await prisma.registration.create({
       data: {
         produk: cleanProduk,
@@ -105,10 +85,11 @@ export async function POST(request: NextRequest) {
         email: cleanEmail,
         telepon: cleanTelepon,
         pilihan: finalPilihan,
+        status: "Baru",
       },
     });
 
-    // 6. Otomatis bertambah ke file CSV lokal secara real-time
+    // 5. Append to CSV file locally
     try {
       const fs = await import("node:fs");
       const path = await import("node:path");
@@ -134,8 +115,14 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         message: "Pendaftaran berhasil dikirim.",
+        data: newReg,
       },
-      { status: 200 }
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "no-store, max-age=0",
+        },
+      }
     );
 
   } catch (error) {
@@ -143,7 +130,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        message: "Terjadi kesalahan pada server.",
+        message: "Terjadi kesalahan pada server saat menyimpan data.",
       },
       { status: 500 }
     );
