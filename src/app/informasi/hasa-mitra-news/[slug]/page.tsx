@@ -114,8 +114,8 @@ export default async function NewsDetailPage({ params }: Props) {
   };
 
   return (
-    <div className="py-8 sm:py-12 lg:py-16 bg-slate-50/50 min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    <div className="py-6 sm:py-10 lg:py-14 bg-slate-50/50 min-h-screen">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
         {/* Main Article Container with Top Photo, Paragraphs, and Bottom Photo Grid */}
         <ArticleDetailView article={serializedArticle} images={displayImages} />
 
@@ -134,7 +134,7 @@ export default async function NewsDetailPage({ params }: Props) {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {relatedArticles.map((rel) => {
                 const relImages = parseArticleImages(rel.image);
                 return (
