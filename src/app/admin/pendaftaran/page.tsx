@@ -34,6 +34,12 @@ export default function AdminPendaftaranPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [lastSyncTime, setLastSyncTime] = useState<string>("");
 
+  // Multi-select & Bulk Delete state
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
+  const [showDeleteSelectedModal, setShowDeleteSelectedModal] = useState(false);
+  const [deletingBulk, setDeletingBulk] = useState(false);
+
   const searchRef = useRef(search);
   const statusFilterRef = useRef(statusFilter);
 
@@ -41,6 +47,17 @@ export default function AdminPendaftaranPage() {
     searchRef.current = search;
     statusFilterRef.current = statusFilter;
   }, [search, statusFilter]);
+
+  const broadcastChange = () => {
+    try {
+      if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+        const bc = new BroadcastChannel("hasamitra_sync_channel");
+        bc.postMessage({ type: "NEW_REGISTRATION", timestamp: Date.now() });
+        bc.close();
+      }
+      localStorage.setItem("hasamitra_last_registration", String(Date.now()));
+    } catch {}
+  };
 
   const fetchRegistrations = useCallback(async (isSilent = false) => {
     if (!isSilent) setLoading(true);
@@ -80,12 +97,10 @@ export default function AdminPendaftaranPage() {
 
   // Real-time automatic polling & BroadcastChannel listener
   useEffect(() => {
-    // 1. Periodic background polling every 4 seconds
     const interval = setInterval(() => {
       fetchRegistrations(true);
     }, 4000);
 
-    // 2. BroadcastChannel real-time trigger from customer form submission
     let bc: BroadcastChannel | null = null;
     try {
       if (typeof window !== "undefined" && "BroadcastChannel" in window) {
@@ -96,11 +111,8 @@ export default function AdminPendaftaranPage() {
           }
         };
       }
-    } catch {
-      // Ignore if not supported
-    }
+    } catch {}
 
-    // 3. Window focus and Storage event listeners
     const handleStorage = (e: StorageEvent) => {
       if (e.key === "hasamitra_last_registration") {
         fetchRegistrations(true);
@@ -121,10 +133,27 @@ export default function AdminPendaftaranPage() {
     };
   }, [fetchRegistrations]);
 
+  // Row selection helpers
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedIds(registrations.map((r) => r.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleToggleSelect = (id: number) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const isAllSelected =
+    registrations.length > 0 && selectedIds.length === registrations.length;
+
   const handleUpdateStatus = async (id: number, newStatus: string) => {
     setUpdatingId(id);
 
-    // Optimistic UI update
     setRegistrations((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r))
     );
@@ -144,6 +173,7 @@ export default function AdminPendaftaranPage() {
         setSuccessMsg(`Status pendaftaran berhasil diubah ke "${newStatus}".`);
         setTimeout(() => setSuccessMsg(""), 3000);
         fetchRegistrations(true);
+        broadcastChange();
       } else {
         setErrorMsg(data.message || "Gagal mengubah status.");
         fetchRegistrations(true);
@@ -156,11 +186,11 @@ export default function AdminPendaftaranPage() {
     }
   };
 
-  const handleDelete = async (reg: Registration) => {
+  const handleDeleteSingle = async (reg: Registration) => {
     if (!confirm(`Hapus data pendaftaran dari "${reg.nama}"?`)) return;
 
-    // Optimistic deletion
     setRegistrations((prev) => prev.filter((r) => r.id !== reg.id));
+    setSelectedIds((prev) => prev.filter((id) => id !== reg.id));
     if (selectedReg?.id === reg.id) setSelectedReg(null);
 
     try {
@@ -171,6 +201,7 @@ export default function AdminPendaftaranPage() {
         setSuccessMsg("Data pendaftaran berhasil dihapus.");
         setTimeout(() => setSuccessMsg(""), 3000);
         fetchRegistrations(true);
+        broadcastChange();
       } else {
         setErrorMsg(data.message || "Gagal menghapus data.");
         fetchRegistrations(true);
@@ -178,6 +209,67 @@ export default function AdminPendaftaranPage() {
     } catch {
       setErrorMsg("Terjadi kesalahan jaringan.");
       fetchRegistrations(true);
+    }
+  };
+
+  // Bulk delete selected items
+  const handleDeleteSelected = async () => {
+    if (selectedIds.length === 0) return;
+    setDeletingBulk(true);
+
+    try {
+      const res = await fetch("/api/admin/pendaftaran", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selectedIds }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setSuccessMsg(data.message || "Data terpilih berhasil dihapus.");
+        setTimeout(() => setSuccessMsg(""), 3000);
+        setSelectedIds([]);
+        setShowDeleteSelectedModal(false);
+        fetchRegistrations(true);
+        broadcastChange();
+      } else {
+        setErrorMsg(data.message || "Gagal menghapus data.");
+      }
+    } catch {
+      setErrorMsg("Terjadi kesalahan jaringan saat menghapus.");
+    } finally {
+      setDeletingBulk(false);
+    }
+  };
+
+  // Delete all records
+  const handleDeleteAll = async () => {
+    setDeletingBulk(true);
+
+    try {
+      const res = await fetch("/api/admin/pendaftaran", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all: true }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setSuccessMsg(data.message || "Seluruh data pendaftaran berhasil dihapus.");
+        setTimeout(() => setSuccessMsg(""), 3000);
+        setRegistrations([]);
+        setSelectedIds([]);
+        setSelectedReg(null);
+        setShowDeleteAllModal(false);
+        fetchRegistrations(true);
+        broadcastChange();
+      } else {
+        setErrorMsg(data.message || "Gagal mengosongkan data.");
+      }
+    } catch {
+      setErrorMsg("Terjadi kesalahan jaringan saat menghapus data.");
+    } finally {
+      setDeletingBulk(false);
     }
   };
 
@@ -197,7 +289,7 @@ export default function AdminPendaftaranPage() {
   return (
     <div className="space-y-8">
       {/* Top Header Card */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider">
@@ -220,8 +312,8 @@ export default function AdminPendaftaranPage() {
           </p>
         </div>
 
-        {/* Action Buttons: Manual Sync & Export */}
-        <div className="flex items-center gap-3">
+        {/* Action Buttons: Refresh, Delete Data & Export */}
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={() => fetchRegistrations(false)}
             disabled={isRefreshing}
@@ -239,9 +331,22 @@ export default function AdminPendaftaranPage() {
             <span className="hidden sm:inline">Perbarui</span>
           </button>
 
+          {/* Delete All / Clear Data Button */}
+          <button
+            onClick={() => setShowDeleteAllModal(true)}
+            disabled={registrations.length === 0}
+            className="inline-flex items-center justify-center gap-2 px-4 py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-800 border border-rose-200/80 text-xs font-bold rounded-2xl transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            title="Hapus / kosongkan semua data pendaftaran"
+          >
+            <svg className="w-4 h-4 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            <span>Hapus Semua Data</span>
+          </button>
+
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-sm font-bold rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 hover:-translate-y-0.5 cursor-pointer shrink-0"
+            className="inline-flex items-center justify-center gap-2.5 px-5 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 hover:-translate-y-0.5 cursor-pointer shrink-0"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
@@ -250,6 +355,37 @@ export default function AdminPendaftaranPage() {
           </button>
         </div>
       </div>
+
+      {/* Floating Bulk Action Bar when items selected */}
+      {selectedIds.length > 0 && (
+        <div className="bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-xl flex items-center justify-between animate-fade-in border border-slate-800">
+          <div className="flex items-center gap-3">
+            <span className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center">
+              {selectedIds.length}
+            </span>
+            <span className="text-sm font-semibold">
+              {selectedIds.length} data pendaftaran dipilih
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSelectedIds([])}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+            >
+              Batal
+            </button>
+            <button
+              onClick={() => setShowDeleteSelectedModal(true)}
+              className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-600/30 cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>Hapus ({selectedIds.length}) Data Terpilih</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       {successMsg && (
@@ -332,7 +468,16 @@ export default function AdminPendaftaranPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                <th className="px-6 py-4">ID &amp; Tanggal</th>
+                <th className="px-4 py-4 w-10 text-center">
+                  <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    onChange={handleSelectAll}
+                    className="w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+                    aria-label="Pilih semua data"
+                  />
+                </th>
+                <th className="px-4 py-4">ID &amp; Tanggal</th>
                 <th className="px-6 py-4">Nama Pemohon</th>
                 <th className="px-6 py-4">Produk &amp; Pilihan</th>
                 <th className="px-6 py-4">Kontak (WhatsApp / Email)</th>
@@ -343,7 +488,7 @@ export default function AdminPendaftaranPage() {
             <tbody className="divide-y divide-slate-100">
               {loading && registrations.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center text-sm text-slate-400">
+                  <td colSpan={7} className="px-6 py-16 text-center text-sm text-slate-400">
                     <div className="inline-flex items-center gap-2">
                       <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
                       <span>Memuat data pendaftaran...</span>
@@ -352,119 +497,225 @@ export default function AdminPendaftaranPage() {
                 </tr>
               ) : registrations.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center text-sm text-slate-400">
-                    Tidak ada data pendaftaran yang sesuai kriteria.
+                  <td colSpan={7} className="px-6 py-16 text-center text-sm text-slate-400">
+                    Tidak ada data pendaftaran yang tersimpan.
                   </td>
                 </tr>
               ) : (
-                registrations.map((reg) => (
-                  <tr key={reg.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-block text-xs font-mono font-bold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-200/60">
-                        REG-{String(reg.id).padStart(4, "0")}
-                      </span>
-                      <p className="text-xs text-slate-400 mt-1 font-mono">
-                        {new Date(reg.createdAt).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </p>
-                    </td>
+                registrations.map((reg) => {
+                  const isSelected = selectedIds.includes(reg.id);
+                  return (
+                    <tr
+                      key={reg.id}
+                      className={`transition-colors ${
+                        isSelected ? "bg-orange-50/50" : "hover:bg-slate-50/60"
+                      }`}
+                    >
+                      {/* Checkbox Selection */}
+                      <td className="px-4 py-4 text-center">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleToggleSelect(reg.id)}
+                          className="w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+                          aria-label={`Pilih pendaftaran ${reg.nama}`}
+                        />
+                      </td>
 
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-extrabold text-slate-900">{reg.nama}</p>
-                      <p className="text-xs text-slate-400 truncate max-w-[220px] mt-0.5" title={reg.alamat}>
-                        {reg.alamat || "Alamat belum diisi"}
-                      </p>
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-bold text-slate-800">{reg.produk}</p>
-                      <span className="inline-flex px-2.5 py-0.5 bg-slate-100 text-slate-700 text-xs font-semibold rounded-md mt-0.5 border border-slate-200/60">
-                        {reg.pilihan || "Standard"}
-                      </span>
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <p className="text-xs text-slate-600 font-medium">{reg.email || "-"}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs font-mono font-semibold text-slate-800">{reg.telepon || "-"}</span>
-                        {reg.telepon && (
-                          <a
-                            href={formatWhatsAppUrl(reg.telepon, reg.nama, reg.produk)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md hover:bg-emerald-100 transition"
-                            title="Chat WhatsApp"
-                          >
-                            <span>WhatsApp</span> ↗
-                          </a>
-                        )}
-                      </div>
-                    </td>
-
-                    <td className="px-6 py-4 text-center whitespace-nowrap">
-                      <div className="inline-flex flex-col items-center gap-1.5">
-                        <span
-                          className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
-                            reg.status === "Selesai"
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : reg.status === "Diproses"
-                              ? "bg-amber-50 text-amber-700 border border-amber-200"
-                              : "bg-blue-50 text-blue-700 border border-blue-200"
-                          }`}
-                        >
-                          {reg.status || "Baru"}
+                      {/* ID & Date */}
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <span className="inline-block text-xs font-mono font-bold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-200/60">
+                          REG-{String(reg.id).padStart(4, "0")}
                         </span>
+                        <p className="text-xs text-slate-400 mt-1 font-mono">
+                          {new Date(reg.createdAt).toLocaleDateString("id-ID", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </p>
+                      </td>
 
-                        {/* Quick Status Action Buttons */}
-                        <div className="flex items-center gap-2 text-[11px]">
-                          {reg.status !== "Diproses" && (
-                            <button
-                              disabled={updatingId === reg.id}
-                              onClick={() => handleUpdateStatus(reg.id, "Diproses")}
-                              className="text-amber-600 hover:text-amber-800 font-bold cursor-pointer"
+                      {/* Name & Address */}
+                      <td className="px-6 py-4">
+                        <p className="text-sm font-extrabold text-slate-900">{reg.nama}</p>
+                        <p className="text-xs text-slate-400 truncate max-w-[220px] mt-0.5" title={reg.alamat}>
+                          {reg.alamat || "Alamat belum diisi"}
+                        </p>
+                      </td>
+
+                      {/* Product */}
+                      <td className="px-6 py-4">
+                        <p className="text-sm font-bold text-slate-800">{reg.produk}</p>
+                        <span className="inline-flex px-2.5 py-0.5 bg-slate-100 text-slate-700 text-xs font-semibold rounded-md mt-0.5 border border-slate-200/60">
+                          {reg.pilihan || "Standard"}
+                        </span>
+                      </td>
+
+                      {/* Contact */}
+                      <td className="px-6 py-4">
+                        <p className="text-xs text-slate-600 font-medium">{reg.email || "-"}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs font-mono font-semibold text-slate-800">{reg.telepon || "-"}</span>
+                          {reg.telepon && (
+                            <a
+                              href={formatWhatsAppUrl(reg.telepon, reg.nama, reg.produk)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md hover:bg-emerald-100 transition"
+                              title="Chat WhatsApp"
                             >
-                              Proses
-                            </button>
-                          )}
-                          {reg.status !== "Selesai" && (
-                            <button
-                              disabled={updatingId === reg.id}
-                              onClick={() => handleUpdateStatus(reg.id, "Selesai")}
-                              className="text-emerald-600 hover:text-emerald-800 font-bold cursor-pointer"
-                            >
-                              Selesai
-                            </button>
+                              <span>WhatsApp</span> ↗
+                            </a>
                           )}
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => setSelectedReg(reg)}
-                          className="px-3.5 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer"
-                        >
-                          Detail
-                        </button>
-                        <button
-                          onClick={() => handleDelete(reg)}
-                          className="px-3.5 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition border border-rose-200 cursor-pointer"
-                        >
-                          Hapus
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      {/* Status */}
+                      <td className="px-6 py-4 text-center whitespace-nowrap">
+                        <div className="inline-flex flex-col items-center gap-1.5">
+                          <span
+                            className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
+                              reg.status === "Selesai"
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                : reg.status === "Diproses"
+                                ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                : "bg-blue-50 text-blue-700 border border-blue-200"
+                            }`}
+                          >
+                            {reg.status || "Baru"}
+                          </span>
+
+                          <div className="flex items-center gap-2 text-[11px]">
+                            {reg.status !== "Diproses" && (
+                              <button
+                                disabled={updatingId === reg.id}
+                                onClick={() => handleUpdateStatus(reg.id, "Diproses")}
+                                className="text-amber-600 hover:text-amber-800 font-bold cursor-pointer"
+                              >
+                                Proses
+                              </button>
+                            )}
+                            {reg.status !== "Selesai" && (
+                              <button
+                                disabled={updatingId === reg.id}
+                                onClick={() => handleUpdateStatus(reg.id, "Selesai")}
+                                className="text-emerald-600 hover:text-emerald-800 font-bold cursor-pointer"
+                              >
+                                Selesai
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => setSelectedReg(reg)}
+                            className="px-3.5 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer"
+                          >
+                            Detail
+                          </button>
+                          <button
+                            onClick={() => handleDeleteSingle(reg)}
+                            className="px-3.5 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition border border-rose-200 cursor-pointer"
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Confirmation Modal: Delete ALL Data */}
+      {showDeleteAllModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-200 p-7 space-y-5 text-center">
+            <div className="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-inner">
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-black text-slate-900">
+                Hapus Seluruh Data Pendaftaran?
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Tindakan ini akan mengosongkan <strong>seluruh ({registrations.length}) data pendaftaran</strong> nasabah di database secara permanen. Data yang telah dihapus tidak dapat dipulihkan kembali.
+              </p>
+            </div>
+
+            <div className="pt-3 flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDeleteAllModal(false)}
+                disabled={deletingBulk}
+                className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-100 transition cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteAll}
+                disabled={deletingBulk}
+                className="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold shadow-lg shadow-rose-600/25 transition flex items-center gap-2 cursor-pointer"
+              >
+                {deletingBulk ? "Menghapus..." : "Ya, Kosongkan Semua"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal: Delete Selected Data */}
+      {showDeleteSelectedModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-200 p-7 space-y-5 text-center">
+            <div className="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-inner">
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-black text-slate-900">
+                Hapus {selectedIds.length} Data Terpilih?
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Anda akan menghapus <strong>{selectedIds.length} data pendaftaran</strong> yang ditandai. Tindakan ini tidak dapat dibatalkan.
+              </p>
+            </div>
+
+            <div className="pt-3 flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDeleteSelectedModal(false)}
+                disabled={deletingBulk}
+                className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-100 transition cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteSelected}
+                disabled={deletingBulk}
+                className="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold shadow-lg shadow-rose-600/25 transition flex items-center gap-2 cursor-pointer"
+              >
+                {deletingBulk ? "Menghapus..." : `Ya, Hapus (${selectedIds.length}) Data`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modern Detail Modal */}
       {selectedReg && (

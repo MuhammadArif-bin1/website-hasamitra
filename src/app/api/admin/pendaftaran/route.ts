@@ -73,3 +73,64 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+// DELETE: Bulk delete registrations (All data or Selected IDs)
+export async function DELETE(request: NextRequest) {
+  try {
+    const admin = await getAdmin();
+    if (!admin) {
+      return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json().catch(() => ({}));
+    const { all, ids } = body;
+
+    if (all) {
+      // Delete all registration records
+      const count = await prisma.registration.deleteMany({});
+
+      // Reset local CSV file if exists
+      try {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const csvPath = path.join(process.cwd(), "data", "pendaftaran", "pendaftaran-hasamitra.csv");
+        if (fs.existsSync(csvPath)) {
+          const header = "ID Pendaftaran,Tanggal,Nama Nasabah,Alamat,Email,No. WhatsApp / HP,Jangka Waktu,Berat Emas (Gram)\n";
+          fs.writeFileSync(csvPath, header, "utf-8");
+        }
+      } catch (err) {
+        console.warn("Could not reset CSV header:", err);
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: `Berhasil menghapus seluruh data pendaftaran (${count.count} data).`,
+        count: count.count,
+      });
+    }
+
+    if (Array.isArray(ids) && ids.length > 0) {
+      const validIds = ids.map((id) => Number(id)).filter((id) => !isNaN(id));
+      const count = await prisma.registration.deleteMany({
+        where: { id: { in: validIds } },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: `Berhasil menghapus ${count.count} data pendaftaran terpilih.`,
+        count: count.count,
+      });
+    }
+
+    return NextResponse.json(
+      { success: false, message: "Parameter penghapusan tidak valid." },
+      { status: 400 }
+    );
+  } catch (error) {
+    console.error("Error bulk deleting registrations:", error);
+    return NextResponse.json(
+      { success: false, message: "Gagal menghapus data pendaftaran." },
+      { status: 500 }
+    );
+  }
+}
