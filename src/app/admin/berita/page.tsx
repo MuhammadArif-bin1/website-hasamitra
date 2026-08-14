@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Article {
   id: number;
@@ -16,6 +17,7 @@ interface Article {
 
 const CATEGORIES = [
   "Berita Utama",
+  "Kegiatan Sosial",
   "Edukasi Keuangan",
   "Penghargaan",
   "Pengumuman",
@@ -33,6 +35,8 @@ export default function AdminBeritaPage() {
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("Semua");
 
   // Form state
   const [form, setForm] = useState({
@@ -245,6 +249,45 @@ export default function AdminBeritaPage() {
         </div>
       )}
 
+      {/* Filter and Search Bar */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        {/* Category Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+          {["Semua", ...CATEGORIES].map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                selectedCategory === cat
+                  ? "bg-slate-900 text-white shadow-sm"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Search Input */}
+        <div className="relative min-w-[220px]">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Cari judul atau isi berita..."
+            className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 focus:bg-white transition"
+          />
+          <svg
+            className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+      </div>
+
       {/* Articles Table */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
@@ -266,74 +309,109 @@ export default function AdminBeritaPage() {
                     Memuat data...
                   </td>
                 </tr>
-              ) : articles.length === 0 ? (
+              ) : articles.filter((a) => {
+                  const matchCategory = selectedCategory === "Semua" || a.category === selectedCategory;
+                  const matchSearch = !search || a.title.toLowerCase().includes(search.toLowerCase()) || a.content.toLowerCase().includes(search.toLowerCase());
+                  return matchCategory && matchSearch;
+                }).length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-sm text-slate-400">
-                    Belum ada berita. Klik &quot;Tulis Berita&quot; untuk memulai.
+                    {articles.length === 0
+                      ? "Belum ada berita. Klik \"Tulis Berita\" untuk memulai."
+                      : "Tidak ada berita yang cocok dengan filter atau pencarian."}
                   </td>
                 </tr>
               ) : (
-                articles.map((article) => (
-                  <tr key={article.id} className="hover:bg-slate-50/50 transition">
-                    <td className="px-6 py-4">
-                      {article.image ? (
-                        <Image
-                          src={article.image}
-                          alt={article.title}
-                          width={64}
-                          height={40}
-                          className="w-16 h-10 object-cover rounded-lg border border-slate-200"
-                        />
-                      ) : (
-                        <div className="w-16 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-                          <svg className="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
+                articles
+                  .filter((a) => {
+                    const matchCategory = selectedCategory === "Semua" || a.category === selectedCategory;
+                    const matchSearch = !search || a.title.toLowerCase().includes(search.toLowerCase()) || a.content.toLowerCase().includes(search.toLowerCase());
+                    return matchCategory && matchSearch;
+                  })
+                  .map((article) => (
+                    <tr key={article.id} className="hover:bg-slate-50/50 transition">
+                      <td className="px-6 py-4">
+                        {article.image ? (
+                          <Image
+                            src={article.image}
+                            alt={article.title}
+                            width={64}
+                            height={40}
+                            className="w-16 h-10 object-cover rounded-lg border border-slate-200"
+                          />
+                        ) : (
+                          <div className="w-16 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                            <svg className="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="text-sm font-bold text-slate-900 line-clamp-1">{article.title}</p>
+                        <p className="text-xs text-slate-400 mt-0.5 font-mono">{article.slug}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex px-2.5 py-0.5 rounded-md text-xs font-bold ${
+                            article.category === "Kegiatan Sosial"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                              : article.category === "Berita Utama"
+                              ? "bg-blue-50 text-blue-700 border border-blue-200/60"
+                              : article.category === "Edukasi Keuangan"
+                              ? "bg-violet-50 text-violet-700 border border-violet-200/60"
+                              : article.category === "Penghargaan"
+                              ? "bg-amber-50 text-amber-700 border border-amber-200/60"
+                              : "bg-orange-50 text-orange-700 border border-orange-200/60"
+                          }`}
+                        >
+                          {article.category}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <button
+                          onClick={() => togglePublish(article)}
+                          className={`inline-flex px-3 py-1 rounded-full text-xs font-bold transition ${
+                            article.isPublished
+                              ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                              : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                          }`}
+                        >
+                          {article.isPublished ? "Published" : "Draft"}
+                        </button>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-500">
+                        {formatDate(article.createdAt)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            href={`/informasi/hasa-mitra-news/${article.slug}`}
+                            target="_blank"
+                            className="px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 hover:text-slate-900 transition flex items-center gap-1"
+                            title="Buka halaman baca berita"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            Lihat
+                          </Link>
+                          <button
+                            onClick={() => openEdit(article)}
+                            className="px-3 py-1.5 text-xs font-medium text-orange-600 bg-orange-50 rounded-lg hover:bg-orange-100 transition cursor-pointer"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(article)}
+                            className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition cursor-pointer"
+                          >
+                            Hapus
+                          </button>
                         </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-bold text-slate-900 line-clamp-1">{article.title}</p>
-                      <p className="text-xs text-slate-400 mt-0.5 font-mono">{article.slug}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex px-2.5 py-0.5 bg-orange-50 text-orange-700 rounded-md text-xs font-bold">
-                        {article.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <button
-                        onClick={() => togglePublish(article)}
-                        className={`inline-flex px-3 py-1 rounded-full text-xs font-bold transition ${
-                          article.isPublished
-                            ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                            : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                        }`}
-                      >
-                        {article.isPublished ? "Published" : "Draft"}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-500">
-                      {formatDate(article.createdAt)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => openEdit(article)}
-                          className="px-3 py-1.5 text-xs font-medium text-orange-600 bg-orange-50 rounded-lg hover:bg-orange-100 transition"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(article)}
-                          className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition"
-                        >
-                          Hapus
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                    </tr>
+                  ))
               )}
             </tbody>
           </table>
