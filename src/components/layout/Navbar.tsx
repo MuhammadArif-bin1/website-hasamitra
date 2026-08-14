@@ -10,7 +10,7 @@ import { hasamitraSubmenu } from "@/data/navigation";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isHasamitraOpen, setIsHasamitraOpen] = useState(false);
-  const [isMobileHasamitraOpen, setIsMobileHasamitraOpen] = useState(false);
+  const [isMobileHasamitraOpen, setIsMobileHasamitraOpen] = useState(true);
   const pathname = usePathname();
 
   // Sembunyikan navbar publik di semua halaman admin
@@ -20,8 +20,9 @@ export default function Navbar() {
 
   const isHasamitraActive =
     pathname === "/" ||
-    pathname.startsWith("/tentang-kami/penghargaan") ||
-    pathname.startsWith("/penghargaan");
+    pathname.startsWith("/produk") ||
+    pathname.startsWith("/penghargaan") ||
+    pathname.startsWith("/tentang-kami/penghargaan");
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
@@ -41,23 +42,24 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-2 lg:space-x-3">
-            {/* Dropdown HASAMITRA (Beranda & Piagam / Penghargaan) */}
+            {/* Dropdown HASAMITRA (Beranda, Produk & Layanan, Piagam & Penghargaan) */}
             <div
               className="relative"
               onMouseEnter={() => setIsHasamitraOpen(true)}
               onMouseLeave={() => setIsHasamitraOpen(false)}
             >
-              <Link
-                href="/"
-                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              <button
+                type="button"
+                onClick={() => setIsHasamitraOpen(!isHasamitraOpen)}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold tracking-wide transition-all cursor-pointer ${
                   isHasamitraActive
-                    ? "text-orange-600 bg-orange-50"
-                    : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
+                    ? "text-orange-600 bg-orange-50 border border-orange-200 shadow-xs"
+                    : "text-slate-700 hover:text-orange-600 hover:bg-slate-50 border border-transparent"
                 }`}
               >
-                HASAMITRA
+                <span>HASAMITRA</span>
                 <svg
-                  className={`w-4 h-4 text-orange-500 transition-transform ${
+                  className={`w-4 h-4 text-orange-500 transition-transform duration-200 ${
                     isHasamitraOpen ? "rotate-180" : ""
                   }`}
                   fill="none"
@@ -66,54 +68,46 @@ export default function Navbar() {
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                 </svg>
-              </Link>
+              </button>
 
               {/* Dropdown Menu Hasamitra */}
               {isHasamitraOpen && (
-                <div className="absolute top-full left-0 w-60 pt-2 z-50">
-                  <div className="bg-white rounded-xl shadow-xl border border-slate-100 py-2 animate-fade-in divide-y divide-slate-50">
-                    <Link
-                      href="/"
-                      className={`block px-4 py-2.5 text-sm font-semibold transition-colors ${
-                        pathname === "/"
-                          ? "text-orange-600 bg-orange-50"
-                          : "text-slate-800 hover:bg-orange-50/60 hover:text-orange-600"
-                      }`}
-                    >
-                      Beranda
-                    </Link>
-                    {hasamitraSubmenu.map((sub) => (
-                      <Link
-                        key={sub.name}
-                        href={sub.href}
-                        className={`flex items-center justify-between px-4 py-2.5 text-sm font-semibold transition-colors ${
-                          pathname === sub.href || pathname.startsWith("/tentang-kami/penghargaan")
-                            ? "text-orange-600 bg-orange-50"
-                            : "text-slate-800 hover:bg-orange-50/60 hover:text-orange-600"
-                        }`}
-                      >
-                        <span>{sub.name}</span>
-                        <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">
-                          Piagam
-                        </span>
-                      </Link>
-                    ))}
+                <div className="absolute top-full left-0 w-64 pt-2 z-50 animate-fade-in">
+                  <div className="bg-white rounded-2xl shadow-xl border border-slate-100 py-2 divide-y divide-slate-50">
+                    {hasamitraSubmenu.map((sub) => {
+                      const isActive =
+                        pathname === sub.href ||
+                        (sub.href === "/penghargaan" && pathname.startsWith("/tentang-kami/penghargaan"));
+
+                      return (
+                        <Link
+                          key={sub.name}
+                          href={sub.href}
+                          onClick={() => setIsHasamitraOpen(false)}
+                          className={`flex items-center justify-between px-4 py-3 text-sm font-semibold transition-colors ${
+                            isActive
+                              ? "text-orange-600 bg-orange-50 font-bold"
+                              : "text-slate-800 hover:bg-orange-50/60 hover:text-orange-600"
+                          }`}
+                        >
+                          <span>{sub.name}</span>
+                          {sub.href === "/penghargaan" && (
+                            <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
+                              Piagam
+                            </span>
+                          )}
+                          {sub.href === "/produk" && (
+                            <span className="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full">
+                              Layanan
+                            </span>
+                          )}
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               )}
             </div>
-
-            {/* Produk */}
-            <Link
-              href="/produk"
-              className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                pathname === "/produk"
-                  ? "text-orange-600 bg-orange-50"
-                  : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
-              }`}
-            >
-              PRODUK
-            </Link>
           </nav>
 
           {/* Action WhatsApp Button on Navbar */}
@@ -154,7 +148,7 @@ export default function Navbar() {
             <div>
               <button
                 onClick={() => setIsMobileHasamitraOpen(!isMobileHasamitraOpen)}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600 cursor-pointer"
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-base font-bold text-slate-800 hover:bg-orange-50 hover:text-orange-600 cursor-pointer"
               >
                 <span>HASAMITRA</span>
                 <svg
@@ -170,44 +164,40 @@ export default function Navbar() {
               </button>
 
               {isMobileHasamitraOpen && (
-                <div className="pl-6 space-y-1 mt-1 border-l-2 border-slate-200">
-                  <Link
-                    href="/"
-                    onClick={() => setIsOpen(false)}
-                    className={`block px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                      pathname === "/"
-                        ? "text-orange-600 bg-orange-50"
-                        : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    Beranda
-                  </Link>
-                  {hasamitraSubmenu.map((sub) => (
-                    <Link
-                      key={sub.name}
-                      href={sub.href}
-                      onClick={() => setIsOpen(false)}
-                      className={`block px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                        pathname === sub.href || pathname.startsWith("/tentang-kami/penghargaan")
-                          ? "text-orange-600 bg-orange-50"
-                          : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      {sub.name}
-                    </Link>
-                  ))}
+                <div className="pl-4 space-y-1 mt-1 border-l-2 border-orange-200">
+                  {hasamitraSubmenu.map((sub) => {
+                    const isActive =
+                      pathname === sub.href ||
+                      (sub.href === "/penghargaan" && pathname.startsWith("/tentang-kami/penghargaan"));
+
+                    return (
+                      <Link
+                        key={sub.name}
+                        href={sub.href}
+                        onClick={() => setIsOpen(false)}
+                        className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+                          isActive
+                            ? "text-orange-600 bg-orange-50 font-bold"
+                            : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
+                        }`}
+                      >
+                        <span>{sub.name}</span>
+                        {sub.href === "/penghargaan" && (
+                          <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
+                            Piagam
+                          </span>
+                        )}
+                        {sub.href === "/produk" && (
+                          <span className="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full">
+                            Layanan
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
             </div>
-
-            {/* Mobile Produk */}
-            <Link
-              href="/produk"
-              onClick={() => setIsOpen(false)}
-              className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600"
-            >
-              PRODUK
-            </Link>
           </div>
         </div>
       )}
