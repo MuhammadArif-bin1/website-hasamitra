@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
@@ -14,53 +15,69 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <>{children}</>;
   }
 
+  // Get active page title for header
+  let pageTitle = "Dashboard";
+  if (pathname.includes("/admin/produk")) pageTitle = "Kelola Produk";
+  else if (pathname.includes("/admin/pendaftaran")) pageTitle = "Pendaftaran Nasabah";
+  else if (pathname.includes("/admin/berita")) pageTitle = "Kelola Berita";
+
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col lg:flex-row">
-      {/* Admin Sidebar (Persistent on Desktop, Drawer on Mobile) */}
+    <div className="min-h-screen bg-slate-100/60 font-sans flex flex-col lg:flex-row text-slate-800 selection:bg-orange-500 selection:text-white">
+      {/* Admin Sidebar (Desktop & Mobile Drawer) */}
       <AdminSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
-        {/* Mobile Top Header */}
-        <header className="lg:hidden sticky top-0 z-30 bg-slate-900 text-white px-4 py-3.5 flex items-center justify-between border-b border-slate-800 shadow-md">
+      {/* Main Content Wrapper */}
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-72">
+        {/* Desktop & Mobile Header Bar */}
+        <header className="sticky top-0 z-30 bg-white/85 backdrop-blur-xl border-b border-slate-200/80 px-4 sm:px-8 py-4 flex items-center justify-between shadow-xs">
+          {/* Mobile hamburger + Logo */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="p-2 -ml-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition-colors focus:outline-none cursor-pointer"
-              aria-label="Buka Menu Navigasi"
+              className="lg:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors focus:outline-none cursor-pointer"
+              aria-label="Buka Navigasi Admin"
             >
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center p-0.5 shadow-sm shrink-0 border border-slate-700/50">
-                <Image
-                  src="/images/logo/logo-bulat.png"
-                  alt="Logo Hasamitra"
-                  width={28}
-                  height={28}
-                  className="w-full h-full object-contain"
-                />
+            <div className="flex items-center gap-3">
+              <div className="hidden lg:flex items-center gap-2 text-xs font-semibold text-slate-400">
+                <span>Portal Admin</span>
+                <span>/</span>
+                <span className="text-orange-600 font-bold">{pageTitle}</span>
               </div>
-              <span className="font-bold text-sm tracking-tight text-white">Admin Hasamitra</span>
             </div>
           </div>
 
-          <span className="text-[11px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2.5 py-1 rounded-full">
-            Admin Panel
-          </span>
+          {/* Right Header Badges */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/70 text-xs font-semibold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Sistem Online</span>
+            </div>
+
+            <Link
+              href="/"
+              target="_blank"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-orange-50 hover:text-orange-600 border border-slate-200 transition-all inline-flex items-center gap-1.5"
+            >
+              <span>Website</span>
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </Link>
+          </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        {/* Dynamic Page Content */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
           {children}
         </main>
       </div>
     </div>
   );
 }
-
