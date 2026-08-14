@@ -137,9 +137,9 @@ export default function Footer() {
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <p>© {new Date().getFullYear()} PT BPR Hasamitra Jawa Barat. Berizin dan diawasi oleh OJK.</p>
           <div className="flex items-center gap-6">
-            <Link href="/contact" className="hover:text-orange-400 transition-colors">
+            <a href={`https://wa.me/${contactData.whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors">
               Hubungi Kami
-            </Link>
+            </a>
             <span>•</span>
             <a href={`https://wa.me/${contactData.whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors">
               WhatsApp
