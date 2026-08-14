@@ -42,12 +42,19 @@ export default function AdminBeritaPage() {
   const [selectedCategory, setSelectedCategory] = useState("Semua");
 
   // Form state
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    title: string;
+    category: string;
+    content: string;
+    image: string;
+    contentImages: string[];
+    isPublished: boolean;
+  }>({
     title: "",
     category: "Berita Utama",
     content: "",
     image: "",
-    contentImage: "",
+    contentImages: [],
     isPublished: true,
   });
 
@@ -75,7 +82,7 @@ export default function AdminBeritaPage() {
       category: "Berita Utama",
       content: "",
       image: "",
-      contentImage: "",
+      contentImages: [],
       isPublished: true,
     });
     setError("");
@@ -90,34 +97,29 @@ export default function AdminBeritaPage() {
       category: article.category,
       content: article.content,
       image: parsed.cover,
-      contentImage: parsed.content,
+      contentImages: parsed.contentImages,
       isPublished: article.isPublished,
     });
     setError("");
     setShowModal(true);
   };
 
-  const handleUploadImage = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: "image" | "contentImage"
-  ) => {
+  // Upload Foto Sampul (Cover Image)
+  const handleUploadCover = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       setError("File harus berupa gambar (JPG, PNG, WebP, dll).");
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setError("Ukuran gambar maksimal 5MB.");
+      setError("Ukuran foto sampul maksimal 5MB.");
       return;
     }
 
-    if (field === "image") setUploadingCover(true);
-    else setUploadingContent(true);
+    setUploadingCover(true);
     setError("");
 
     try {
@@ -130,18 +132,78 @@ export default function AdminBeritaPage() {
         { method: "POST", body: formData }
       );
 
-      if (!res.ok) {
-        throw new Error("Upload gagal");
-      }
+      if (!res.ok) throw new Error("Upload gagal");
 
       const data = await res.json();
-      setForm((prev) => ({ ...prev, [field]: data.secure_url }));
+      setForm((prev) => ({ ...prev, image: data.secure_url }));
     } catch {
-      setError("Gagal mengupload gambar ke Cloudinary. Pastikan koneksi internet stabil.");
+      setError("Gagal mengupload foto sampul. Pastikan koneksi stabil.");
     } finally {
-      if (field === "image") setUploadingCover(false);
-      else setUploadingContent(false);
+      setUploadingCover(false);
     }
+  };
+
+  // Upload Banyak Foto Isi Berita (Multiple Content Images)
+  const handleUploadContentImages = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    // Validate files
+    for (const f of files) {
+      if (!f.type.startsWith("image/")) {
+        setError(`File "${f.name}" bukan gambar.`);
+        return;
+      }
+      if (f.size > 5 * 1024 * 1024) {
+        setError(`File "${f.name}" melebihi ukuran maksimal 5MB.`);
+        return;
+      }
+    }
+
+    setUploadingContent(true);
+    setError("");
+
+    try {
+      const uploadedUrls: string[] = [];
+
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", UPLOAD_PRESET);
+
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+          { method: "POST", body: formData }
+        );
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.secure_url) {
+            uploadedUrls.push(data.secure_url);
+          }
+        }
+      }
+
+      if (uploadedUrls.length > 0) {
+        setForm((prev) => ({
+          ...prev,
+          contentImages: [...prev.contentImages, ...uploadedUrls],
+        }));
+      }
+    } catch {
+      setError("Gagal mengupload beberapa foto isi berita. Silakan coba lagi.");
+    } finally {
+      setUploadingContent(false);
+      // Reset input value so same files can be re-selected if desired
+      e.target.value = "";
+    }
+  };
+
+  const handleRemoveContentImage = (index: number) => {
+    setForm((prev) => ({
+      ...prev,
+      contentImages: prev.contentImages.filter((_, i) => i !== index),
+    }));
   };
 
   const handleSave = async () => {
@@ -158,7 +220,7 @@ export default function AdminBeritaPage() {
       category: form.category,
       content: form.content,
       image: form.image || null,
-      contentImage: form.contentImage || null,
+      contentImages: form.contentImages,
       isPublished: form.isPublished,
     };
 
@@ -346,21 +408,28 @@ export default function AdminBeritaPage() {
                     return (
                       <tr key={article.id} className="hover:bg-slate-50/50 transition">
                         <td className="px-6 py-4">
-                          {parsedImg.cover ? (
-                            <Image
-                              src={parsedImg.cover}
-                              alt={article.title}
-                              width={64}
-                              height={40}
-                              className="w-16 h-10 object-cover rounded-lg border border-slate-200"
-                            />
-                          ) : (
-                            <div className="w-16 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-                              <svg className="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                            </div>
-                          )}
+                          <div className="relative inline-block">
+                            {parsedImg.cover ? (
+                              <Image
+                                src={parsedImg.cover}
+                                alt={article.title}
+                                width={64}
+                                height={40}
+                                className="w-16 h-10 object-cover rounded-lg border border-slate-200"
+                              />
+                            ) : (
+                              <div className="w-16 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                                <svg className="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                              </div>
+                            )}
+                            {parsedImg.contentImages.length > 1 && (
+                              <span className="absolute -bottom-1.5 -right-1.5 bg-slate-900 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full shadow-xs border border-white">
+                                {parsedImg.contentImages.length} foto
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-4">
                           <p className="text-sm font-bold text-slate-900 line-clamp-1">{article.title}</p>
@@ -437,13 +506,13 @@ export default function AdminBeritaPage() {
       {/* Create/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+          <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[92vh] overflow-y-auto shadow-2xl">
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
               <div>
                 <h2 className="text-lg font-bold text-slate-900">
                   {editingArticle ? "Edit Berita" : "Tulis Berita Baru"}
                 </h2>
-                <p className="text-xs text-slate-400">Atur judul, kategori, foto sampul, foto isi, dan konten berita</p>
+                <p className="text-xs text-slate-400">Atur judul, kategori, foto sampul, banyak foto isi, dan konten berita</p>
               </div>
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -488,26 +557,31 @@ export default function AdminBeritaPage() {
               </div>
 
               {/* DUAL IMAGE UPLOAD SECTION */}
-              <div className="space-y-4 pt-1 border-t border-slate-100">
-                <h3 className="text-sm font-bold text-slate-900">Pengaturan Foto Berita</h3>
+              <div className="space-y-4 pt-2 border-t border-slate-100">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-slate-900">Pengaturan Foto Berita</h3>
+                  <span className="text-xs text-slate-400">Sampul (1 foto) & Isi Berita (bisa banyak foto)</span>
+                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* 1. Foto Sampul (Cover Image) */}
-                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                        1. Foto Sampul (Cover)
-                      </label>
-                      <span className="text-[10px] font-bold bg-orange-100 text-orange-700 px-2 py-0.5 rounded">
-                        Halaman Depan
-                      </span>
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                          1. Foto Sampul (Cover)
+                        </label>
+                        <span className="text-[10px] font-bold bg-orange-100 text-orange-700 px-2 py-0.5 rounded">
+                          Halaman Depan
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 leading-tight mt-1">
+                        Tampil di kartu daftar berita (Hasa Mitra News).
+                      </p>
                     </div>
-                    <p className="text-[11px] text-slate-500 leading-tight">
-                      Tampil di kartu daftar berita (Hasa Mitra News).
-                    </p>
 
                     {form.image ? (
-                      <div className="relative w-full h-36 rounded-xl overflow-hidden border border-slate-200 bg-white">
+                      <div className="relative w-full h-44 rounded-xl overflow-hidden border border-slate-200 bg-white">
                         <Image
                           src={form.image}
                           alt="Foto Sampul"
@@ -526,8 +600,8 @@ export default function AdminBeritaPage() {
                         </button>
                       </div>
                     ) : (
-                      <div className="w-full h-36 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 bg-white">
-                        <svg className="w-8 h-8 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="w-full h-44 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 bg-white">
+                        <svg className="w-8 h-8 mb-1 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <span className="text-xs">Belum ada foto sampul</span>
@@ -535,7 +609,7 @@ export default function AdminBeritaPage() {
                     )}
 
                     <div>
-                      <label className="cursor-pointer inline-flex items-center justify-center gap-2 w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition shadow-xs">
+                      <label className="cursor-pointer inline-flex items-center justify-center gap-2 w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition shadow-xs">
                         <svg className="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
@@ -543,7 +617,7 @@ export default function AdminBeritaPage() {
                         <input
                           type="file"
                           accept="image/*"
-                          onChange={(e) => handleUploadImage(e, "image")}
+                          onChange={handleUploadCover}
                           disabled={uploadingCover}
                           className="hidden"
                         />
@@ -551,62 +625,100 @@ export default function AdminBeritaPage() {
                     </div>
                   </div>
 
-                  {/* 2. Foto di Dalam Berita (Content Image) */}
-                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                        2. Foto Isi Berita
-                      </label>
-                      <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                        Baca Lengkap
-                      </span>
+                  {/* 2. Banyak Foto di Dalam Berita (Multiple Content Images) */}
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                          2. Foto Isi Berita
+                        </label>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                            Baca Lengkap
+                          </span>
+                          {form.contentImages.length > 0 && (
+                            <span className="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">
+                              {form.contentImages.length} Foto
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-slate-500 leading-tight mt-1">
+                        Tampil saat nasabah membaca lengkap (dapat memilih beberapa foto sekaligus).
+                      </p>
                     </div>
-                    <p className="text-[11px] text-slate-500 leading-tight">
-                      Tampil di dalam artikel saat nasabah membaca lengkap.
-                    </p>
 
-                    {form.contentImage ? (
-                      <div className="relative w-full h-36 rounded-xl overflow-hidden border border-slate-200 bg-white">
-                        <Image
-                          src={form.contentImage}
-                          alt="Foto Isi Berita"
-                          fill
-                          className="object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setForm((prev) => ({ ...prev, contentImage: "" }))}
-                          className="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition shadow-md cursor-pointer"
-                          title="Hapus foto isi berita"
-                        >
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
+                    {form.contentImages.length > 0 ? (
+                      <div className="w-full h-44 rounded-xl border border-slate-200 bg-white p-2 overflow-y-auto scrollbar-thin">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {form.contentImages.map((imgUrl, idx) => (
+                            <div
+                              key={idx}
+                              className="relative h-18 rounded-lg overflow-hidden border border-slate-200 group bg-slate-50"
+                            >
+                              <Image
+                                src={imgUrl}
+                                alt={`Foto isi ${idx + 1}`}
+                                fill
+                                className="object-cover"
+                              />
+                              <span className="absolute bottom-1 left-1 bg-black/70 text-[9px] font-mono font-bold text-white px-1 rounded">
+                                #{idx + 1}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveContentImage(idx)}
+                                className="absolute top-1 right-1 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition shadow-sm cursor-pointer"
+                                title="Hapus foto ini"
+                              >
+                                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ) : (
-                      <div className="w-full h-36 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 bg-white">
-                        <svg className="w-8 h-8 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="w-full h-44 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 bg-white text-center p-3">
+                        <svg className="w-8 h-8 mb-1 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <span className="text-xs">Otomatis pakai foto sampul jika kosong</span>
+                        <span className="text-xs font-medium">Bisa upload banyak foto</span>
+                        <span className="text-[10px] text-slate-400 mt-0.5">Otomatis pakai foto sampul jika kosong</span>
                       </div>
                     )}
 
-                    <div>
-                      <label className="cursor-pointer inline-flex items-center justify-center gap-2 w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition shadow-xs">
+                    <div className="space-y-1.5">
+                      <label className="cursor-pointer inline-flex items-center justify-center gap-2 w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition shadow-xs">
                         <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
-                        {uploadingContent ? "Mengupload..." : form.contentImage ? "Ganti Foto Isi" : "Pilih Foto Isi Berita"}
+                        {uploadingContent
+                          ? "Mengupload Foto..."
+                          : form.contentImages.length > 0
+                          ? "+ Tambah Foto Isi Lainnya"
+                          : "+ Pilih / Upload Banyak Foto Isi"}
                         <input
                           type="file"
                           accept="image/*"
-                          onChange={(e) => handleUploadImage(e, "contentImage")}
+                          multiple
+                          onChange={handleUploadContentImages}
                           disabled={uploadingContent}
                           className="hidden"
                         />
                       </label>
+                      {form.contentImages.length > 1 && (
+                        <div className="flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => setForm((prev) => ({ ...prev, contentImages: [] }))}
+                            className="text-[10px] text-red-500 hover:text-red-700 font-semibold hover:underline cursor-pointer"
+                          >
+                            Hapus Semua Foto Isi ({form.contentImages.length})
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -631,9 +743,11 @@ export default function AdminBeritaPage() {
                   id="isPublished"
                   checked={form.isPublished}
                   onChange={(e) => setForm((prev) => ({ ...prev, isPublished: e.target.checked }))}
-                  className="w-4 h-4 rounded border-slate-300 text-orange-500 focus:ring-orange-500"
+                  className="w-4 h-4 rounded border-slate-300 text-orange-500 focus:ring-orange-500 cursor-pointer"
                 />
-                <label htmlFor="isPublished" className="text-sm text-slate-700">Publikasikan berita (tampil di halaman Hasa Mitra News)</label>
+                <label htmlFor="isPublished" className="text-sm text-slate-700 cursor-pointer">
+                  Publikasikan berita (tampil di halaman Hasa Mitra News)
+                </label>
               </div>
             </div>
 

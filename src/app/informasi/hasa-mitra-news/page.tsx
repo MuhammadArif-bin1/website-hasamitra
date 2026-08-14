@@ -73,7 +73,7 @@ export default async function HasaMitraNewsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {articles.map((news) => {
-              const { cover } = parseArticleImages(news.image);
+              const { cover, contentImages } = parseArticleImages(news.image);
               return (
                 <article
                   key={news.id}
@@ -91,6 +91,14 @@ export default async function HasaMitraNewsPage() {
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
+                      {contentImages.length > 1 && (
+                        <span className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1.5 z-10">
+                          <svg className="w-3.5 h-3.5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          {contentImages.length} Foto
+                        </span>
+                      )}
                     </Link>
                   )}
 

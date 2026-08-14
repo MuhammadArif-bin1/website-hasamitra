@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import WhatsAppBanner from "@/components/common/WhatsAppBanner";
 import OjkLpsNotice from "@/components/common/OjkLpsNotice";
 import { parseArticleImages } from "@/lib/articleImages";
+import ArticleGallery from "@/components/news/ArticleGallery";
 import type { Metadata } from "next";
 
 export const revalidate = 60;
@@ -34,8 +35,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const { cover, content } = parseArticleImages(article.image);
-  const ogImage = content || cover;
+  const { cover, content, contentImages } = parseArticleImages(article.image);
+  const ogImage = contentImages[0] || content || cover;
 
   return {
     title: `${article.title} - Hasa Mitra News`,
@@ -66,9 +67,9 @@ export default async function NewsDetailPage({ params }: Props) {
     notFound();
   }
 
-  // Parse images (foto sampul vs foto di dalam berita)
-  const { cover, content: contentImage } = parseArticleImages(article.image);
-  const displayImage = contentImage || cover;
+  // Parse images (foto sampul vs banyak foto di dalam isi berita)
+  const { cover, content: contentImage, contentImages } = parseArticleImages(article.image);
+  const displayImages = contentImages.length > 0 ? contentImages : (contentImage || cover ? [contentImage || cover] : []);
 
   // Ambil berita terbaru lainnya
   const relatedArticles = await prisma.article.findMany({
@@ -164,16 +165,10 @@ export default async function NewsDetailPage({ params }: Props) {
             </h1>
           </div>
 
-          {/* Featured Image Di Dalam Berita */}
-          {displayImage && (
-            <div className="relative w-full aspect-video sm:aspect-21/9 max-h-[460px] bg-slate-100">
-              <Image
-                src={displayImage}
-                alt={article.title}
-                fill
-                priority
-                className="object-cover"
-              />
+          {/* Gallery Foto-foto Isi Berita */}
+          {displayImages.length > 0 && (
+            <div className="p-4 sm:p-8 pb-0">
+              <ArticleGallery images={displayImages} title={article.title} />
             </div>
           )}
 

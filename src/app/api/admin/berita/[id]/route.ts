@@ -21,7 +21,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { title, category, content, image, contentImage, isPublished } = body;
+    const { title, category, content, image, contentImage, contentImages, isPublished } = body;
 
     // Check if article exists
     const existing = await prisma.article.findUnique({ where: { id: articleId } });
@@ -48,11 +48,16 @@ export async function PUT(
 
     // Determine final image value
     let imageUpdate: { image: string | null } | object = {};
-    if (image !== undefined || contentImage !== undefined) {
+    if (image !== undefined || contentImage !== undefined || contentImages !== undefined) {
       const currentImages = parseArticleImages(existing.image);
       const newCover = image !== undefined ? image : currentImages.cover;
-      const newContent = contentImage !== undefined ? contentImage : currentImages.content;
-      imageUpdate = { image: serializeArticleImages(newCover, newContent) };
+      const newContentImages =
+        contentImages !== undefined
+          ? contentImages
+          : contentImage !== undefined
+          ? contentImage
+          : currentImages.contentImages;
+      imageUpdate = { image: serializeArticleImages(newCover, newContentImages) };
     }
 
     const article = await prisma.article.update({

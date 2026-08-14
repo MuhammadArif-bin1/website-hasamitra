@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, category, content, image, contentImage, isPublished } = body;
+    const { title, category, content, image, contentImage, contentImages, isPublished } = body;
 
     if (!title || !category || !content) {
       return NextResponse.json(
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       slug = `${baseSlug}-${Date.now()}`;
     }
 
-    const finalImage = serializeArticleImages(image, contentImage);
+    const finalImage = serializeArticleImages(image, contentImages || contentImage);
 
     const article = await prisma.article.create({
       data: {
