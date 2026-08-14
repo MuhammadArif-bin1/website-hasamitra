@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import WhatsAppButton from "@/components/common/WhatsAppButton";
-import CicilEmasModal from "@/components/forms/CicilEmasModal";
 import TabunganFormModal from "@/components/forms/TabunganFormModal";
 
 interface ProductItem {
@@ -62,7 +61,6 @@ export default function Home() {
   const [products, setProducts] = useState<ProductItem[]>(fallbackProducts);
   const [loadingProducts, setLoadingProducts] = useState(true);
 
-  const [cicilEmasOpen, setCicilEmasOpen] = useState(false);
   const [tabunganModalOpen, setTabunganModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState("New Tabungan Sabar");
   const [piagamPreviewOpen, setPiagamPreviewOpen] = useState(false);
@@ -86,12 +84,8 @@ export default function Home() {
   }, []);
 
   const openProductForm = (productName: string) => {
-    if (productName.toLowerCase().includes("emas")) {
-      setCicilEmasOpen(true);
-    } else {
-      setSelectedProduct(productName);
-      setTabunganModalOpen(true);
-    }
+    setSelectedProduct(productName);
+    setTabunganModalOpen(true);
   };
 
   return (
@@ -485,7 +479,7 @@ export default function Home() {
                   <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
                     Formulir Digital
                   </span>
-                  <span className="text-xs text-slate-400 font-medium">Google Forms</span>
+                  <span className="text-xs text-slate-400 font-medium">Resmi Hasamitra</span>
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900">Form Pendaftaran Cicil Emas</h3>
                 <p className="text-sm text-slate-600 leading-relaxed">
@@ -495,7 +489,7 @@ export default function Home() {
 
               <button
                 type="button"
-                onClick={() => setCicilEmasOpen(true)}
+                onClick={() => openProductForm("Program Cicil Emas")}
                 className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-sm tracking-wide text-center inline-flex items-center justify-center gap-2.5 transition-all duration-300 shadow-md shadow-orange-500/20 hover:shadow-orange-500/35 cursor-pointer"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -521,20 +515,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* MODAL 1: TABUNGAN & DEPOSITO REGISTRATION */}
+      {/* MODAL: UNIFIED PRODUCT REGISTRATION MODAL (TABUNGAN, DEPOSITO, CICIL EMAS) */}
       <TabunganFormModal
         isOpen={tabunganModalOpen}
         onClose={() => setTabunganModalOpen(false)}
         productName={selectedProduct}
       />
 
-      {/* MODAL 2: CICIL EMAS GOOGLE FORM */}
-      <CicilEmasModal
-        isOpen={cicilEmasOpen}
-        onClose={() => setCicilEmasOpen(false)}
-      />
-
-      {/* MODAL 3: FULL VIEW PIAGAM & PENGHARGAAN PREVIEW */}
+      {/* MODAL: FULL VIEW PIAGAM & PENGHARGAAN PREVIEW */}
       {piagamPreviewOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md animate-fade-in"
