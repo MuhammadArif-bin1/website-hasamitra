@@ -46,9 +46,21 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
 
   const handleLogout = async () => {
     onClose?.();
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("hasamitra_admin_session_active");
+    }
     await fetch("/api/admin/auth/login", { method: "DELETE" });
     router.push("/admin/login");
     router.refresh();
+  };
+
+  const handleGoToWebsite = async () => {
+    onClose?.();
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("hasamitra_admin_session_active");
+    }
+    await fetch("/api/admin/auth/login", { method: "DELETE" });
+    window.location.href = "/";
   };
 
   return (
@@ -142,16 +154,15 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
 
         {/* Footer User & Actions Card */}
         <div className="p-4 border-t border-slate-800/80 bg-slate-900/30 space-y-2">
-          <Link
-            href="/"
-            onClick={onClose}
-            className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all"
+          <button
+            onClick={handleGoToWebsite}
+            className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all cursor-pointer text-left"
           >
-            <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
             <span>Buka Website Utama</span>
-          </Link>
+          </button>
 
           <button
             onClick={handleLogout}

@@ -1,18 +1,40 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isLoginPage = pathname === "/admin/login";
+
+  useEffect(() => {
+    // Validasi session tab aktif saat berada di halaman admin
+    if (typeof window !== "undefined" && !isLoginPage) {
+      const isActive = sessionStorage.getItem("hasamitra_admin_session_active");
+      if (!isActive) {
+        // Jika tidak ada session aktif (misal membuka tab baru setelah meninggalkan halaman), minta login kembali
+        fetch("/api/admin/auth/login", { method: "DELETE" }).finally(() => {
+          router.push("/admin/login");
+          router.refresh();
+        });
+      }
+    }
+  }, [isLoginPage, router]);
 
   if (isLoginPage) {
     return <>{children}</>;
   }
+
+  const handleGoToWebsite = async () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("hasamitra_admin_session_active");
+    }
+    await fetch("/api/admin/auth/login", { method: "DELETE" });
+    window.location.href = "/";
+  };
 
   // Get active page title for header
   let pageTitle = "Dashboard";
@@ -58,16 +80,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <span className="hidden xs:inline">Sistem Online</span>
             </div>
 
-            <Link
-              href="/"
-              target="_blank"
-              className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-orange-50 hover:text-orange-600 border border-slate-200 transition-all inline-flex items-center gap-1.5"
+            <button
+              onClick={handleGoToWebsite}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-orange-50 hover:text-orange-600 border border-slate-200 transition-all inline-flex items-center gap-1.5 cursor-pointer"
+              title="Buka Website Utama dan Akhiri Sesi Admin"
             >
               <span>Website</span>
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
-            </Link>
+            </button>
           </div>
         </header>
 

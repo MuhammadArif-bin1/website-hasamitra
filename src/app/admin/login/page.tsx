@@ -79,6 +79,9 @@ export default function AdminLoginPage() {
       const data = await res.json();
 
       if (data.success) {
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("hasamitra_admin_session_active", "true");
+        }
         router.push("/admin");
         router.refresh();
       } else {
