@@ -11,10 +11,9 @@ export async function GET() {
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }
 
-    const [totalRegistrations, totalProducts, totalArticles] = await Promise.all([
+    const [totalRegistrations, totalProducts] = await Promise.all([
       prisma.registration.count(),
       prisma.product.count(),
-      prisma.article.count(),
     ]);
 
     const recentRegistrations = await prisma.registration.findMany({
@@ -28,7 +27,6 @@ export async function GET() {
         data: {
           totalRegistrations,
           totalProducts,
-          totalArticles,
           recentRegistrations,
         },
       },

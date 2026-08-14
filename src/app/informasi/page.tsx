@@ -38,13 +38,6 @@ const subFeatures = [
     color: "from-purple-600 to-pink-600",
   },
   {
-    title: "Hasa Mitra News",
-    desc: "Berita terbaru, kegiatan perbankan, dan pengumuman resmi bagi nasabah.",
-    href: "/informasi/hasa-mitra-news",
-    badge: "Kabar Terbaru",
-    color: "from-amber-500 to-orange-600",
-  },
-  {
     title: "Piagam Audit Internal",
     desc: "Pedoman kerja & piagam pengawasan independen Satuan Kerja Audit Internal (SKAI).",
     href: "/informasi/piagam-audit-internal",
@@ -57,19 +50,20 @@ export default function InformasiPage() {
   return (
     <div className="py-12 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-
-
         {/* Header Section */}
-        <div className="w-full bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 rounded-2xl py-6 shadow-md text-center text-white space-y-2">
-          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-wide">
-            - Pusat Informasi & Transparansi -
+        <div className="w-full bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 rounded-3xl py-8 px-6 shadow-md text-center text-white space-y-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-orange-100">
+            Transparansi &amp; Tata Kelola
+          </span>
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+            Pusat Informasi &amp; Transparansi Publik
           </h1>
           <p className="text-sm sm:text-base text-orange-100 max-w-2xl mx-auto px-4">
-            Akses seluruh laporan publik, informasi karir, berita perbankan, dan dokumen pengawasan PT BPR Hasamitra Jawa Barat.
+            Akses seluruh laporan publik, informasi karir, dan dokumen pengawasan resmi PT BPR Hasamitra Jawa Barat.
           </p>
         </div>
 
-        {/* 6 Sub-features Grid */}
+        {/* 5 Sub-features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {subFeatures.map((item, idx) => (
             <Link

@@ -15,7 +15,6 @@ interface RecentRegistration {
 interface DashboardData {
   totalRegistrations: number;
   totalProducts: number;
-  totalArticles: number;
   recentRegistrations: RecentRegistration[];
 }
 
@@ -23,7 +22,6 @@ export default function AdminDashboard() {
   const [data, setData] = useState<DashboardData>({
     totalRegistrations: 0,
     totalProducts: 0,
-    totalArticles: 0,
     recentRegistrations: [],
   });
   const [loading, setLoading] = useState(true);
@@ -88,39 +86,26 @@ export default function AdminDashboard() {
     {
       label: "Total Pendaftaran",
       value: data.totalRegistrations,
-      subtext: "Nasabah baru masuk",
+      subtext: "Nasabah baru masuk (Online)",
       href: "/admin/pendaftaran",
       gradient: "from-orange-500 to-amber-500",
       shadow: "shadow-orange-500/20",
       icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
         </svg>
       ),
     },
     {
-      label: "Katalog Produk",
+      label: "Katalog Produk Aktif",
       value: data.totalProducts,
-      subtext: "Produk aktif di web",
+      subtext: "Produk tampil di landing page",
       href: "/admin/produk",
       gradient: "from-emerald-500 to-teal-500",
       shadow: "shadow-emerald-500/20",
       icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-        </svg>
-      ),
-    },
-    {
-      label: "Artikel & Berita",
-      value: data.totalArticles,
-      subtext: "Dipublikasikan",
-      href: "/admin/berita",
-      gradient: "from-blue-500 to-indigo-500",
-      shadow: "shadow-blue-500/20",
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
         </svg>
       ),
     },
@@ -148,7 +133,7 @@ export default function AdminDashboard() {
             Selamat Datang di Portal Admin Hasamitra
           </h1>
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            Data pendaftaran dan pembaruan produk terpantau secara real-time tanpa perlu me-refresh halaman.
+            Data pendaftaran nasabah dan pembaruan produk perbankan terpantau secara real-time tanpa perlu me-refresh halaman.
           </p>
         </div>
 
@@ -170,29 +155,29 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Stats Grid: 2 Core Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {stats.map((stat) => (
           <Link
             key={stat.label}
             href={stat.href}
-            className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-md shadow-slate-200/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between"
+            className="bg-white rounded-3xl p-7 border border-slate-200/80 shadow-md shadow-slate-200/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-5">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 {stat.label}
               </span>
               <div
-                className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center text-white shadow-lg ${stat.shadow} group-hover:scale-110 transition-transform duration-300`}
+                className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center text-white shadow-lg ${stat.shadow} group-hover:scale-110 transition-transform duration-300`}
               >
                 {stat.icon}
               </div>
             </div>
             <div>
-              <p className="text-3xl sm:text-4xl font-black text-slate-900">
+              <p className="text-4xl sm:text-5xl font-black text-slate-900">
                 {loading ? "..." : stat.value}
               </p>
-              <p className="text-xs text-slate-400 mt-1 font-medium">{stat.subtext}</p>
+              <p className="text-xs sm:text-sm text-slate-500 mt-2 font-medium">{stat.subtext}</p>
             </div>
           </Link>
         ))}

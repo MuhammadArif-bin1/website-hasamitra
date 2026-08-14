@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AdminSidebar from "@/components/admin/AdminSidebar";
@@ -19,7 +18,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   let pageTitle = "Dashboard";
   if (pathname.includes("/admin/produk")) pageTitle = "Kelola Produk";
   else if (pathname.includes("/admin/pendaftaran")) pageTitle = "Pendaftaran Nasabah";
-  else if (pathname.includes("/admin/berita")) pageTitle = "Kelola Berita";
 
   return (
     <div className="min-h-screen bg-slate-100/60 font-sans flex flex-col lg:flex-row text-slate-800 selection:bg-orange-500 selection:text-white">
@@ -33,7 +31,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex-1 flex flex-col min-w-0 lg:ml-72">
         {/* Desktop & Mobile Header Bar */}
         <header className="sticky top-0 z-30 bg-white/85 backdrop-blur-xl border-b border-slate-200/80 px-4 sm:px-8 py-4 flex items-center justify-between shadow-xs">
-          {/* Mobile hamburger + Logo */}
+          {/* Mobile hamburger + Breadcrumb */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
