@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import WhatsAppButton from "@/components/common/WhatsAppButton";
 import CicilEmasModal from "@/components/forms/CicilEmasModal";
@@ -66,7 +65,6 @@ export default function Home() {
   const [cicilEmasOpen, setCicilEmasOpen] = useState(false);
   const [tabunganModalOpen, setTabunganModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState("New Tabungan Sabar");
-  const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
   const [piagamPreviewOpen, setPiagamPreviewOpen] = useState(false);
 
   useEffect(() => {
@@ -98,129 +96,81 @@ export default function Home() {
 
   return (
     <div className="bg-slate-50 text-slate-900 scroll-smooth">
-      {/* 1. HERO SECTION (FLAT & STRUCTURED 2-COLUMN) */}
-      <section id="hasamitra" className="relative bg-slate-950 text-white border-b border-slate-800 overflow-hidden">
-        {/* Subtle grid pattern background */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+      {/* 1. HERO SECTION WITH IMAGE BACKGROUND */}
+      <section id="hasamitra" className="relative bg-slate-950 text-white border-b border-slate-800 overflow-hidden min-h-[540px] lg:min-h-[580px] flex items-center">
+        {/* Background Image with Dark Overlay */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/images/profil/gambar background hasamitra.png"
+            alt="Background Bank Hasamitra Jawa Barat"
+            fill
+            priority
+            className="object-cover object-center"
+          />
+          {/* Dark gradient overlay for crystal clear contrast */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-slate-950/70"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b20_1px,transparent_1px),linear-gradient(to_bottom,#1e293b20_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+        </div>
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
-            {/* Left Column: Institutional Headline & Value Proposition */}
-            <div className="lg:col-span-7 space-y-6 text-left">
-              {/* Official Status Tag */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900 border border-slate-700 text-xs font-semibold text-orange-400 uppercase tracking-wider">
-                <span className="w-2 h-2 bg-orange-500 rounded-none"></span>
-                <span>PT BPR Hasamitra Jawa Barat • OJK & LPS</span>
-              </div>
-
-              {/* Primary Headline */}
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white">
-                Mitra Finansial Terpercaya untuk Pertumbuhan{" "}
-                <span className="text-orange-500 border-b-2 border-orange-500 pb-0.5">
-                  Ekonomi Jawa Barat
-                </span>
-              </h1>
-
-              {/* Comprehensive Description */}
-              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
-                BPR Hasamitra Jawa Barat berkomitmen menghimpun dana masyarakat melalui produk Tabungan & Deposito bergaransi LPS, serta menyalurkan fasilitas kredit modal kerja dan konsumtif dengan proses cepat, transparan, dan terpercaya.
-              </p>
-
-              {/* Action Buttons Group */}
-              <div className="pt-2 flex flex-wrap items-center gap-3">
-                <a
-                  href="#produk"
-                  className="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-colors inline-flex items-center gap-2 border border-orange-500 shadow-sm cursor-pointer"
-                >
-                  Lihat Produk Perbankan
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </a>
-
-                <a
-                  href="https://hasamitrajabar.com/wp-content/uploads/2021/05/Permohonan-Kredit.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-colors inline-flex items-center gap-2 border border-slate-700"
-                >
-                  <svg className="w-4 h-4 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Form Kredit (PDF)
-                </a>
-
-                <WhatsAppButton variant="compact" text="Konsultasi WhatsApp" className="py-3 px-4 text-xs uppercase tracking-wider font-bold rounded-none" />
-              </div>
-
-              {/* Regulatory Quick Strip */}
-              <div className="pt-4 border-t border-slate-800/90 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-400">
-                <div className="flex items-start gap-2">
-                  <span className="text-orange-500 font-bold">✓</span>
-                  <span><strong>Berizin & Diawasi:</strong> Otoritas Jasa Keuangan (OJK)</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-orange-500 font-bold">✓</span>
-                  <span><strong>Peserta Penjaminan:</strong> LPS hingga Rp 2 Miliar</span>
-                </div>
-              </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 relative z-10 w-full">
+          <div className="max-w-3xl space-y-6 text-left">
+            {/* Official Status Tag */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 text-xs font-semibold text-orange-400 uppercase tracking-wider shadow-sm">
+              <span className="w-2 h-2 bg-orange-500 rounded-none animate-pulse"></span>
+              <span>PT BPR Hasamitra Jawa Barat • OJK & LPS</span>
             </div>
 
-            {/* Right Column: Bank Korespondensi Document Showcase */}
-            <div className="lg:col-span-5">
-              <div className="bg-slate-900 border border-slate-800 p-4 sm:p-5 shadow-2xl relative">
-                {/* Showcase Header */}
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-emerald-500"></span>
-                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-200">
-                      Rekening Resmi Penampungan
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest bg-slate-800 px-2 py-0.5 border border-slate-700">
-                    Dokumen Sah
-                  </span>
-                </div>
+            {/* Primary Headline */}
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white drop-shadow-md">
+              Mitra Finansial Terpercaya untuk Pertumbuhan{" "}
+              <span className="text-orange-500 border-b-2 border-orange-500 pb-0.5">
+                Ekonomi Jawa Barat
+              </span>
+            </h1>
 
-                {/* Document Image with Click to Zoom */}
-                <div 
-                  className="relative border border-slate-800 bg-white group cursor-pointer overflow-hidden"
-                  onClick={() => setImagePreviewOpen(true)}
-                  title="Klik untuk memperbesar dokumen bank korespondensi"
-                >
-                  <Image
-                    src="/images/dokumen/daftar-bank-korespondensi.png"
-                    alt="Daftar Bank Korespondensi Online A.N. PT BPR Hasamitra Jawa Barat"
-                    width={800}
-                    height={550}
-                    className="w-full h-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
-                    priority
-                  />
-                  
-                  {/* Hover Overlay Indicator */}
-                  <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white text-xs font-semibold uppercase tracking-wider">
-                    <svg className="w-4 h-4 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-                    </svg>
-                    Klik untuk Memperbesar
-                  </div>
-                </div>
+            {/* Comprehensive Description */}
+            <p className="text-sm sm:text-base text-slate-200 leading-relaxed max-w-2xl drop-shadow-xs">
+              BPR Hasamitra Jawa Barat berkomitmen menghimpun dana masyarakat melalui produk Tabungan & Deposito bergaransi LPS, serta menyalurkan fasilitas kredit modal kerja dan konsumtif dengan proses cepat, transparan, dan terpercaya.
+            </p>
 
-                {/* Showcase Footer Note */}
-                <div className="pt-3 flex items-center justify-between text-[11px] text-slate-400">
-                  <span className="font-mono text-orange-400">A.N. PT BPR HASAMITRA JAWA BARAT</span>
-                  <button
-                    type="button"
-                    onClick={() => setImagePreviewOpen(true)}
-                    className="text-slate-300 hover:text-white font-semibold underline text-[11px] inline-flex items-center gap-1 cursor-pointer"
-                  >
-                    Buka Preview ↗
-                  </button>
-                </div>
-              </div>
+            {/* Action Buttons Group */}
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <a
+                href="#produk"
+                className="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-colors inline-flex items-center gap-2 border border-orange-500 shadow-lg shadow-orange-600/20 cursor-pointer"
+              >
+                Lihat Produk Perbankan
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </a>
+
+              <a
+                href="https://hasamitrajabar.com/wp-content/uploads/2021/05/Permohonan-Kredit.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-3 bg-slate-900/90 hover:bg-slate-800 text-slate-200 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-colors inline-flex items-center gap-2 border border-slate-700 backdrop-blur-xs"
+              >
+                <svg className="w-4 h-4 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Form Kredit (PDF)
+              </a>
+
+              <WhatsAppButton variant="compact" text="Konsultasi WhatsApp" className="py-3 px-4 text-xs uppercase tracking-wider font-bold rounded-none" />
             </div>
 
+            {/* Regulatory Quick Strip */}
+            <div className="pt-4 border-t border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-300">
+              <div className="flex items-start gap-2">
+                <span className="text-orange-500 font-bold">✓</span>
+                <span><strong>Berizin & Diawasi:</strong> Otoritas Jasa Keuangan (OJK)</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-orange-500 font-bold">✓</span>
+                <span><strong>Peserta Penjaminan:</strong> LPS hingga Rp 2 Miliar</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -534,52 +484,7 @@ export default function Home() {
         onClose={() => setCicilEmasOpen(false)}
       />
 
-      {/* MODAL 3: FULL VIEW BANK KORESPONDENSI IMAGE PREVIEW */}
-      {imagePreviewOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-sm"
-          onClick={() => setImagePreviewOpen(false)}
-        >
-          <div
-            className="bg-slate-900 border border-slate-700 w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between text-white">
-              <div className="space-y-0.5">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-orange-400 block">
-                  Dokumen Resmi
-                </span>
-                <h4 className="text-sm sm:text-base font-bold">
-                  Daftar Bank Korespondensi Online A.N. PT BPR Hasamitra Jawa Barat
-                </h4>
-              </div>
-              <button
-                type="button"
-                onClick={() => setImagePreviewOpen(false)}
-                className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-mono border border-slate-600 transition-colors cursor-pointer"
-              >
-                ✕ TUTUP
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-auto p-4 bg-white flex items-center justify-center">
-              <Image
-                src="/images/dokumen/daftar-bank-korespondensi.png"
-                alt="Daftar Bank Korespondensi Online A.N. PT BPR Hasamitra Jawa Barat"
-                width={1200}
-                height={900}
-                className="w-full h-auto max-h-[72vh] object-contain mx-auto"
-              />
-            </div>
-
-            <div className="p-3 border-t border-slate-800 bg-slate-950 text-right text-xs text-slate-400">
-              Pastikan transfer transaksi ditujukan kepada rekening resmi yang tertera pada dokumen.
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 4: FULL VIEW PIAGAM & PENGHARGAAN PREVIEW */}
+      {/* MODAL 3: FULL VIEW PIAGAM & PENGHARGAAN PREVIEW */}
       {piagamPreviewOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md"
