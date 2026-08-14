@@ -8,9 +8,9 @@ export interface NavItemWithSubmenu extends NavItem {
 }
 
 export const hasamitraSubmenu: NavItem[] = [
-  { name: "Beranda", href: "/" },
-  { name: "Produk & Layanan", href: "/produk" },
-  { name: "Piagam & Penghargaan", href: "/penghargaan" },
+  { name: "Beranda", href: "/#hasamitra" },
+  { name: "Produk & Layanan", href: "/#produk" },
+  { name: "Piagam & Penghargaan", href: "/#piagam" },
 ];
 
 export const mainNavigation: NavItemWithSubmenu[] = [
@@ -22,7 +22,7 @@ export const mainNavigation: NavItemWithSubmenu[] = [
 ];
 
 export const footerNavigation: NavItem[] = [
-  { name: "HASAMITRA", href: "/" },
-  { name: "PRODUK & LAYANAN", href: "/produk" },
-  { name: "PIAGAM & PENGHARGAAN", href: "/penghargaan" },
+  { name: "HASAMITRA", href: "/#hasamitra" },
+  { name: "PRODUK & LAYANAN", href: "/#produk" },
+  { name: "PIAGAM & PENGHARGAAN", href: "/#piagam" },
 ];

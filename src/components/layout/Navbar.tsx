@@ -75,28 +75,23 @@ export default function Navbar() {
                 <div className="absolute top-full left-0 w-64 pt-2 z-50 animate-fade-in">
                   <div className="bg-white rounded-2xl shadow-xl border border-slate-100 py-2 divide-y divide-slate-50">
                     {hasamitraSubmenu.map((sub) => {
-                      const isActive =
-                        pathname === sub.href ||
-                        (sub.href === "/penghargaan" && pathname.startsWith("/tentang-kami/penghargaan"));
+                      const isPiagam = sub.href.includes("piagam") || sub.href.includes("penghargaan");
+                      const isProduk = sub.href.includes("produk");
 
                       return (
                         <Link
                           key={sub.name}
                           href={sub.href}
                           onClick={() => setIsHasamitraOpen(false)}
-                          className={`flex items-center justify-between px-4 py-3 text-sm font-semibold transition-colors ${
-                            isActive
-                              ? "text-orange-600 bg-orange-50 font-bold"
-                              : "text-slate-800 hover:bg-orange-50/60 hover:text-orange-600"
-                          }`}
+                          className="flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800 hover:bg-orange-50/60 hover:text-orange-600 transition-colors"
                         >
                           <span>{sub.name}</span>
-                          {sub.href === "/penghargaan" && (
+                          {isPiagam && (
                             <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
                               Piagam
                             </span>
                           )}
-                          {sub.href === "/produk" && (
+                          {isProduk && (
                             <span className="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full">
                               Layanan
                             </span>
@@ -166,28 +161,23 @@ export default function Navbar() {
               {isMobileHasamitraOpen && (
                 <div className="pl-4 space-y-1 mt-1 border-l-2 border-orange-200">
                   {hasamitraSubmenu.map((sub) => {
-                    const isActive =
-                      pathname === sub.href ||
-                      (sub.href === "/penghargaan" && pathname.startsWith("/tentang-kami/penghargaan"));
+                    const isPiagam = sub.href.includes("piagam") || sub.href.includes("penghargaan");
+                    const isProduk = sub.href.includes("produk");
 
                     return (
                       <Link
                         key={sub.name}
                         href={sub.href}
                         onClick={() => setIsOpen(false)}
-                        className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
-                          isActive
-                            ? "text-orange-600 bg-orange-50 font-bold"
-                            : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
-                        }`}
+                        className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-700 hover:text-orange-600 hover:bg-slate-50 transition-colors"
                       >
                         <span>{sub.name}</span>
-                        {sub.href === "/penghargaan" && (
+                        {isPiagam && (
                           <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
                             Piagam
                           </span>
                         )}
-                        {sub.href === "/produk" && (
+                        {isProduk && (
                           <span className="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full">
                             Layanan
                           </span>

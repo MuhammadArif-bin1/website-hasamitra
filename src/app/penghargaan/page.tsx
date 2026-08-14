@@ -1,10 +1,5 @@
-import PenghargaanPage from "@/app/tentang-kami/penghargaan/page";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Piagam & Penghargaan - PT BPR Hasamitra Jawa Barat",
-  description: "Piagam & Penghargaan Resmi PT BPR Hasamitra Jawa Barat.",
-};
-
-export default function Page() {
-  return <PenghargaanPage />;
+export default function PenghargaanPage() {
+  redirect("/#piagam");
 }
