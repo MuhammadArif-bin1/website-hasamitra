@@ -244,9 +244,6 @@ export default function AdminProdukPage() {
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Kelola Produk Perbankan
           </h1>
-          <p className="text-xs text-slate-400 font-medium">
-            Katalog produk perbankan yang tampil di landing page utama
-          </p>
         </div>
 
         <div className="flex items-center gap-3">

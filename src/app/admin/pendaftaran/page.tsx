@@ -294,9 +294,6 @@ export default function AdminPendaftaranPage() {
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Pendaftaran Nasabah Online
           </h1>
-          <p className="text-xs text-slate-400 font-medium">
-            Kelola dan pantau pengajuan rekening tabungan dan produk nasabah
-          </p>
         </div>
 
         {/* Action Buttons: Refresh, Delete Data & Export */}
