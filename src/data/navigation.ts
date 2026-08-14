@@ -4,15 +4,11 @@ export interface NavItem {
 }
 
 export const mainNavigation: NavItem[] = [
-  { name: "Beranda", href: "/" },
-  { name: "Produk", href: "/#produk" },
-  { name: "Piagam & Legalitas", href: "/#piagam" },
-  { name: "Unduh Formulir", href: "/#unduh" },
-  { name: "Pusat Informasi", href: "/informasi" },
+  { name: "HASAMITRA", href: "/" },
 ];
 
 export const footerNavigation: NavItem[] = [
-  { name: "Beranda Utama", href: "/" },
+  { name: "HASAMITRA", href: "/" },
   { name: "Produk & Layanan", href: "/#produk" },
   { name: "Piagam & Legalitas", href: "/#piagam" },
   { name: "Pusat Unduhan Formulir", href: "/#unduh" },

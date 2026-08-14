@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { mainNavigation } from "@/data/navigation";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
 
   // Sembunyikan navbar publik di semua halaman admin
@@ -16,31 +14,10 @@ export default function Navbar() {
     return null;
   }
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Tutup mobile menu saat berpindah halaman
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
+  const isHomeActive = pathname === "/";
 
   return (
-    <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-        isScrolled
-          ? "bg-white/95 backdrop-blur-xl border-b border-slate-200/80 shadow-sm"
-          : "bg-white/90 backdrop-blur-md border-b border-slate-100"
-      }`}
-    >
+    <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-xl border-b border-slate-200/70 shadow-xs transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo Brand Hasamitra */}
@@ -61,26 +38,18 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-2">
-            {mainNavigation.map((item) => {
-              const isHome = item.href === "/";
-              const isActive = isHome ? pathname === "/" : pathname === item.href;
-
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`px-3.5 lg:px-4 py-2 rounded-full text-xs lg:text-sm font-bold tracking-wide transition-all duration-200 ${
-                    isActive
-                      ? "text-orange-600 bg-orange-50/90 border border-orange-200/80 shadow-xs"
-                      : "text-slate-700 hover:text-orange-600 hover:bg-slate-100/80 border border-transparent"
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              );
-            })}
+          {/* Desktop Navigation - Single HASAMITRA Pill Link */}
+          <nav className="hidden md:flex items-center">
+            <Link
+              href="/"
+              className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${
+                isHomeActive
+                  ? "text-orange-600 bg-orange-50/90 border border-orange-200/80 shadow-xs"
+                  : "text-slate-700 hover:text-orange-600 hover:bg-slate-100/80 border border-transparent"
+              }`}
+            >
+              HASAMITRA
+            </Link>
           </nav>
 
           {/* Mobile Menu Toggle Button */}
@@ -113,47 +82,18 @@ export default function Navbar() {
           className="md:hidden border-t border-slate-200/80 bg-white/98 backdrop-blur-2xl shadow-xl animate-fade-in"
           id="mobile-menu"
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-3 pb-6 space-y-1.5">
-            {mainNavigation.map((item) => {
-              const isHome = item.href === "/";
-              const isActive = isHome ? pathname === "/" : pathname === item.href;
-
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition-colors ${
-                    isActive
-                      ? "text-orange-600 bg-orange-50 border border-orange-200/60"
-                      : "text-slate-800 hover:bg-slate-100 hover:text-orange-600"
-                  }`}
-                >
-                  <span>{item.name}</span>
-                  <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
-              );
-            })}
-
-            {/* Quick Links on Mobile */}
-            <div className="pt-3 mt-3 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs font-semibold text-slate-500">
-              <Link
-                href="/informasi/karir"
-                onClick={() => setIsOpen(false)}
-                className="px-3 py-2 rounded-xl bg-slate-50 hover:bg-orange-50 hover:text-orange-600 text-center transition-colors"
-              >
-                Karir Hasamitra
-              </Link>
-              <Link
-                href="/informasi/laporan-triwulan"
-                onClick={() => setIsOpen(false)}
-                className="px-3 py-2 rounded-xl bg-slate-50 hover:bg-orange-50 hover:text-orange-600 text-center transition-colors"
-              >
-                Laporan Keuangan
-              </Link>
-            </div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-3 pb-6 space-y-2">
+            <Link
+              href="/"
+              onClick={() => setIsOpen(false)}
+              className={`block px-5 py-3 rounded-2xl text-base font-bold transition-colors ${
+                isHomeActive
+                  ? "text-orange-600 bg-orange-50 border border-orange-200/60"
+                  : "text-slate-800 hover:bg-orange-50 hover:text-orange-600"
+              }`}
+            >
+              HASAMITRA
+            </Link>
           </div>
         </div>
       )}
