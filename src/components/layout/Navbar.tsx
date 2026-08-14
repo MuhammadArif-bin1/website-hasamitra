@@ -18,7 +18,7 @@ export default function Navbar() {
   const isHomeActive = pathname === "/";
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
+    <header className="sticky top-0 z-50 bg-white/85 backdrop-blur-xl border-b border-slate-200/60 shadow-xs transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo Brand */}
@@ -28,37 +28,45 @@ export default function Navbar() {
               alt="Bank Hasamitra Jawa Barat"
               width={220}
               height={55}
-              className="h-11 w-auto object-contain transition-transform group-hover:scale-105"
+              className="h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
               priority
             />
           </Link>
 
-          {/* Desktop Navigation - Single HASAMITRA Link */}
+          {/* Desktop Navigation - Single HASAMITRA Pill Link */}
           <nav className="hidden md:flex items-center space-x-3">
             <Link
               href="/"
-              className={`px-4 py-2 rounded-xl text-sm font-bold tracking-wide transition-all ${
+              className={`px-5 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${
                 isHomeActive
-                  ? "text-orange-600 bg-orange-50 border border-orange-200 shadow-xs"
-                  : "text-slate-700 hover:text-orange-600 hover:bg-slate-50 border border-transparent"
+                  ? "text-orange-600 bg-orange-50/90 border border-orange-200/80 shadow-xs"
+                  : "text-slate-700 hover:text-orange-600 hover:bg-slate-100/80 border border-transparent"
               }`}
             >
               HASAMITRA
             </Link>
           </nav>
 
-          {/* Action WhatsApp Button on Navbar */}
+          {/* Action WhatsApp CS Button on Navbar */}
           <div className="hidden lg:flex items-center">
-            <WhatsAppButton variant="compact" text="Hubungi Kami" />
+            <WhatsAppButton
+              variant="compact"
+              text="HUBUNGI CS"
+              className="rounded-full px-5 py-2.5 font-bold shadow-sm hover:shadow-md transition-all"
+            />
           </div>
 
           {/* Mobile menu button */}
           <div className="flex md:hidden items-center gap-2">
-            <WhatsAppButton variant="compact" text="WhatsApp" />
+            <WhatsAppButton
+              variant="compact"
+              text="CS"
+              className="rounded-full px-3.5 py-1.5 font-bold text-xs"
+            />
             <button
               onClick={() => setIsOpen(!isOpen)}
               type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-slate-700 hover:text-orange-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer"
+              className="inline-flex items-center justify-center p-2 rounded-xl text-slate-700 hover:text-orange-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer"
               aria-controls="mobile-menu"
               aria-expanded={isOpen}
             >
@@ -79,12 +87,12 @@ export default function Navbar() {
 
       {/* Mobile Menu Dropdown */}
       {isOpen && (
-        <div className="md:hidden border-t border-slate-100 bg-white" id="mobile-menu">
+        <div className="md:hidden border-t border-slate-100 bg-white/95 backdrop-blur-xl shadow-lg" id="mobile-menu">
           <div className="px-4 pt-3 pb-6 space-y-2">
             <Link
               href="/"
               onClick={() => setIsOpen(false)}
-              className={`block px-4 py-3 rounded-xl text-base font-bold transition-colors ${
+              className={`block px-5 py-3 rounded-2xl text-base font-bold transition-colors ${
                 isHomeActive
                   ? "text-orange-600 bg-orange-50"
                   : "text-slate-800 hover:bg-orange-50 hover:text-orange-600"
