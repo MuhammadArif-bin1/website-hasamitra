@@ -101,10 +101,15 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-xl sm:shadow-2xl border border-slate-100/90 relative z-10">
         {/* Header & Logo Badge */}
         <div className="text-center mb-6 sm:mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-orange-500 via-orange-600 to-amber-500 text-white shadow-lg shadow-orange-500/25 mb-3 sm:mb-4 transition-transform hover:scale-105">
-            <svg className="w-7 h-7 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white p-1.5 shadow-lg border border-slate-100 mb-3 sm:mb-4 transition-transform hover:scale-105">
+            <Image
+              src="/images/logo/logo-bulat.png"
+              alt="Logo Hasamitra"
+              width={70}
+              height={70}
+              className="w-full h-full object-contain"
+              priority
+            />
           </div>
           <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Admin Portal</h1>
           <p className="text-[11px] sm:text-xs font-bold text-orange-600 uppercase tracking-wider mt-1">

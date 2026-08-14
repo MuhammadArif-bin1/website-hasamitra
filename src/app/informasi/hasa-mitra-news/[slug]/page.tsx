@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import WhatsAppBanner from "@/components/common/WhatsAppBanner";
 import OjkLpsNotice from "@/components/common/OjkLpsNotice";
+import { parseArticleImages } from "@/lib/articleImages";
 import type { Metadata } from "next";
 
 export const revalidate = 60;
@@ -33,13 +34,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
+  const { cover, content } = parseArticleImages(article.image);
+  const ogImage = content || cover;
+
   return {
     title: `${article.title} - Hasa Mitra News`,
     description: article.content.slice(0, 160),
     openGraph: {
       title: article.title,
       description: article.content.slice(0, 160),
-      images: article.image ? [article.image] : [],
+      images: ogImage ? [ogImage] : [],
     },
   };
 }
@@ -61,6 +65,10 @@ export default async function NewsDetailPage({ params }: Props) {
   if (!article) {
     notFound();
   }
+
+  // Parse images (foto sampul vs foto di dalam berita)
+  const { cover, content: contentImage } = parseArticleImages(article.image);
+  const displayImage = contentImage || cover;
 
   // Ambil berita terbaru lainnya
   const relatedArticles = await prisma.article.findMany({
@@ -156,11 +164,11 @@ export default async function NewsDetailPage({ params }: Props) {
             </h1>
           </div>
 
-          {/* Featured Image */}
-          {article.image && (
+          {/* Featured Image Di Dalam Berita */}
+          {displayImage && (
             <div className="relative w-full aspect-video sm:aspect-21/9 max-h-[460px] bg-slate-100">
               <Image
-                src={article.image}
+                src={displayImage}
                 alt={article.title}
                 fill
                 priority
@@ -237,22 +245,24 @@ export default async function NewsDetailPage({ params }: Props) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {relatedArticles.map((rel) => (
-                <Link
-                  key={rel.id}
-                  href={`/informasi/hasa-mitra-news/${rel.slug}`}
-                  className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col group"
-                >
-                  {rel.image && (
-                    <div className="relative w-full h-36 bg-slate-100 overflow-hidden">
-                      <Image
-                        src={rel.image}
-                        alt={rel.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                  )}
+              {relatedArticles.map((rel) => {
+                const relImages = parseArticleImages(rel.image);
+                return (
+                  <Link
+                    key={rel.id}
+                    href={`/informasi/hasa-mitra-news/${rel.slug}`}
+                    className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col group"
+                  >
+                    {relImages.cover && (
+                      <div className="relative w-full h-36 bg-slate-100 overflow-hidden">
+                        <Image
+                          src={relImages.cover}
+                          alt={rel.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    )}
                   <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
                     <div>
                       <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${getCategoryBadgeClass(rel.category)}`}>

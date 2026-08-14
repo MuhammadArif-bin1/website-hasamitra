@@ -15,42 +15,68 @@ export async function GET() {
 
     // CSV Header
     const headers = [
+      "No",
       "ID Registrasi",
       "Tanggal Daftar",
+      "Waktu",
       "Nama Nasabah",
-      "Produk",
-      "Pilihan",
+      "Produk Layanan",
+      "Pilihan / Tipe",
       "Email",
-      "Telepon / WA",
+      "Nomor WhatsApp / HP",
       "Alamat Domisili",
-      "Status Pendaftaran",
+      "Status",
     ];
 
     // CSV Rows
-    const rows = registrations.map((r) => [
-      `"REG-${String(r.id).padStart(4, "0")}"`,
-      `"${r.createdAt.toLocaleDateString("id-ID")} ${r.createdAt.toLocaleTimeString("id-ID")}"`,
-      `"${(r.nama || "").replace(/"/g, '""')}"`,
-      `"${(r.produk || "").replace(/"/g, '""')}"`,
-      `"${(r.pilihan || "").replace(/"/g, '""')}"`,
-      `"${(r.email || "").replace(/"/g, '""')}"`,
-      `"${(r.telepon || "").replace(/"/g, '""')}"`,
-      `"${(r.alamat || "").replace(/"/g, '""')}"`,
-      `"${(r.status || "Baru").replace(/"/g, '""')}"`,
-    ]);
+    const rows = registrations.map((r, index) => {
+      const d = new Date(r.createdAt);
+      const dateStr = d.toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+      const timeStr = d.toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
 
-    // UTF-8 BOM for Microsoft Excel compatibility
+      // Escape quotes for CSV
+      const escape = (str: string | null | undefined) =>
+        `"${(str || "").replace(/"/g, '""').replace(/\r?\n|\r/g, " ")}"`;
+
+      // Phone as text to avoid Excel scientific notation (e.g. 6.28E+11)
+      const phoneText = r.telepon ? `="${r.telepon.replace(/"/g, '""')}"` : '""';
+
+      return [
+        index + 1,
+        `"REG-${String(r.id).padStart(4, "0")}"`,
+        `"${dateStr}"`,
+        `"${timeStr}"`,
+        escape(r.nama),
+        escape(r.produk),
+        escape(r.pilihan || "-"),
+        escape(r.email || "-"),
+        phoneText,
+        escape(r.alamat || "-"),
+        escape(r.status || "Baru"),
+      ].join(",");
+    });
+
+    // UTF-8 BOM (\uFEFF) for automatic UTF-8 recognition in Microsoft Excel
     const bom = "\uFEFF";
-    const csvString = bom + [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
+    const csvContent = bom + [headers.join(","), ...rows].join("\r\n");
 
-    const dateStr = new Date().toISOString().split("T")[0];
-    const filename = `Data_Pendaftaran_Nasabah_Hasamitra_${dateStr}.csv`;
+    const dateFile = new Date().toISOString().split("T")[0];
+    const filename = `Data_Pendaftaran_Nasabah_Hasamitra_${dateFile}.csv`;
 
-    return new NextResponse(csvString, {
+    return new NextResponse(csvContent, {
       status: 200,
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
         "Content-Disposition": `attachment; filename="${filename}"`,
+        "Cache-Control": "no-store, no-cache, must-revalidate",
       },
     });
   } catch (error) {
@@ -61,3 +87,4 @@ export async function GET() {
     );
   }
 }
+

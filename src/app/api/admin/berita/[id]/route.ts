@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getAdmin } from "@/lib/auth";
+import { serializeArticleImages, parseArticleImages } from "@/lib/articleImages";
 
 // PUT: Update article
 export async function PUT(
@@ -20,7 +21,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { title, category, content, image, isPublished } = body;
+    const { title, category, content, image, contentImage, isPublished } = body;
 
     // Check if article exists
     const existing = await prisma.article.findUnique({ where: { id: articleId } });
@@ -45,6 +46,15 @@ export async function PUT(
       slugUpdate = { slug };
     }
 
+    // Determine final image value
+    let imageUpdate: { image: string | null } | object = {};
+    if (image !== undefined || contentImage !== undefined) {
+      const currentImages = parseArticleImages(existing.image);
+      const newCover = image !== undefined ? image : currentImages.cover;
+      const newContent = contentImage !== undefined ? contentImage : currentImages.content;
+      imageUpdate = { image: serializeArticleImages(newCover, newContent) };
+    }
+
     const article = await prisma.article.update({
       where: { id: articleId },
       data: {
@@ -52,7 +62,7 @@ export async function PUT(
         ...slugUpdate,
         ...(category !== undefined && { category: category.trim() }),
         ...(content !== undefined && { content: content.trim() }),
-        ...(image !== undefined && { image: image?.trim() || null }),
+        ...imageUpdate,
         ...(isPublished !== undefined && { isPublished }),
       },
     });

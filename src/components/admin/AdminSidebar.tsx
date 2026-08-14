@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 
 const menuItems = [
@@ -79,8 +80,14 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
         {/* Brand Header */}
         <div className="px-5 py-5 sm:py-6 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
-              <span className="text-white font-bold text-sm">HM</span>
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-white flex items-center justify-center p-1 shadow-md shrink-0 border border-slate-700/50">
+              <Image
+                src="/images/logo/logo-bulat.png"
+                alt="Logo Hasamitra"
+                width={36}
+                height={36}
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <p className="text-white font-bold text-sm leading-tight">Hasamitra</p>

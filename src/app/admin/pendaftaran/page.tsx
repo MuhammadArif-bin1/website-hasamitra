@@ -126,19 +126,19 @@ export default function AdminPendaftaranPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Kelola Pendaftaran Nasabah</h1>
           <p className="text-sm text-slate-500 mt-1">
-            Daftar nasabah yang mengisi form pengajuan produk perbankan.
+            Daftar data nasabah yang mengajukan produk tabungan, deposito, dan kredit.
           </p>
         </div>
 
-        {/* Scrap CSV Download Button */}
+        {/* Export Data CSV / Excel Button */}
         <button
           onClick={handleExportCSV}
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-sm font-bold rounded-xl transition shadow-lg shadow-emerald-600/20 active:scale-95 cursor-pointer"
+          className="inline-flex items-center justify-center gap-2.5 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-sm font-bold rounded-xl transition shadow-md shadow-emerald-600/20 active:scale-95 cursor-pointer"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
           </svg>
-          Scrap Data CSV
+          Export Data Excel (CSV)
         </button>
       </div>
 
@@ -146,40 +146,40 @@ export default function AdminPendaftaranPage() {
       {successMsg && (
         <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-3 rounded-xl flex items-center justify-between">
           <span>✅ {successMsg}</span>
-          <button onClick={() => setSuccessMsg("")} className="text-emerald-500 hover:text-emerald-700">✕</button>
+          <button onClick={() => setSuccessMsg("")} className="text-emerald-500 hover:text-emerald-700 cursor-pointer">✕</button>
         </div>
       )}
       {errorMsg && (
         <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl flex items-center justify-between">
           <span>❌ {errorMsg}</span>
-          <button onClick={() => setErrorMsg("")} className="text-red-500 hover:text-red-700">✕</button>
+          <button onClick={() => setErrorMsg("")} className="text-red-500 hover:text-red-700 cursor-pointer">✕</button>
         </div>
       )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Pendaftar</p>
           <p className="text-2xl font-extrabold text-slate-900 mt-1">{stats.total}</p>
         </div>
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
           <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Baru Masuk</p>
           <p className="text-2xl font-extrabold text-blue-600 mt-1">{stats.baru}</p>
         </div>
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
           <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider">Sedang Diproses</p>
           <p className="text-2xl font-extrabold text-amber-600 mt-1">{stats.diproses}</p>
         </div>
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
           <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Selesai</p>
           <p className="text-2xl font-extrabold text-emerald-600 mt-1">{stats.selesai}</p>
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="relative w-full sm:w-80">
-          <svg className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -198,9 +198,9 @@ export default function AdminPendaftaranPage() {
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer ${
                   statusFilter === st
-                    ? "bg-white text-orange-600 shadow-sm"
+                    ? "bg-white text-orange-600 shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -212,17 +212,17 @@ export default function AdminPendaftaranPage() {
       </div>
 
       {/* Data Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                <th className="px-6 py-3.5 text-left">ID & Tanggal</th>
-                <th className="px-6 py-3.5 text-left">Nama Nasabah</th>
-                <th className="px-6 py-3.5 text-left">Produk & Pilihan</th>
-                <th className="px-6 py-3.5 text-left">Kontak (Email / Telepon)</th>
-                <th className="px-6 py-3.5 text-center">Status</th>
-                <th className="px-6 py-3.5 text-right">Aksi</th>
+              <tr className="bg-slate-50/80 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                <th className="px-6 py-4">ID & Tanggal</th>
+                <th className="px-6 py-4">Nama Nasabah</th>
+                <th className="px-6 py-4">Produk & Tipe</th>
+                <th className="px-6 py-4">Kontak (Email / WhatsApp)</th>
+                <th className="px-6 py-4 text-center">Status</th>
+                <th className="px-6 py-4 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -240,47 +240,54 @@ export default function AdminPendaftaranPage() {
                 </tr>
               ) : (
                 registrations.map((reg) => (
-                  <tr key={reg.id} className="hover:bg-slate-50/50 transition">
-                    <td className="px-6 py-4">
-                      <p className="text-xs font-mono font-bold text-orange-600">
+                  <tr key={reg.id} className="hover:bg-slate-50/70 transition">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="inline-block text-xs font-mono font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-200/50">
                         REG-{String(reg.id).padStart(4, "0")}
-                      </p>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        {new Date(reg.createdAt).toLocaleDateString("id-ID")}
+                      </span>
+                      <p className="text-xs text-slate-400 mt-1">
+                        {new Date(reg.createdAt).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric"
+                        })}
                       </p>
                     </td>
 
                     <td className="px-6 py-4">
                       <p className="text-sm font-bold text-slate-900">{reg.nama}</p>
-                      <p className="text-xs text-slate-400 truncate max-w-[200px]">{reg.alamat}</p>
+                      <p className="text-xs text-slate-400 truncate max-w-[220px] mt-0.5" title={reg.alamat}>
+                        {reg.alamat || "Alamat belum diisi"}
+                      </p>
                     </td>
 
                     <td className="px-6 py-4">
                       <p className="text-sm font-bold text-slate-800">{reg.produk}</p>
-                      <span className="inline-flex px-2 py-0.5 bg-orange-50 text-orange-700 text-xs font-semibold rounded mt-0.5">
+                      <span className="inline-flex px-2 py-0.5 bg-slate-100 text-slate-700 text-xs font-medium rounded mt-0.5 border border-slate-200/60">
                         {reg.pilihan || "Standard"}
                       </span>
                     </td>
 
                     <td className="px-6 py-4">
-                      <p className="text-xs text-slate-600">{reg.email}</p>
+                      <p className="text-xs text-slate-600 font-medium">{reg.email || "-"}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs font-mono font-medium text-slate-700">{reg.telepon}</span>
+                        <span className="text-xs font-mono font-semibold text-slate-800">{reg.telepon || "-"}</span>
                         {reg.telepon && (
                           <a
                             href={formatWhatsAppUrl(reg.telepon, reg.nama, reg.produk)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full hover:bg-emerald-100 transition"
+                            className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md hover:bg-emerald-100 transition"
+                            title="Chat WhatsApp"
                           >
-                            <span>WA</span> ↗
+                            <span>WhatsApp</span> ↗
                           </a>
                         )}
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 text-center">
-                      <div className="inline-flex flex-col items-center gap-1">
+                    <td className="px-6 py-4 text-center whitespace-nowrap">
+                      <div className="inline-flex flex-col items-center gap-1.5">
                         <span
                           className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
                             reg.status === "Selesai"
@@ -294,21 +301,21 @@ export default function AdminPendaftaranPage() {
                         </span>
 
                         {/* Quick Status Toggles */}
-                        <div className="flex items-center gap-1 text-[10px]">
+                        <div className="flex items-center gap-2 text-[11px]">
                           {reg.status !== "Diproses" && (
                             <button
                               disabled={updatingId === reg.id}
                               onClick={() => handleUpdateStatus(reg.id, "Diproses")}
-                              className="text-amber-600 hover:underline"
+                              className="text-amber-600 hover:text-amber-800 font-semibold cursor-pointer"
                             >
-                              Diproses
+                              Proses
                             </button>
                           )}
                           {reg.status !== "Selesai" && (
                             <button
                               disabled={updatingId === reg.id}
                               onClick={() => handleUpdateStatus(reg.id, "Selesai")}
-                              className="text-emerald-600 hover:underline"
+                              className="text-emerald-600 hover:text-emerald-800 font-semibold cursor-pointer"
                             >
                               Selesai
                             </button>
@@ -317,17 +324,17 @@ export default function AdminPendaftaranPage() {
                       </div>
                     </td>
 
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => setSelectedReg(reg)}
-                          className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition"
+                          className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition cursor-pointer"
                         >
                           Detail
                         </button>
                         <button
                           onClick={() => handleDelete(reg)}
-                          className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition"
+                          className="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition cursor-pointer"
                         >
                           Hapus
                         </button>

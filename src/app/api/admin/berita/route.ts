@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getAdmin } from "@/lib/auth";
+import { serializeArticleImages } from "@/lib/articleImages";
 
 // GET: List all articles
 export async function GET() {
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, category, content, image, isPublished } = body;
+    const { title, category, content, image, contentImage, isPublished } = body;
 
     if (!title || !category || !content) {
       return NextResponse.json(
@@ -56,13 +57,15 @@ export async function POST(request: NextRequest) {
       slug = `${baseSlug}-${Date.now()}`;
     }
 
+    const finalImage = serializeArticleImages(image, contentImage);
+
     const article = await prisma.article.create({
       data: {
         title: title.trim(),
         slug,
         category: category.trim(),
         content: content.trim(),
-        image: image?.trim() || null,
+        image: finalImage,
         isPublished: isPublished ?? true,
       },
     });

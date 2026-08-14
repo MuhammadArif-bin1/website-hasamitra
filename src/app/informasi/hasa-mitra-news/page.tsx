@@ -4,6 +4,7 @@ import Link from "next/link";
 import WhatsAppBanner from "@/components/common/WhatsAppBanner";
 import OjkLpsNotice from "@/components/common/OjkLpsNotice";
 import { prisma } from "@/lib/db";
+import { parseArticleImages } from "@/lib/articleImages";
 
 export const metadata = {
   title: "Hasa Mitra News",
@@ -71,25 +72,27 @@ export default async function HasaMitraNewsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {articles.map((news) => (
-              <article
-                key={news.id}
-                className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col group"
-              >
-                {/* Article Image */}
-                {news.image && (
-                  <Link
-                    href={`/informasi/hasa-mitra-news/${news.slug}`}
-                    className="relative w-full h-48 sm:h-56 block overflow-hidden bg-slate-100"
-                  >
-                    <Image
-                      src={news.image}
-                      alt={news.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </Link>
-                )}
+            {articles.map((news) => {
+              const { cover } = parseArticleImages(news.image);
+              return (
+                <article
+                  key={news.id}
+                  className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col group"
+                >
+                  {/* Article Cover Image */}
+                  {cover && (
+                    <Link
+                      href={`/informasi/hasa-mitra-news/${news.slug}`}
+                      className="relative w-full h-48 sm:h-56 block overflow-hidden bg-slate-100"
+                    >
+                      <Image
+                        src={cover}
+                        alt={news.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </Link>
+                  )}
 
                 <div className="p-6 sm:p-8 space-y-4 flex flex-col justify-between flex-1">
                   <div className="space-y-3">

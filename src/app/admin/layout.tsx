@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
@@ -28,16 +29,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="p-2 -ml-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition-colors focus:outline-none"
+              className="p-2 -ml-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition-colors focus:outline-none cursor-pointer"
               aria-label="Buka Menu Navigasi"
             >
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-sm">
-                <span className="text-white font-black text-xs">HM</span>
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center p-0.5 shadow-sm shrink-0 border border-slate-700/50">
+                <Image
+                  src="/images/logo/logo-bulat.png"
+                  alt="Logo Hasamitra"
+                  width={28}
+                  height={28}
+                  className="w-full h-full object-contain"
+                />
               </div>
               <span className="font-bold text-sm tracking-tight text-white">Admin Hasamitra</span>
             </div>

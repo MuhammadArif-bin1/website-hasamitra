@@ -1,11 +1,21 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { contactData } from "@/data/contact";
 import { footerNavigation } from "@/data/navigation";
 import WhatsAppButton from "@/components/common/WhatsAppButton";
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  // Sembunyikan footer publik di semua halaman admin
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

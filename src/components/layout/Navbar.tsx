@@ -15,6 +15,11 @@ export default function Navbar() {
   const [isMobileInformasiOpen, setIsMobileInformasiOpen] = useState(false);
   const pathname = usePathname();
 
+  // Sembunyikan navbar publik di semua halaman admin
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   const isTentangKamiActive = pathname.startsWith("/tentang-kami");
   const isInformasiActive = pathname.startsWith("/informasi");
 
