@@ -464,8 +464,8 @@ export default function AdminPendaftaranPage() {
 
       {/* Data Table */}
       <div className="bg-white rounded-3xl border border-slate-200/80 shadow-md shadow-slate-200/50 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full min-w-[760px] text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 <th className="px-4 py-4 w-10 text-center">
@@ -818,7 +818,7 @@ export default function AdminPendaftaranPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-emerald-600/20"
               >
-                <span>HUBUNGI CS</span> ↗
+                <span>Hubungi Pemohon via WhatsApp</span> ↗
               </a>
               <button
                 onClick={() => setSelectedReg(null)}

@@ -130,13 +130,13 @@ export default function TabunganFormModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in overflow-y-auto">
       <div
-        className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-slate-100 overflow-hidden relative"
+        className="bg-white w-full max-w-lg max-h-[92vh] flex flex-col rounded-3xl shadow-2xl border border-slate-100 overflow-hidden relative my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 text-white p-6 sm:p-7 flex items-center justify-between shadow-md">
+        <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 text-white p-5 sm:p-7 flex items-center justify-between shadow-md shrink-0">
           <div className="space-y-0.5">
             <span className="text-xs font-bold uppercase tracking-wider text-orange-100 block">
               Formulir Pendaftaran Online
@@ -153,7 +153,7 @@ export default function TabunganFormModal({
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 sm:p-8">
+        <div className="p-5 sm:p-8 overflow-y-auto flex-1">
           {submitted ? (
             <div className="text-center py-6 space-y-6">
               <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
