@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { mainNavigation } from "@/data/navigation";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,7 +15,18 @@ export default function Navbar() {
     return null;
   }
 
-  const isHomeActive = pathname === "/";
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith("/#") && pathname === "/") {
+      e.preventDefault();
+      const targetId = href.replace("/#", "");
+      const elem = document.getElementById(targetId);
+      if (elem) {
+        elem.scrollIntoView({ behavior: "smooth" });
+        window.history.pushState(null, "", href);
+      }
+    }
+    setIsOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-xl border-b border-slate-200/70 shadow-xs transition-all">
@@ -38,18 +50,18 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Navigation - Single HASAMITRA Pill Link */}
-          <nav className="hidden md:flex items-center">
-            <Link
-              href="/"
-              className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${
-                isHomeActive
-                  ? "text-orange-600 bg-orange-50/90 border border-orange-200/80 shadow-xs"
-                  : "text-slate-700 hover:text-orange-600 hover:bg-slate-100/80 border border-transparent"
-              }`}
-            >
-              HASAMITRA
-            </Link>
+          {/* Desktop Navigation Links */}
+          <nav className="hidden md:flex items-center gap-1 sm:gap-2">
+            {mainNavigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                onClick={(e) => handleNavClick(e, item.href)}
+                className="px-5 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-200 text-slate-700 hover:text-orange-600 hover:bg-orange-50/90 border border-transparent hover:border-orange-200/60 cursor-pointer"
+              >
+                {item.name}
+              </Link>
+            ))}
           </nav>
 
           {/* Mobile Menu Toggle Button */}
@@ -83,17 +95,16 @@ export default function Navbar() {
           id="mobile-menu"
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-3 pb-6 space-y-2">
-            <Link
-              href="/"
-              onClick={() => setIsOpen(false)}
-              className={`block px-5 py-3 rounded-2xl text-base font-bold transition-colors ${
-                isHomeActive
-                  ? "text-orange-600 bg-orange-50 border border-orange-200/60"
-                  : "text-slate-800 hover:bg-orange-50 hover:text-orange-600"
-              }`}
-            >
-              HASAMITRA
-            </Link>
+            {mainNavigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                onClick={(e) => handleNavClick(e, item.href)}
+                className="block px-5 py-3 rounded-2xl text-base font-bold transition-colors text-slate-800 hover:bg-orange-50 hover:text-orange-600 cursor-pointer"
+              >
+                {item.name}
+              </Link>
+            ))}
           </div>
         </div>
       )}

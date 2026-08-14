@@ -8,7 +8,7 @@ interface MathCaptcha {
   num1: number;
   num2: number;
   operator: "+" | "-" | "×";
-  answer: number;
+  token: string;
 }
 
 export default function AdminLoginPage() {
@@ -22,34 +22,22 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Generate random math captcha
-  const generateCaptcha = useCallback(() => {
+  // Fetch server-signed cryptographic math captcha
+  const generateCaptcha = useCallback(async () => {
     setIsRotating(true);
-    setTimeout(() => setIsRotating(false), 400);
-
-    const operators: ("+" | "-" | "×")[] = ["+", "-", "×"];
-    const op = operators[Math.floor(Math.random() * operators.length)];
-    let n1 = 0;
-    let n2 = 0;
-    let ans = 0;
-
-    if (op === "+") {
-      n1 = Math.floor(Math.random() * 15) + 3; // 3 - 17
-      n2 = Math.floor(Math.random() * 12) + 2; // 2 - 13
-      ans = n1 + n2;
-    } else if (op === "-") {
-      n1 = Math.floor(Math.random() * 18) + 10; // 10 - 27
-      n2 = Math.floor(Math.random() * 9) + 1; // 1 - 9
-      ans = n1 - n2;
-    } else {
-      // Perkalian angka kecil agar mudah dihitung cepat
-      n1 = Math.floor(Math.random() * 8) + 2; // 2 - 9
-      n2 = Math.floor(Math.random() * 6) + 2; // 2 - 7
-      ans = n1 * n2;
-    }
-
-    setCaptcha({ num1: n1, num2: n2, operator: op, answer: ans });
     setCaptchaInput("");
+
+    try {
+      const res = await fetch("/api/admin/auth/captcha", { cache: "no-store" });
+      const data = await res.json();
+      if (data.success && data.captcha) {
+        setCaptcha(data.captcha);
+      }
+    } catch {
+      setError("Gagal memuat verifikasi keamanan. Silakan refresh halaman.");
+    } finally {
+      setTimeout(() => setIsRotating(false), 400);
+    }
   }, []);
 
   useEffect(() => {
@@ -60,10 +48,14 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError("");
 
-    // Validasi Captcha
-    if (!captcha || parseInt(captchaInput.trim(), 10) !== captcha.answer) {
-      setError("Jawaban captcha matematika salah. Silakan coba lagi.");
+    if (!captcha || !captcha.token) {
+      setError("Verifikasi keamanan belum siap. Silakan klik tombol muat ulang captcha.");
       generateCaptcha();
+      return;
+    }
+
+    if (!captchaInput.trim()) {
+      setError("Silakan masukkan jawaban verifikasi keamanan matematika.");
       return;
     }
 
@@ -73,7 +65,12 @@ export default function AdminLoginPage() {
       const res = await fetch("/api/admin/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+          captchaToken: captcha.token,
+          captchaAnswer: parseInt(captchaInput.trim(), 10),
+        }),
       });
 
       const data = await res.json();
@@ -86,7 +83,7 @@ export default function AdminLoginPage() {
         router.refresh();
       } else {
         setError(data.message || "Login gagal.");
-        generateCaptcha(); // Refresh captcha setelah gagal
+        generateCaptcha(); // Refresh captcha setelah percobaan gagal
       }
     } catch {
       setError("Terjadi kesalahan jaringan. Silakan coba kembali.");
@@ -143,6 +140,7 @@ export default function AdminLoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                maxLength={150}
                 placeholder="admin@hasamitrajabar.com"
                 className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 focus:bg-white transition-all"
               />
@@ -160,6 +158,7 @@ export default function AdminLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                maxLength={200}
                 placeholder="••••••••"
                 className="w-full pl-4 pr-11 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 focus:bg-white transition-all"
               />
@@ -183,7 +182,7 @@ export default function AdminLoginPage() {
             </div>
           </div>
 
-          {/* Math Captcha Verification */}
+          {/* Math Captcha Verification (Server Signed) */}
           <div className="space-y-1.5 pt-1">
             <div className="flex items-center justify-between">
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
@@ -277,4 +276,3 @@ export default function AdminLoginPage() {
     </div>
   );
 }
-

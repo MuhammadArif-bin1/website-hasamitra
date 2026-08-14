@@ -42,12 +42,20 @@ export async function GET() {
         second: "2-digit",
       });
 
-      // Escape quotes for CSV
-      const escape = (str: string | null | undefined) =>
-        `"${(str || "").replace(/"/g, '""').replace(/\r?\n|\r/g, " ")}"`;
+      // Escape quotes and neutralize CSV/Excel Formula Injection (CWE-1236)
+      const escape = (str: string | null | undefined) => {
+        if (!str) return '""';
+        let clean = str.replace(/"/g, '""').replace(/\r?\n|\r/g, " ").trim();
+        // If string starts with formula trigger characters (=, +, -, @, \t, \r), prepend with single quote
+        if (/^[=+\-@\t\r]/.test(clean)) {
+          clean = `'${clean}`;
+        }
+        return `"${clean}"`;
+      };
 
-      // Phone as text to avoid Excel scientific notation (e.g. 6.28E+11)
-      const phoneText = r.telepon ? `="${r.telepon.replace(/"/g, '""')}"` : '""';
+      // Sanitize phone number text
+      const cleanPhone = (r.telepon || "").replace(/"/g, '""').replace(/\r?\n|\r/g, "").trim();
+      const phoneText = cleanPhone ? `="${cleanPhone}"` : '""';
 
       return [
         index + 1,

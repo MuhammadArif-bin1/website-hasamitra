@@ -1,8 +1,8 @@
-# Admin Panel — Dokumentasi
+# Admin Panel — Dokumentasi Arsitektur & Operasional
 
 ## PT BPR Hasamitra Jawa Barat
 
-Panduan lengkap penggunaan dan keamanan Admin Panel website Hasamitra Jawa Barat.
+Panduan lengkap penggunaan, struktur direktori, endpoint API, dan standar keamanan Admin Panel website Hasamitra Jawa Barat.
 
 ---
 
@@ -17,18 +17,16 @@ Panduan lengkap penggunaan dan keamanan Admin Panel website Hasamitra Jawa Barat
 
 ### Halaman Admin yang Tersedia
 
-| Halaman | URL | Fungsi |
+| Halaman | URL | Fungsi Utama |
 |---|---|---|
-| Login | `/admin/login` | Halaman login admin |
-| Dashboard | `/admin` | Ringkasan statistik (pendaftaran, pesan, produk) |
-| Kelola Produk | `/admin/produk` | CRUD produk yang tampil di landing page |
-| Pendaftaran | `/admin/pendaftaran` | Kelola data pendaftaran nasabah, ubah status (Baru/Diproses/Selesai), WhatsApp direct link, dan Scrap Data CSV |
-| Pesan | `/admin/pesan` | *(segera)* Kelola pesan & pengaduan |
-| Pengaturan | `/admin/pengaturan` | *(segera)* Edit profil perusahaan, visi/misi, kontak |
+| **Login Admin** | `/admin/login` | Autentikasi admin dengan verifikasi *Cryptographic Math Captcha* server-side dan rate limiting. |
+| **Dashboard** | `/admin` | Agregasi metrik statistik real-time (total pendaftaran nasabah, status pendaftaran baru/proses/selesai, produk aktif). |
+| **Pendaftaran Nasabah** | `/admin/pendaftaran` | Kelola seluruh permohonan simpanan/investasi (Tabungan, Deposito, Cicil Emas), filter status, ubah status, direct chat WhatsApp, **fitur hapus batch (multi-select delete)**, dan **Export CSV Aman (Anti-Formula Injection)**. |
+| **Kelola Produk** | `/admin/produk` | Manajemen CRUD katalog produk perbankan dengan sinkronisasi real-time *BroadcastChannel* ke landing page. |
 
 ---
 
-## 2. Kredensial Admin
+## 2. Kredensial Admin & Konfigurasi Lingkungan
 
 ### Default Login (Development)
 
@@ -37,12 +35,15 @@ Panduan lengkap penggunaan dan keamanan Admin Panel website Hasamitra Jawa Barat
 | **Email** | `admin@hasamitrajabar.com` |
 | **Password** | `HsmtrAdmin@2026!` |
 
-> ⚠️ **PENTING**: Ganti password default ini sebelum deploy ke production!
+> ⚠️ **PENTING**: Wajib mengganti password admin dan mengubah `JWT_SECRET` pada dashboard hosting (Vercel) sebelum dipublikasikan ke production!
 
-### Konfigurasi di File `.env`
+### Konfigurasi File `.env`
 
 ```env
-# JWT Secret — kunci enkripsi token login
+# Koneksi Database PostgreSQL (Neon Serverless)
+DATABASE_URL="postgresql://user:password@ep-sample.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+
+# JWT Secret — Kunci enkripsi token login & HMAC signing
 JWT_SECRET=hasamitra-admin-jwt-secret-2026-very-secure-key
 
 # Kredensial default admin (digunakan saat seed)
@@ -53,162 +54,134 @@ ADMIN_PASSWORD=HsmtrAdmin@2026!
 ADMIN_TOKEN_EXPIRY_HOURS=24
 ```
 
-### Membuat Admin Pertama Kali
+### Inisialisasi Database & Seeder
 
-Jalankan perintah seed untuk membuat user admin dan data produk awal:
+Jalankan perintah seeder untuk membuat tabel dan admin awal:
 
 ```bash
+# Generate Prisma Client
+npx prisma generate
+
+# Sinkronkan skema ke database
+npx prisma db push
+
+# Eksekusi seed akun admin & data produk default
 npx tsx scripts/seed.ts
 ```
 
 ---
 
-## 3. Audit Keamanan
+## 3. Standar & Audit Keamanan
 
-### 3.1 Autentikasi
+### 3.1 Autentikasi & Verifikasi Captcha
 
 | Komponen | Implementasi | Status |
 |---|---|---|
 | **Password Hashing** | `bcryptjs` dengan 12 rounds salt | ✅ Aman |
-| **Token** | JWT (HS256) via library `jose` | ✅ Aman |
-| **Token Storage** | Cookie `httpOnly`, `sameSite=lax`, `secure` (prod) | ✅ Aman |
-| **Token Expiry** | 24 jam (konfigurabel via `.env`) | ✅ |
-| **Secret Key** | Disimpan di `.env` (tidak hardcoded di source) | ✅ |
+| **Token Sesi** | JWT (`HS256`) via library `jose` | ✅ Aman |
+| **Token Storage** | Cookie `admin_token` (`httpOnly`, `sameSite=lax`, `secure` di prod) | ✅ Aman |
+| **Math Captcha** | Token terenkripsi `HMAC-SHA256` dari `/api/admin/auth/captcha`, diverifikasi via `crypto.timingSafeEqual` (kedaluwarsa 5 menit) | ✅ Kebal Bot & Timing Attack |
+| **CSRF / Origin Check** | Validasi `Origin` & `Referer` pada setiap request mutasi | ✅ Aman |
 
-### 3.2 Rate Limiting
+### 3.2 Rate Limiting & Proteksi DoS
 
-| Parameter | Nilai |
-|---|---|
-| Maksimal percobaan login | **5x gagal** per IP |
-| Durasi lockout | **15 menit** |
-| Pesan error | "Terlalu banyak percobaan login. Coba lagi dalam X menit." |
-| HTTP Status | `429 Too Many Requests` |
-
-> Jika admin salah password 5 kali berturut-turut, IP akan di-lockout selama 15 menit. Setelah login berhasil, counter direset.
-
-### 3.3 Route Protection
-
-| Mekanisme | Detail |
-|---|---|
-| **Middleware** | `src/middleware.ts` — intercept semua request ke `/admin/*` |
-| **Pengecualian** | `/admin/login` — boleh diakses tanpa login |
-| **Redirect** | Jika belum login → redirect ke `/admin/login` |
-| **API Protection** | Setiap API admin route mengecek JWT via `getAdmin()` |
-
-### 3.4 Audit Logging
-
-Setiap aksi login dicatat dengan format:
-
-```
-[AUDIT] 2026-08-13T06:30:00Z | LOGIN_SUCCESS | admin=admin@hasamitrajabar.com | {"ip":"127.0.0.1","userId":1}
-[AUDIT] 2026-08-13T06:30:00Z | LOGIN_FAILED_WRONG_PASSWORD | admin=admin@hasamitrajabar.com | {"ip":"127.0.0.1"}
-[AUDIT] 2026-08-13T06:30:00Z | LOGIN_BLOCKED_RATE_LIMIT | admin=unknown | {"ip":"127.0.0.1","lockoutSeconds":890}
-```
-
-| Event | Deskripsi |
-|---|---|
-| `LOGIN_SUCCESS` | Login berhasil, token diterbitkan |
-| `LOGIN_FAILED_USER_NOT_FOUND` | Email tidak ditemukan di database |
-| `LOGIN_FAILED_WRONG_PASSWORD` | Password salah |
-| `LOGIN_BLOCKED_RATE_LIMIT` | Percobaan ditolak karena rate limit |
-
-### 3.5 Checklist Keamanan Production
-
-| Item | Status | Aksi |
+| Parameter | Nilai | Keterangan |
 |---|---|---|
-| Ganti `JWT_SECRET` ke random 64+ karakter | ❗ Wajib | Jalankan: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"` |
-| Ganti password default admin | ❗ Wajib | Update di `.env` lalu jalankan ulang seed, atau ubah langsung di database |
-| Pastikan `NODE_ENV=production` | ❗ Wajib | Agar cookie bersifat `secure` (hanya HTTPS) |
-| Jangan commit file `.env` ke Git | ❗ Wajib | Pastikan `.gitignore` mencantumkan `.env` |
-| Gunakan HTTPS | ❗ Wajib | Vercel otomatis menyediakan HTTPS |
-| Batasi akses database | ⚠️ Rekomendasi | Gunakan IP whitelisting di Neon console |
+| **Maksimal Percobaan Gagal** | **5x percobaan** per IP | Counter direset setelah berhasil login |
+| **Durasi Lockout** | **15 menit** | Mencegah serangan brute-force berulang |
+| **Status HTTP** | `429 Too Many Requests` | Mengembalikan waktu sisa blokir |
+| **Batas Panjang Payload** | `email` ≤ 150 char, `password` ≤ 200 char | Mitigasi buffer/memory bloat & ReDoS |
+
+### 3.3 Proteksi Ekspor Data (CSV Formula Injection)
+
+| Parameter | Implementasi |
+|---|---|
+| **CWE-1236 Mitigation** | Setiap data string pada `/api/admin/export` yang diawali karakter `=`, `+`, `-`, `@`, `\t`, `\r` otomatis diprefiks tanda petik tunggal (`'`). |
+| **Hasil** | File `.csv` yang dibuka di Microsoft Excel tidak dapat mengeksekusi perintah Macro atau Dynamic Data Exchange (DDE) berbahaya. |
+
+### 3.4 HTTP Security Headers (OWASP)
+
+Dikonfigurasi aktif di `next.config.ts`:
+- `X-Frame-Options: DENY` (Anti-Clickjacking).
+- `X-Content-Type-Options: nosniff` (Anti-MIME Sniffing).
+- `Referrer-Policy: strict-origin-when-cross-origin`.
+- `Permissions-Policy: camera=(), microphone=(), geolocation=()`.
 
 ---
 
-## 4. Arsitektur Admin Panel
+## 4. Arsitektur & Alur Kerja Admin
 
-### Alur Login
+### 4.1 Diagram Alur Autentikasi
 
+```text
+Browser                              Server / Backend
+  │                                         │
+  ├─── 1. GET /api/admin/auth/captcha ────>│ Generate soal & HMAC signature
+  │<── 2. Kirim { num1, num2, token } ──────┤ (Token valid 5 menit)
+  │                                         │
+  ├─── 3. POST /api/admin/auth/login ──────>│
+  │    (email, password, captchaAnswer)     ├─ Check Origin & Referer (CSRF)
+  │                                         ├─ Verify Captcha via crypto.timingSafeEqual
+  │                                         ├─ Check Rate Limit IP (5x limit)
+  │                                         ├─ Verify Password (bcrypt.compare)
+  │                                         ├─ Record Audit Log
+  │                                         ├─ Generate JWT Token (jose HS256)
+  │<── 4. Set-Cookie: admin_token ──────────┤
+  │                                         │
+  ├─── 5. Request ke /admin/* ─────────────>│ Intercept via src/proxy.ts
+  │                                         ├─ Token valid → Render Admin UI
+  │<── 6. Redirect /admin/login (jika invalid)
 ```
-Browser → POST /api/admin/auth/login
-         ├─ Cek Rate Limit (IP)
-         ├─ Validasi email & password (bcrypt.compare)
-         ├─ Audit Log (sukses/gagal)
-         ├─ Generate JWT Token
-         └─ Set Cookie: admin_token (httpOnly, secure, 24h)
 
-Browser → GET /admin/*
-         ├─ Middleware intercept
-         ├─ Baca cookie admin_token
-         ├─ Verifikasi JWT (jose.jwtVerify)
-         ├─ Valid → Next.js render halaman
-         └─ Invalid → Redirect ke /admin/login
-```
-
-### Struktur File Admin
+### 4.2 Struktur File Admin & API
 
 ```
 src/
 ├── app/
 │   ├── admin/
-│   │   ├── layout.tsx            ← Layout admin (sidebar)
-│   │   ├── page.tsx              ← Dashboard
-│   │   ├── login/page.tsx        ← Halaman login
-│   │   └── produk/page.tsx       ← CRUD produk
+│   │   ├── layout.tsx                ← Layout pembungkus admin (Sidebar & State session)
+│   │   ├── page.tsx                  ← Dashboard metrik & statistik ringkasan
+│   │   ├── login/page.tsx            ← Form Login Admin (dengan Captcha Kriptografis)
+│   │   ├── pendaftaran/page.tsx      ← Manajemen Pendaftaran (Filter, WhatsApp link, Batch Delete, Export CSV)
+│   │   └── produk/page.tsx           ← CRUD Katalog Produk Perbankan
 │   │
 │   └── api/admin/
-│       ├── auth/login/route.ts   ← POST login, DELETE logout
-│       ├── produk/route.ts       ← GET list, POST create
-│       └── produk/[id]/route.ts  ← PUT update, DELETE hapus
+│       ├── auth/
+│       │   ├── captcha/route.ts      ← GET tantangan Captcha bertanda tangan HMAC
+│       │   └── login/route.ts        ← POST verifikasi login & DELETE logout
+│       ├── dashboard/route.ts        ← GET data agregasi dashboard
+│       ├── export/route.ts           ← GET download file CSV pendaftaran (Aman dari DDE Injection)
+│       ├── pendaftaran/
+│       │   ├── route.ts              ← GET daftar pendaftaran & DELETE batch records
+│       │   └── [id]/route.ts         ← GET detail, PATCH status (BARU/DIPROSES/SELESAI), DELETE single
+│       └── produk/
+│           ├── route.ts              ← GET list produk & POST tambah produk baru
+│           └── [id]/route.ts         ← PUT perbarui produk & DELETE hapus produk
 │
 ├── components/admin/
-│   └── AdminSidebar.tsx          ← Sidebar navigasi
+│   └── AdminSidebar.tsx              ← Navigasi sidebar responsif & tombol keluar
 │
 ├── lib/
-│   └── auth.ts                   ← JWT, rate limiting, audit log
+│   ├── auth.ts                       ← Generator/Verifier JWT, HMAC Captcha, CSRF Origin Check, Rate Limiter, Audit Logger
+│   └── prisma.ts                     ← Client ORM Prisma PostgreSQL
 │
-└── middleware.ts                 ← Proteksi route /admin/*
+└── proxy.ts                          ← Interceptor rute /admin/* (Next.js Proxy Convention)
 ```
 
 ---
 
-## 5. Panduan Pengembangan
+## 5. Panduan Pemeliharaan & Troubleshooting
 
-### Menambah Halaman Admin Baru
-
-1. Buat file `src/app/admin/[nama-halaman]/page.tsx`
-2. Buat API route di `src/app/api/admin/[nama-halaman]/route.ts`
-3. Tambahkan menu ke `src/components/admin/AdminSidebar.tsx`
-4. Setiap API route **wajib** cek auth:
-   ```typescript
-   const admin = await getAdmin();
-   if (!admin) {
-     return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
-   }
-   ```
-
-### Script Tersedia
-
+### Mengganti Password Admin
+Ubah nilai hash password langsung pada tabel `Admin` di database atau modifikasi `ADMIN_PASSWORD` di `.env` lalu jalankan kembali script seed:
 ```bash
-# Jalankan seeder (buat admin + produk awal)
 npx tsx scripts/seed.ts
-
-# Development server
-npm run dev
-
-# Build production
-npm run build
 ```
 
----
-
-## 6. FAQ
-
-**Q: Lupa password admin?**
-A: Update langsung di database atau ubah `ADMIN_PASSWORD` di `.env` lalu hapus user lama & jalankan ulang `npx tsx scripts/seed.ts`.
-
-**Q: Bagaimana menambah admin baru?**
-A: Saat ini melalui script seed. Fitur manajemen user via admin panel akan ditambahkan di fase berikutnya.
-
-**Q: Apakah landing page terpengaruh jika admin panel error?**
-A: Tidak. Admin panel (`/admin/*`) dan landing page (`/`) berjalan independen. Keduanya hanya berbagi database.
+### Memeriksa Audit Log
+Seluruh aktivitas otentikasi dicatat pada server console:
+```text
+[AUDIT] 2026-08-15T05:00:00.000Z | LOGIN_SUCCESS | admin=admin@hasamitrajabar.com | {"ip":"::1","userId":1}
+[AUDIT] 2026-08-15T05:00:00.000Z | LOGIN_FAILED_WRONG_PASSWORD | admin=admin@hasamitrajabar.com | {"ip":"::1"}
+[AUDIT] 2026-08-15T05:00:00.000Z | LOGIN_FAILED_CAPTCHA_INVALID | admin=admin@hasamitrajabar.com | {"ip":"::1"}
+```
