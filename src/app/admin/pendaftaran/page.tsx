@@ -287,28 +287,15 @@ export default function AdminPendaftaranPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Top Header Card */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider">
-              Manajemen Nasabah
-            </div>
-            {/* Live Real-time Sync Indicator */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-              <span>Live Auto-Sync</span>
-              {lastSyncTime && (
-                <span className="text-[10px] text-slate-400 font-mono">({lastSyncTime})</span>
-              )}
-            </div>
-          </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Pendaftaran Nasabah Online
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Data pemohon masuk secara otomatis (real-time tanpa perlu refresh halaman).
+          <p className="text-xs text-slate-400 font-medium">
+            Kelola dan pantau pengajuan rekening tabungan dan produk nasabah
           </p>
         </div>
 
@@ -317,11 +304,11 @@ export default function AdminPendaftaranPage() {
           <button
             onClick={() => fetchRegistrations(false)}
             disabled={isRefreshing}
-            className="p-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition border border-slate-200 cursor-pointer inline-flex items-center gap-2"
+            className="px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs transition border border-slate-200 cursor-pointer inline-flex items-center gap-2"
             title="Perbarui data sekarang"
           >
             <svg
-              className={`w-4 h-4 text-slate-600 ${isRefreshing ? "animate-spin text-orange-500" : ""}`}
+              className={`w-3.5 h-3.5 text-slate-600 ${isRefreshing ? "animate-spin text-orange-500" : ""}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -335,10 +322,10 @@ export default function AdminPendaftaranPage() {
           <button
             onClick={() => setShowDeleteAllModal(true)}
             disabled={registrations.length === 0}
-            className="inline-flex items-center justify-center gap-2 px-4 py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-800 border border-rose-200/80 text-xs font-bold rounded-2xl transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 text-xs font-bold rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             title="Hapus / kosongkan semua data pendaftaran"
           >
-            <svg className="w-4 h-4 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-3.5 h-3.5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
             <span>Hapus Semua Data</span>
@@ -346,42 +333,42 @@ export default function AdminPendaftaranPage() {
 
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center justify-center gap-2.5 px-5 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 hover:-translate-y-0.5 cursor-pointer shrink-0"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer shrink-0"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
             </svg>
-            <span>Export Excel (CSV)</span>
+            <span>Export CSV</span>
           </button>
         </div>
       </div>
 
       {/* Floating Bulk Action Bar when items selected */}
       {selectedIds.length > 0 && (
-        <div className="bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-xl flex items-center justify-between animate-fade-in border border-slate-800">
+        <div className="bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-lg flex items-center justify-between animate-fade-in border border-slate-800">
           <div className="flex items-center gap-3">
             <span className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center">
               {selectedIds.length}
             </span>
-            <span className="text-sm font-semibold">
+            <span className="text-xs sm:text-sm font-semibold">
               {selectedIds.length} data pendaftaran dipilih
             </span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={() => setSelectedIds([])}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
             >
               Batal
             </button>
             <button
               onClick={() => setShowDeleteSelectedModal(true)}
-              className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-600/30 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
-              <span>Hapus ({selectedIds.length}) Data Terpilih</span>
+              <span>Hapus ({selectedIds.length}) Terpilih</span>
             </button>
           </div>
         </div>
@@ -389,7 +376,7 @@ export default function AdminPendaftaranPage() {
 
       {/* Messages */}
       {successMsg && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-5 py-3.5 rounded-2xl flex items-center justify-between shadow-xs">
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-5 py-3.5 rounded-xl flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-2.5">
             <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs">✓</span>
             <span>{successMsg}</span>
@@ -398,7 +385,7 @@ export default function AdminPendaftaranPage() {
         </div>
       )}
       {errorMsg && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 text-sm px-5 py-3.5 rounded-2xl flex items-center justify-between shadow-xs">
+        <div className="bg-rose-50 border border-rose-200 text-rose-800 text-sm px-5 py-3.5 rounded-xl flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-2.5">
             <span className="w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-xs">✕</span>
             <span>{errorMsg}</span>
@@ -407,30 +394,30 @@ export default function AdminPendaftaranPage() {
         </div>
       )}
 
-      {/* Modern Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-sm">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
           <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pendaftar</p>
-          <p className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">{stats.total}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">{stats.total}</p>
         </div>
-        <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
           <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">Baru Masuk</p>
-          <p className="text-2xl sm:text-3xl font-black text-blue-600 mt-1">{stats.baru}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-blue-600 mt-1">{stats.baru}</p>
         </div>
-        <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
           <p className="text-xs font-bold text-amber-600 uppercase tracking-wider">Sedang Diproses</p>
-          <p className="text-2xl sm:text-3xl font-black text-amber-600 mt-1">{stats.diproses}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">{stats.diproses}</p>
         </div>
-        <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
           <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Selesai</p>
-          <p className="text-2xl sm:text-3xl font-black text-emerald-600 mt-1">{stats.selesai}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1">{stats.selesai}</p>
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="relative w-full sm:w-96">
-          <svg className="w-4 h-4 absolute left-4 top-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -438,20 +425,20 @@ export default function AdminPendaftaranPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari nama nasabah, produk, WhatsApp, email..."
-            className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
           />
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Filter Status:</span>
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl w-full sm:w-auto overflow-x-auto">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Status:</span>
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl w-full sm:w-auto overflow-x-auto">
             {["Semua", "Baru", "Diproses", "Selesai"].map((st) => (
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                   statusFilter === st
-                    ? "bg-white text-orange-600 shadow-sm"
+                    ? "bg-white text-orange-600 shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -463,7 +450,7 @@ export default function AdminPendaftaranPage() {
       </div>
 
       {/* Data Table */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-md shadow-slate-200/50 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div className="overflow-x-auto w-full">
           <table className="w-full min-w-[760px] text-left border-collapse">
             <thead>

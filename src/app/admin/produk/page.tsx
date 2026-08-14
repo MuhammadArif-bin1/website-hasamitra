@@ -237,24 +237,15 @@ export default function AdminProdukPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Page Header Banner */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-xs font-bold uppercase tracking-wider">
-              Katalog Landing Page
-            </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-              <span>Live Auto-Sync</span>
-            </div>
-          </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Kelola Produk Perbankan
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Perubahan produk langsung tampil otomatis di landing page utama tanpa perlu refresh.
+          <p className="text-xs text-slate-400 font-medium">
+            Katalog produk perbankan yang tampil di landing page utama
           </p>
         </div>
 
@@ -262,11 +253,11 @@ export default function AdminProdukPage() {
           <button
             onClick={() => fetchProducts(false)}
             disabled={isRefreshing}
-            className="p-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition border border-slate-200 cursor-pointer inline-flex items-center gap-2"
+            className="px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs transition border border-slate-200 cursor-pointer inline-flex items-center gap-2"
             title="Perbarui daftar produk"
           >
             <svg
-              className={`w-4 h-4 text-slate-600 ${isRefreshing ? "animate-spin text-orange-500" : ""}`}
+              className={`w-3.5 h-3.5 text-slate-600 ${isRefreshing ? "animate-spin text-orange-500" : ""}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -278,9 +269,9 @@ export default function AdminProdukPage() {
 
           <button
             onClick={openCreate}
-            className="px-6 py-3.5 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-sm font-bold rounded-2xl transition-all duration-300 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:-translate-y-0.5 inline-flex items-center justify-center gap-2 cursor-pointer shrink-0"
+            className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl transition-all shadow-xs inline-flex items-center justify-center gap-2 cursor-pointer shrink-0"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
             </svg>
             <span>Tambah Produk</span>
@@ -290,20 +281,20 @@ export default function AdminProdukPage() {
 
       {/* Success/Error Alerts */}
       {successMsg && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-5 py-3.5 rounded-2xl flex items-center gap-3 shadow-xs">
-          <span className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs">✓</span>
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-5 py-3.5 rounded-xl flex items-center gap-3 shadow-xs">
+          <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs">✓</span>
           <span>{successMsg}</span>
         </div>
       )}
       {error && !showModal && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 text-sm px-5 py-3.5 rounded-2xl flex items-center gap-3 shadow-xs">
-          <span className="w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-xs">✕</span>
+        <div className="bg-rose-50 border border-rose-200 text-rose-800 text-sm px-5 py-3.5 rounded-xl flex items-center gap-3 shadow-xs">
+          <span className="w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-xs">✕</span>
           <span>{error}</span>
         </div>
       )}
 
       {/* Modern Products Table Container */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-md shadow-slate-200/50 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div className="overflow-x-auto w-full">
           <table className="w-full min-w-[640px]">
             <thead>

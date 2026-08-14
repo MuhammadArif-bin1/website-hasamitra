@@ -11,7 +11,7 @@ const menuItems = [
     href: "/admin",
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
       </svg>
     ),
   },
@@ -20,7 +20,7 @@ const menuItems = [
     href: "/admin/produk",
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
       </svg>
     ),
   },
@@ -29,7 +29,7 @@ const menuItems = [
     href: "/admin/pendaftaran",
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
       </svg>
     ),
   },
@@ -74,18 +74,18 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
         />
       )}
 
-      {/* Sidebar Drawer */}
+      {/* Sidebar Drawer - High-End Orange Brand Theme */}
       <aside
-        className={`fixed left-0 top-0 z-50 w-72 h-screen bg-slate-950 border-r border-slate-800/80 flex flex-col justify-between transition-transform duration-300 ease-in-out ${
+        className={`fixed left-0 top-0 z-50 w-72 h-screen bg-gradient-to-b from-orange-600 via-orange-600 to-amber-700 border-r border-orange-500/50 shadow-2xl flex flex-col justify-between transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0"
         }`}
       >
         {/* Top Section: Brand Header & Nav */}
         <div className="flex flex-col flex-1 overflow-hidden">
           {/* Brand Header */}
-          <div className="px-6 py-6 border-b border-slate-800/80 flex items-center justify-between bg-slate-900/40">
+          <div className="px-6 py-6 border-b border-orange-500/50 flex items-center justify-between bg-orange-700/25">
             <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-2xl bg-white p-1 shadow-md shadow-orange-500/10 flex items-center justify-center shrink-0 border border-slate-700/60 ring-2 ring-orange-500/20">
+              <div className="w-11 h-11 rounded-2xl bg-white p-1 shadow-lg shadow-black/10 flex items-center justify-center shrink-0 border border-white/40 ring-2 ring-white/30">
                 <Image
                   src="/images/logo/logo-bulat.png"
                   alt="Logo Hasamitra"
@@ -96,25 +96,25 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
               </div>
               <div className="space-y-0.5">
                 <p className="text-white font-black text-sm tracking-wide leading-tight">Hasamitra</p>
-                <p className="text-orange-400 text-xs font-semibold tracking-wider uppercase">Admin Portal</p>
+                <p className="text-orange-100 text-xs font-bold tracking-wider uppercase">Admin Portal</p>
               </div>
             </div>
 
             {/* Close button on mobile */}
             <button
               onClick={onClose}
-              className="lg:hidden p-2 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded-xl transition-colors focus:outline-none cursor-pointer"
+              className="lg:hidden p-2 text-white/80 hover:text-white hover:bg-white/15 rounded-xl transition-colors focus:outline-none cursor-pointer"
               aria-label="Tutup Menu"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
 
           {/* Menu Title */}
           <div className="px-6 pt-5 pb-2">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 font-mono">
+            <p className="text-[11px] font-extrabold uppercase tracking-widest text-orange-200/90 font-mono">
               Menu Utama
             </p>
           </div>
@@ -131,20 +131,20 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
                   onClick={onClose}
                   className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-bold tracking-wide transition-all duration-200 group ${
                     isActive
-                      ? "bg-gradient-to-r from-orange-500/20 via-orange-500/10 to-transparent text-orange-400 border border-orange-500/30 shadow-sm shadow-orange-500/10"
-                      : "text-slate-300 hover:text-white hover:bg-white/5 border border-transparent"
+                      ? "bg-white text-orange-600 shadow-lg shadow-black/10 border border-white font-black"
+                      : "text-white/90 hover:text-white hover:bg-white/15 border border-transparent"
                   }`}
                 >
                   <div
                     className={`transition-colors duration-200 ${
-                      isActive ? "text-orange-400" : "text-slate-400 group-hover:text-slate-200"
+                      isActive ? "text-orange-600" : "text-white/80 group-hover:text-white"
                     }`}
                   >
                     {item.icon}
                   </div>
                   <span>{item.label}</span>
                   {isActive && (
-                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-400 shadow-sm shadow-orange-400"></span>
+                    <span className="ml-auto w-2 h-2 rounded-full bg-orange-600 shadow-sm shadow-orange-600"></span>
                   )}
                 </Link>
               );
@@ -153,12 +153,12 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
         </div>
 
         {/* Footer User & Actions Card */}
-        <div className="p-4 border-t border-slate-800/80 bg-slate-900/30 space-y-2">
+        <div className="p-4 border-t border-orange-500/50 bg-orange-700/30 space-y-2">
           <button
             onClick={handleGoToWebsite}
-            className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all cursor-pointer text-left"
+            className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-xs font-bold text-white/90 hover:text-white hover:bg-white/15 transition-all cursor-pointer text-left"
           >
-            <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-white/90 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
             <span>Buka Website Utama</span>
@@ -166,9 +166,9 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
 
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all cursor-pointer"
+            className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-xs font-bold text-rose-100 hover:text-white bg-rose-950/25 hover:bg-rose-900/40 border border-rose-300/30 transition-all cursor-pointer"
           >
-            <svg className="w-4 h-4 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-rose-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
             <span>Keluar Sesi Admin</span>
