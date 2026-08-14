@@ -290,20 +290,7 @@ export default function TabunganFormModal({
                 </div>
               </div>
 
-              {/* Download Form Permohonan Kredit Link */}
-              <div className="p-3.5 bg-orange-50/80 border border-orange-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-                <span className="text-slate-700 font-medium text-center sm:text-left">
-                  Membutuhkan berkas cetak Form Permohonan Kredit (PDF)?
-                </span>
-                <a
-                  href="https://hasamitrajabar.com/wp-content/uploads/2021/05/Permohonan-Kredit.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-orange-600 font-bold hover:underline inline-flex items-center gap-1 shrink-0"
-                >
-                  Unduh Form Kredit (PDF) ↗
-                </a>
-              </div>
+
 
               {/* Action Buttons */}
               <div className="pt-2 flex items-center justify-end gap-3">
