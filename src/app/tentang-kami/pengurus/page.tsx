@@ -1,12 +1,5 @@
-import React from "react";
-import PengurusClient from "@/components/pengurus/PengurusClient";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Pengurus - Bank Hasamitra Jawa Barat",
-  description: "Jajaran Pengurus & Manajemen PT BPR Hasamitra Jawa Barat.",
-};
-
-export default function PengurusPage() {
-  return <PengurusClient />;
+export default function Page() {
+  redirect("/tentang-kami/penghargaan");
 }
-

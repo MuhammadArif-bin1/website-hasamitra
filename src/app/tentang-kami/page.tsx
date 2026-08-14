@@ -1,4 +1,5 @@
-import ProfilPerusahaanPage, { metadata } from "./profil-perusahaan/page";
+import { redirect } from "next/navigation";
 
-export { metadata };
-export default ProfilPerusahaanPage;
+export default function Page() {
+  redirect("/tentang-kami/penghargaan");
+}

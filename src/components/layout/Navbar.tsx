@@ -5,12 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import WhatsAppButton from "@/components/common/WhatsAppButton";
-import { tentangKamiSubmenu, informasiSubmenu } from "@/data/navigation";
+import { hasamitraSubmenu, informasiSubmenu } from "@/data/navigation";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isTentangKamiOpen, setIsTentangKamiOpen] = useState(false);
-  const [isMobileTentangKamiOpen, setIsMobileTentangKamiOpen] = useState(false);
+  const [isHasamitraOpen, setIsHasamitraOpen] = useState(false);
+  const [isMobileHasamitraOpen, setIsMobileHasamitraOpen] = useState(false);
   const [isInformasiOpen, setIsInformasiOpen] = useState(false);
   const [isMobileInformasiOpen, setIsMobileInformasiOpen] = useState(false);
   const pathname = usePathname();
@@ -20,7 +20,10 @@ export default function Navbar() {
     return null;
   }
 
-  const isTentangKamiActive = pathname.startsWith("/tentang-kami");
+  const isHasamitraActive =
+    pathname === "/" ||
+    pathname.startsWith("/tentang-kami/penghargaan") ||
+    pathname === "/penghargaan";
   const isInformasiActive = pathname.startsWith("/informasi");
 
   return (
@@ -41,35 +44,24 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
-            <Link
-              href="/"
-              className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                pathname === "/"
-                  ? "text-orange-600 bg-orange-50"
-                  : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
-              }`}
-            >
-              HASAMITRA
-            </Link>
-
-            {/* Dropdown Tentang Kami */}
+            {/* Dropdown HASAMITRA (Beranda & Penghargaan) */}
             <div
               className="relative"
-              onMouseEnter={() => setIsTentangKamiOpen(true)}
-              onMouseLeave={() => setIsTentangKamiOpen(false)}
+              onMouseEnter={() => setIsHasamitraOpen(true)}
+              onMouseLeave={() => setIsHasamitraOpen(false)}
             >
               <Link
-                href="/tentang-kami/profil-perusahaan"
+                href="/"
                 className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                  isTentangKamiActive
+                  isHasamitraActive
                     ? "text-orange-600 bg-orange-50"
                     : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
                 }`}
               >
-                TENTANG KAMI
+                HASAMITRA
                 <svg
                   className={`w-4 h-4 text-orange-500 transition-transform ${
-                    isTentangKamiOpen ? "rotate-180" : ""
+                    isHasamitraOpen ? "rotate-180" : ""
                   }`}
                   fill="none"
                   viewBox="0 0 24 24"
@@ -79,11 +71,21 @@ export default function Navbar() {
                 </svg>
               </Link>
 
-              {/* Dropdown Menu Tentang Kami */}
-              {isTentangKamiOpen && (
-                <div className="absolute top-full left-0 w-56 pt-2 z-50">
+              {/* Dropdown Menu Hasamitra */}
+              {isHasamitraOpen && (
+                <div className="absolute top-full left-0 w-52 pt-2 z-50">
                   <div className="bg-white rounded-xl shadow-xl border border-slate-100 py-2 animate-fade-in">
-                    {tentangKamiSubmenu.map((sub) => (
+                    <Link
+                      href="/"
+                      className={`block px-4 py-2.5 text-sm font-semibold transition-colors ${
+                        pathname === "/"
+                          ? "text-orange-600 bg-orange-50"
+                          : "text-slate-800 hover:bg-orange-50/60 hover:text-orange-600"
+                      }`}
+                    >
+                      Beranda
+                    </Link>
+                    {hasamitraSubmenu.map((sub) => (
                       <Link
                         key={sub.name}
                         href={sub.href}
@@ -184,7 +186,7 @@ export default function Navbar() {
             <button
               onClick={() => setIsOpen(!isOpen)}
               type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-slate-700 hover:text-orange-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="inline-flex items-center justify-center p-2 rounded-md text-slate-700 hover:text-orange-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer"
               aria-controls="mobile-menu"
               aria-expanded={isOpen}
             >
@@ -207,24 +209,16 @@ export default function Navbar() {
       {isOpen && (
         <div className="md:hidden border-t border-slate-100 bg-white" id="mobile-menu">
           <div className="px-4 pt-3 pb-6 space-y-2">
-            <Link
-              href="/"
-              onClick={() => setIsOpen(false)}
-              className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600"
-            >
-              HASAMITRA
-            </Link>
-
-            {/* Mobile Submenu Tentang Kami */}
+            {/* Mobile Submenu HASAMITRA */}
             <div>
               <button
-                onClick={() => setIsMobileTentangKamiOpen(!isMobileTentangKamiOpen)}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600"
+                onClick={() => setIsMobileHasamitraOpen(!isMobileHasamitraOpen)}
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600 cursor-pointer"
               >
-                <span>TENTANG KAMI</span>
+                <span>HASAMITRA</span>
                 <svg
                   className={`w-4 h-4 text-orange-500 transition-transform ${
-                    isMobileTentangKamiOpen ? "rotate-180" : ""
+                    isMobileHasamitraOpen ? "rotate-180" : ""
                   }`}
                   fill="none"
                   viewBox="0 0 24 24"
@@ -234,9 +228,20 @@ export default function Navbar() {
                 </svg>
               </button>
 
-              {isMobileTentangKamiOpen && (
+              {isMobileHasamitraOpen && (
                 <div className="pl-6 space-y-1 mt-1 border-l-2 border-slate-200">
-                  {tentangKamiSubmenu.map((sub) => (
+                  <Link
+                    href="/"
+                    onClick={() => setIsOpen(false)}
+                    className={`block px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                      pathname === "/"
+                        ? "text-orange-600 bg-orange-50"
+                        : "text-slate-700 hover:text-orange-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    Beranda
+                  </Link>
+                  {hasamitraSubmenu.map((sub) => (
                     <Link
                       key={sub.name}
                       href={sub.href}
@@ -266,7 +271,7 @@ export default function Navbar() {
             <div>
               <button
                 onClick={() => setIsMobileInformasiOpen(!isMobileInformasiOpen)}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600"
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-base font-semibold text-slate-800 hover:bg-orange-50 hover:text-orange-600 cursor-pointer"
               >
                 <span>INFORMASI</span>
                 <svg

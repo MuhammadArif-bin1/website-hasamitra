@@ -1,6 +1,5 @@
 import React from "react";
 import Image from "next/image";
-import TentangKamiTabs from "@/components/tentang-kami/TentangKamiTabs";
 import WhatsAppBanner from "@/components/common/WhatsAppBanner";
 import OjkLpsNotice from "@/components/common/OjkLpsNotice";
 
@@ -13,9 +12,6 @@ export default function PenghargaanPage() {
   return (
     <div className="py-12 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Submenu Tabs Navigation */}
-        <TentangKamiTabs />
-
         {/* Section Banner Header */}
         <div className="w-full bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 rounded-2xl py-4 shadow-md text-center">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-wide">

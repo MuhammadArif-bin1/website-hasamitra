@@ -7,11 +7,7 @@ export interface NavItemWithSubmenu extends NavItem {
   submenu?: NavItem[];
 }
 
-export const tentangKamiSubmenu: NavItem[] = [
-  { name: "Profil Perusahaan", href: "/tentang-kami/profil-perusahaan" },
-  { name: "Logo & Makna", href: "/tentang-kami/logo-makna" },
-  { name: "Pengurus", href: "/tentang-kami/pengurus" },
-  { name: "Struktur Organisasi", href: "/tentang-kami/struktur-organisasi" },
+export const hasamitraSubmenu: NavItem[] = [
   { name: "Penghargaan", href: "/tentang-kami/penghargaan" },
 ];
 
@@ -25,11 +21,10 @@ export const informasiSubmenu: NavItem[] = [
 ];
 
 export const mainNavigation: NavItemWithSubmenu[] = [
-  { name: "HASAMITRA", href: "/" },
   {
-    name: "TENTANG KAMI",
-    href: "/tentang-kami/profil-perusahaan",
-    submenu: tentangKamiSubmenu,
+    name: "HASAMITRA",
+    href: "/",
+    submenu: hasamitraSubmenu,
   },
   { name: "PRODUK", href: "/produk" },
   {
@@ -42,7 +37,7 @@ export const mainNavigation: NavItemWithSubmenu[] = [
 
 export const footerNavigation: NavItem[] = [
   { name: "HASAMITRA", href: "/" },
-  { name: "TENTANG KAMI", href: "/tentang-kami/profil-perusahaan" },
+  { name: "PENGHARGAAN", href: "/tentang-kami/penghargaan" },
   { name: "PRODUK", href: "/produk" },
   { name: "INFORMASI", href: "/informasi" },
   { name: "CONTACT", href: "/contact" },
