@@ -345,10 +345,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. PIAGAM & PENGHARGAAN RESMI (AURA SHOWCASE CARD) */}
-      <section id="piagam" className="py-20 lg:py-24 bg-slate-900 text-white relative overflow-hidden scroll-mt-24">
-        {/* Ambient Glows */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      {/* 4. PIAGAM & PENGHARGAAN RESMI (AURA SHOWCASE CARD WITH BACKGROUND IMAGE) */}
+      <section id="piagam" className="py-20 lg:py-24 bg-slate-950 text-white relative overflow-hidden scroll-mt-24">
+        {/* Background Image with Dark Overlay */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/images/profil/background piagam hasamitra.png"
+            alt="Background Piagam Hasamitra"
+            fill
+            className="object-cover object-center"
+          />
+          {/* Deep dark gradient overlay for optimal contrast */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/95 via-slate-950/85 to-slate-950/95"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
           
