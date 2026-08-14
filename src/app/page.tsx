@@ -138,10 +138,10 @@ export default function Home() {
             alt="Background Bank Hasamitra Jawa Barat"
             fill
             priority
-            className="object-cover object-[75%_30%] sm:object-center transition-all duration-700"
+            className="object-cover object-[90%_32%] sm:object-center transition-all duration-700"
           />
           {/* Deep modern radial and gradient overlay optimized for mobile & desktop */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/95 via-slate-950/85 to-slate-950/95 sm:bg-gradient-to-r sm:from-slate-950/95 sm:via-slate-950/85 sm:to-slate-950/65"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/85 via-slate-950/70 to-slate-950/90 sm:bg-gradient-to-r sm:from-slate-950/95 sm:via-slate-950/85 sm:to-slate-950/65"></div>
           <div className="absolute top-0 right-1/4 w-96 h-96 bg-orange-600/15 rounded-full blur-3xl pointer-events-none"></div>
           <div className="absolute bottom-0 left-10 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
         </div>
