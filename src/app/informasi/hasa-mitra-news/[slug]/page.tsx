@@ -277,10 +277,11 @@ export default async function NewsDetailPage({ params }: Props) {
                     </span>
                   </div>
                 </Link>
-              ))}
-            </div>
+              );
+            })}
           </div>
-        )}
+        </div>
+      )}
 
         {/* OJK & LPS Notice */}
         <OjkLpsNotice />

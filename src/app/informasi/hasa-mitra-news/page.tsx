@@ -132,9 +132,10 @@ export default async function HasaMitraNewsPage() {
                   </div>
                 </div>
               </article>
-            ))}
-          </div>
-        )}
+            );
+          })}
+        </div>
+      )}
 
         {/* OJK & LPS Notice */}
         <OjkLpsNotice />
