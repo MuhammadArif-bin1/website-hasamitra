@@ -287,24 +287,24 @@ export default function AdminPendaftaranPage() {
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-5 sm:space-y-8">
       {/* Top Header Card */}
-      <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl p-4 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
             Pendaftaran Nasabah Online
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
+          <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
             Pantau dan kelola data permohonan pembukaan tabungan, deposito, dan cicil emas nasabah secara real-time.
           </p>
         </div>
 
         {/* Action Buttons: Refresh, Delete Data & Export */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 w-full lg:w-auto">
           <button
             onClick={() => fetchRegistrations(false)}
             disabled={isRefreshing}
-            className="px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs transition border border-slate-200 cursor-pointer inline-flex items-center gap-2"
+            className="flex-1 sm:flex-initial px-3 sm:px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs transition border border-slate-200 cursor-pointer inline-flex items-center justify-center gap-2"
             title="Perbarui data sekarang"
           >
             <svg
@@ -315,25 +315,25 @@ export default function AdminPendaftaranPage() {
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            <span className="hidden sm:inline">Perbarui</span>
+            <span>Perbarui</span>
           </button>
 
           {/* Delete All / Clear Data Button */}
           <button
             onClick={() => setShowDeleteAllModal(true)}
             disabled={registrations.length === 0}
-            className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 text-xs font-bold rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 text-xs font-bold rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             title="Hapus / kosongkan semua data pendaftaran"
           >
-            <svg className="w-3.5 h-3.5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
-            <span>Hapus Semua Data</span>
+            <span>Hapus Semua</span>
           </button>
 
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer shrink-0"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer shrink-0"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
@@ -345,16 +345,16 @@ export default function AdminPendaftaranPage() {
 
       {/* Floating Bulk Action Bar when items selected */}
       {selectedIds.length > 0 && (
-        <div className="bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-lg flex items-center justify-between animate-fade-in border border-slate-800">
-          <div className="flex items-center gap-3">
-            <span className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center">
+        <div className="bg-slate-900 text-white px-4 sm:px-5 py-3 sm:py-3.5 rounded-xl shadow-lg flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 animate-fade-in border border-slate-800">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <span className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center shrink-0">
               {selectedIds.length}
             </span>
             <span className="text-xs sm:text-sm font-semibold">
               {selectedIds.length} data pendaftaran dipilih
             </span>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center justify-end gap-2 sm:gap-3">
             <button
               onClick={() => setSelectedIds([])}
               className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
@@ -376,47 +376,47 @@ export default function AdminPendaftaranPage() {
 
       {/* Messages */}
       {successMsg && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-5 py-3.5 rounded-xl flex items-center justify-between shadow-xs">
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm px-4 sm:px-5 py-3 rounded-xl flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-2.5">
-            <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs">✓</span>
-            <span>{successMsg}</span>
+            <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0">✓</span>
+            <span className="leading-snug">{successMsg}</span>
           </div>
-          <button onClick={() => setSuccessMsg("")} className="text-emerald-600 hover:text-emerald-800 font-bold cursor-pointer">✕</button>
+          <button onClick={() => setSuccessMsg("")} className="text-emerald-600 hover:text-emerald-800 font-bold cursor-pointer shrink-0 ml-2">✕</button>
         </div>
       )}
       {errorMsg && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 text-sm px-5 py-3.5 rounded-xl flex items-center justify-between shadow-xs">
+        <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm px-4 sm:px-5 py-3 rounded-xl flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-2.5">
-            <span className="w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-xs">✕</span>
-            <span>{errorMsg}</span>
+            <span className="w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-xs shrink-0">✕</span>
+            <span className="leading-snug">{errorMsg}</span>
           </div>
-          <button onClick={() => setErrorMsg("")} className="text-rose-600 hover:text-rose-800 font-bold cursor-pointer">✕</button>
+          <button onClick={() => setErrorMsg("")} className="text-rose-600 hover:text-rose-800 font-bold cursor-pointer shrink-0 ml-2">✕</button>
         </div>
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pendaftar</p>
-          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">{stats.total}</p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-xs">
+          <p className="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Total Pendaftar</p>
+          <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 mt-1">{stats.total}</p>
         </div>
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
-          <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">Baru Masuk</p>
-          <p className="text-2xl sm:text-3xl font-extrabold text-blue-600 mt-1">{stats.baru}</p>
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-xs">
+          <p className="text-[11px] sm:text-xs font-bold text-blue-600 uppercase tracking-wider truncate">Baru Masuk</p>
+          <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-blue-600 mt-1">{stats.baru}</p>
         </div>
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
-          <p className="text-xs font-bold text-amber-600 uppercase tracking-wider">Sedang Diproses</p>
-          <p className="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">{stats.diproses}</p>
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-xs">
+          <p className="text-[11px] sm:text-xs font-bold text-amber-600 uppercase tracking-wider truncate">Sedang Diproses</p>
+          <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-amber-600 mt-1">{stats.diproses}</p>
         </div>
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
-          <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Selesai</p>
-          <p className="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1">{stats.selesai}</p>
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-xs">
+          <p className="text-[11px] sm:text-xs font-bold text-emerald-600 uppercase tracking-wider truncate">Selesai</p>
+          <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-emerald-600 mt-1">{stats.selesai}</p>
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="relative w-full sm:w-96">
+      <div className="bg-white rounded-2xl p-3.5 sm:p-4 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="relative w-full sm:w-80 md:w-96">
           <svg className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
@@ -424,24 +424,24 @@ export default function AdminPendaftaranPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari nama nasabah, produk, WhatsApp, email..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+            placeholder="Cari nama nasabah, produk, WhatsApp..."
+            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Status:</span>
+        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap hidden sm:inline">Status:</span>
           <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl w-full sm:w-auto overflow-x-auto">
             {[
               { key: "Semua", label: "Semua" },
               { key: "Baru", label: "Baru" },
-              { key: "Diproses", label: "Sedang Diproses" },
+              { key: "Diproses", label: "Diproses" },
               { key: "Selesai", label: "Selesai" },
             ].map((st) => (
               <button
                 key={st.key}
                 onClick={() => setStatusFilter(st.key)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer text-center ${
                   statusFilter === st.key
                     ? "bg-white text-orange-600 shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
@@ -454,9 +454,178 @@ export default function AdminPendaftaranPage() {
         </div>
       </div>
 
-      {/* Data Table */}
+      {/* Registrations List Container */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto w-full">
+        {/* Mobile Header Bar on Card List */}
+        <div className="md:hidden px-4 py-3 bg-slate-50/80 border-b border-slate-200/80 flex items-center justify-between">
+          <label className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isAllSelected}
+              onChange={handleSelectAll}
+              className="w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+            />
+            <span>Pilih Semua Data ({registrations.length})</span>
+          </label>
+          <span className="text-[11px] text-slate-400 font-medium font-mono">
+            {registrations.length} data
+          </span>
+        </div>
+
+        {/* Mobile Card List View (Visible on screens < md) */}
+        <div className="block md:hidden divide-y divide-slate-100">
+          {loading && registrations.length === 0 ? (
+            <div className="p-8 text-center text-xs text-slate-400">
+              <div className="inline-flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
+                <span>Memuat data pendaftaran...</span>
+              </div>
+            </div>
+          ) : registrations.length === 0 ? (
+            <div className="p-8 text-center text-xs text-slate-400">
+              Tidak ada data pendaftaran yang tersimpan.
+            </div>
+          ) : (
+            registrations.map((reg) => {
+              const isSelected = selectedIds.includes(reg.id);
+              const isSelesai = reg.status === "Selesai";
+              const isDiproses = reg.status === "Diproses" || reg.status === "Sedang Diproses";
+
+              return (
+                <div
+                  key={reg.id}
+                  className={`p-4 space-y-3 transition-colors ${
+                    isSelected ? "bg-orange-50/40" : "hover:bg-slate-50/50"
+                  }`}
+                >
+                  {/* Card Top: Selection Checkbox + ID Badge + Date */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleToggleSelect(reg.id)}
+                        className="w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+                        aria-label={`Pilih pendaftaran ${reg.nama}`}
+                      />
+                      <span className="inline-block text-[11px] font-mono font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200/60 shadow-2xs">
+                        REG-{String(reg.id).padStart(4, "0")}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      {new Date(reg.createdAt).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </div>
+
+                  {/* Customer Info */}
+                  <div className="space-y-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-sm font-extrabold text-slate-900 leading-snug">{reg.nama}</h3>
+                    </div>
+                    {reg.alamat && (
+                      <p className="text-xs text-slate-500 line-clamp-1 leading-relaxed" title={reg.alamat}>
+                        {reg.alamat}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Product & Option */}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="px-2.5 py-0.5 bg-orange-50 text-orange-700 text-xs font-bold rounded-md border border-orange-200/60">
+                      {reg.produk}
+                    </span>
+                    {reg.pilihan && (
+                      <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[11px] font-semibold rounded-md border border-slate-200/70">
+                        {reg.pilihan}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Contact & WhatsApp Button */}
+                  <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100">
+                    <div className="min-w-0">
+                      <p className="text-xs font-mono font-bold text-slate-900 truncate">{reg.telepon || "-"}</p>
+                      {reg.email && <p className="text-[11px] text-slate-400 truncate">{reg.email}</p>}
+                    </div>
+
+                    {reg.telepon && (
+                      <a
+                        href={formatWhatsAppUrl(reg.telepon, reg.nama, reg.produk)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg hover:bg-emerald-100 transition shadow-2xs shrink-0"
+                        title="Chat WhatsApp Nasabah"
+                      >
+                        <span>WhatsApp</span> ↗
+                      </a>
+                    )}
+                  </div>
+
+                  {/* Card Bottom: Status Selector + Action Buttons */}
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                    {/* Status Dropdown */}
+                    <div className="relative">
+                      <select
+                        disabled={updatingId === reg.id}
+                        value={isDiproses ? "Diproses" : reg.status || "Baru"}
+                        onChange={(e) => handleUpdateStatus(reg.id, e.target.value)}
+                        className={`text-[11px] font-bold pl-6 pr-6 py-1 rounded-full border shadow-2xs appearance-none cursor-pointer transition-all focus:outline-none focus:ring-2 disabled:opacity-50 ${
+                          isSelesai
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                            : isDiproses
+                            ? "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+                            : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+                        }`}
+                        title="Ubah status"
+                      >
+                        <option value="Baru">Baru</option>
+                        <option value="Diproses">Diproses</option>
+                        <option value="Selesai">Selesai</option>
+                      </select>
+
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2">
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            isSelesai ? "bg-emerald-500" : isDiproses ? "bg-amber-500" : "bg-blue-500"
+                          }`}
+                        ></span>
+                      </div>
+
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1.5 text-current opacity-70">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setSelectedReg(reg)}
+                        className="px-2.5 py-1 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition cursor-pointer"
+                      >
+                        Detail
+                      </button>
+                      <button
+                        onClick={() => handleDeleteSingle(reg)}
+                        className="px-2.5 py-1 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition border border-rose-200 cursor-pointer"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Desktop Table View (Hidden on screens < md) */}
+        <div className="hidden md:block overflow-x-auto w-full">
           <table className="w-full min-w-[960px] text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
@@ -640,15 +809,15 @@ export default function AdminPendaftaranPage() {
       {/* Confirmation Modal: Delete ALL Data */}
       {showDeleteAllModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-200 p-7 space-y-5 text-center">
-            <div className="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-inner">
-              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-200 p-5 sm:p-7 space-y-4 sm:space-y-5 text-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-inner">
+              <svg className="w-7 h-7 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </div>
 
-            <div className="space-y-2">
-              <h3 className="text-xl font-black text-slate-900">
+            <div className="space-y-1.5 sm:space-y-2">
+              <h3 className="text-lg sm:text-xl font-black text-slate-900">
                 Hapus Seluruh Data Pendaftaran?
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -656,12 +825,12 @@ export default function AdminPendaftaranPage() {
               </p>
             </div>
 
-            <div className="pt-3 flex items-center justify-center gap-3">
+            <div className="pt-2 sm:pt-3 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3">
               <button
                 type="button"
                 onClick={() => setShowDeleteAllModal(false)}
                 disabled={deletingBulk}
-                className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-100 transition cursor-pointer"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold hover:bg-slate-100 transition cursor-pointer"
               >
                 Batal
               </button>
@@ -669,7 +838,7 @@ export default function AdminPendaftaranPage() {
                 type="button"
                 onClick={handleDeleteAll}
                 disabled={deletingBulk}
-                className="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold shadow-lg shadow-rose-600/25 transition flex items-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold shadow-lg shadow-rose-600/25 transition flex items-center justify-center gap-2 cursor-pointer"
               >
                 {deletingBulk ? "Menghapus..." : "Ya, Kosongkan Semua"}
               </button>
@@ -681,15 +850,15 @@ export default function AdminPendaftaranPage() {
       {/* Confirmation Modal: Delete Selected Data */}
       {showDeleteSelectedModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-200 p-7 space-y-5 text-center">
-            <div className="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-inner">
-              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-200 p-5 sm:p-7 space-y-4 sm:space-y-5 text-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-inner">
+              <svg className="w-7 h-7 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </div>
 
-            <div className="space-y-2">
-              <h3 className="text-xl font-black text-slate-900">
+            <div className="space-y-1.5 sm:space-y-2">
+              <h3 className="text-lg sm:text-xl font-black text-slate-900">
                 Hapus {selectedIds.length} Data Terpilih?
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -697,12 +866,12 @@ export default function AdminPendaftaranPage() {
               </p>
             </div>
 
-            <div className="pt-3 flex items-center justify-center gap-3">
+            <div className="pt-2 sm:pt-3 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3">
               <button
                 type="button"
                 onClick={() => setShowDeleteSelectedModal(false)}
                 disabled={deletingBulk}
-                className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-100 transition cursor-pointer"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold hover:bg-slate-100 transition cursor-pointer"
               >
                 Batal
               </button>
@@ -710,7 +879,7 @@ export default function AdminPendaftaranPage() {
                 type="button"
                 onClick={handleDeleteSelected}
                 disabled={deletingBulk}
-                className="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold shadow-lg shadow-rose-600/25 transition flex items-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold shadow-lg shadow-rose-600/25 transition flex items-center justify-center gap-2 cursor-pointer"
               >
                 {deletingBulk ? "Menghapus..." : `Ya, Hapus (${selectedIds.length}) Data`}
               </button>
@@ -722,63 +891,63 @@ export default function AdminPendaftaranPage() {
       {/* Modern Detail Modal */}
       {selectedReg && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-slate-200">
-            <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 text-white p-6 sm:p-7 flex items-center justify-between shadow-md">
-              <div>
-                <span className="text-xs uppercase tracking-wider text-orange-100 font-mono font-bold">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-lg max-h-[88vh] overflow-y-auto shadow-2xl border border-slate-200 flex flex-col">
+            <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 text-white p-5 sm:p-7 flex items-center justify-between shadow-md shrink-0">
+              <div className="min-w-0 pr-2">
+                <span className="text-[11px] sm:text-xs uppercase tracking-wider text-orange-100 font-mono font-bold">
                   REG-{String(selectedReg.id).padStart(4, "0")}
                 </span>
-                <h2 className="text-xl font-black">{selectedReg.nama}</h2>
+                <h2 className="text-lg sm:text-xl font-black truncate">{selectedReg.nama}</h2>
               </div>
               <button
                 onClick={() => setSelectedReg(null)}
-                className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors cursor-pointer text-sm font-bold"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors cursor-pointer text-sm font-bold shrink-0"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-6 sm:p-7 space-y-4 text-sm text-slate-700">
-              <div className="grid grid-cols-2 gap-4 pb-4 border-b border-slate-100">
+            <div className="p-5 sm:p-7 space-y-4 text-xs sm:text-sm text-slate-700 flex-1 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 pb-3 sm:pb-4 border-b border-slate-100">
                 <div>
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Produk Pengajuan</p>
-                  <p className="font-extrabold text-slate-900 mt-0.5">{selectedReg.produk}</p>
+                  <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Produk Pengajuan</p>
+                  <p className="font-extrabold text-slate-900 mt-0.5 leading-snug">{selectedReg.produk}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Pilihan / Jangka Waktu</p>
-                  <p className="font-extrabold text-orange-600 mt-0.5">{selectedReg.pilihan || "Standard"}</p>
+                  <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Pilihan / Jangka Waktu</p>
+                  <p className="font-extrabold text-orange-600 mt-0.5 leading-snug">{selectedReg.pilihan || "Standard"}</p>
                 </div>
               </div>
 
               <div>
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Alamat Domisili</p>
-                <p className="font-medium text-slate-800 mt-1 bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 leading-relaxed">
+                <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Alamat Domisili</p>
+                <p className="font-medium text-slate-800 mt-1 bg-slate-50 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200/80 leading-relaxed text-xs sm:text-sm">
                   {selectedReg.alamat || "Alamat tidak diisi"}
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Email</p>
-                  <p className="font-medium text-slate-800 mt-0.5">{selectedReg.email || "-"}</p>
+                  <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Email</p>
+                  <p className="font-medium text-slate-800 mt-0.5 truncate">{selectedReg.email || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Nomor Telepon / WA</p>
+                  <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Nomor Telepon / WA</p>
                   <p className="font-mono font-bold text-slate-900 mt-0.5">{selectedReg.telepon || "-"}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-slate-100">
                 <div>
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Tanggal Masuk</p>
-                  <p className="font-medium text-slate-800 mt-0.5">
+                  <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Tanggal Masuk</p>
+                  <p className="font-medium text-slate-800 mt-0.5 text-xs sm:text-sm">
                     {new Date(selectedReg.createdAt).toLocaleString("id-ID")}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Status Pemrosesan</p>
+                  <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Status</p>
                   <span
-                    className={`inline-flex px-3 py-1 rounded-full text-xs font-bold mt-1 ${
+                    className={`inline-flex px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold mt-1 ${
                       selectedReg.status === "Selesai"
                         ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                         : selectedReg.status === "Diproses" || selectedReg.status === "Sedang Diproses"
@@ -792,19 +961,19 @@ export default function AdminPendaftaranPage() {
               </div>
 
               {/* Status Update Quick Buttons */}
-              <div className="pt-4 border-t border-slate-100 space-y-2">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Ubah Status Pendaftaran:</p>
+              <div className="pt-3 sm:pt-4 border-t border-slate-100 space-y-2">
+                <p className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Ubah Status Pendaftaran:</p>
                 <div className="grid grid-cols-3 gap-2">
                   {[
                     { key: "Baru", label: "Baru" },
-                    { key: "Diproses", label: "Sedang Diproses" },
+                    { key: "Diproses", label: "Diproses" },
                     { key: "Selesai", label: "Selesai" },
                   ].map((st) => (
                     <button
                       key={st.key}
                       disabled={updatingId === selectedReg.id || selectedReg.status === st.key}
                       onClick={() => handleUpdateStatus(selectedReg.id, st.key)}
-                      className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${
                         selectedReg.status === st.key
                           ? "bg-slate-900 text-white border-slate-900 shadow-xs"
                           : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
@@ -817,18 +986,18 @@ export default function AdminPendaftaranPage() {
               </div>
             </div>
 
-            <div className="p-6 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between">
+            <div className="p-4 sm:p-6 bg-slate-50/80 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 shrink-0">
               <a
                 href={formatWhatsAppUrl(selectedReg.telepon, selectedReg.nama, selectedReg.produk)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-emerald-600/20"
+                className="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-emerald-600/20 text-center"
               >
-                <span>Hubungi Pemohon via WhatsApp</span> ↗
+                <span>Hubungi via WhatsApp</span> ↗
               </a>
               <button
                 onClick={() => setSelectedReg(null)}
-                className="px-5 py-2.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 transition cursor-pointer"
+                className="px-4 sm:px-5 py-2.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 transition cursor-pointer text-center"
               >
                 Tutup
               </button>

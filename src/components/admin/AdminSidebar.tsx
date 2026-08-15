@@ -76,7 +76,7 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
 
       {/* Sidebar Drawer - High-End Orange Brand Theme */}
       <aside
-        className={`fixed left-0 top-0 z-50 w-72 h-screen bg-gradient-to-b from-orange-600 via-orange-600 to-amber-700 border-r border-orange-500/50 shadow-2xl flex flex-col justify-between transition-transform duration-300 ease-in-out ${
+        className={`fixed left-0 top-0 z-50 w-72 max-w-[85vw] h-screen bg-gradient-to-b from-orange-600 via-orange-600 to-amber-700 border-r border-orange-500/50 shadow-2xl flex flex-col justify-between transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0"
         }`}
       >

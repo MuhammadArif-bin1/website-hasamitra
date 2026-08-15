@@ -99,9 +99,9 @@ export default function AdminLoginPage() {
       <div className="absolute -top-28 -left-28 w-80 sm:w-96 h-80 sm:h-96 bg-orange-200/40 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute -bottom-28 -right-28 w-80 sm:w-96 h-80 sm:h-96 bg-amber-200/40 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div className="w-full max-w-md bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-xl sm:shadow-2xl border border-slate-100/90 relative z-10">
+      <div className="w-full max-w-md bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-10 shadow-xl sm:shadow-2xl border border-slate-100/90 relative z-10">
         {/* Header & Logo Badge */}
-        <div className="text-center mb-6 sm:mb-8">
+        <div className="text-center mb-5 sm:mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white p-1.5 shadow-lg border border-slate-100 mb-3 sm:mb-4 transition-transform hover:scale-105">
             <Image
               src="/images/logo/logo-bulat.png"
@@ -131,7 +131,7 @@ export default function AdminLoginPage() {
 
           {/* Email Input */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+            <label className="block text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider">
               Email Address
             </label>
             <div className="relative">
@@ -142,14 +142,14 @@ export default function AdminLoginPage() {
                 required
                 maxLength={150}
                 placeholder="admin@hasamitrajabar.com"
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 focus:bg-white transition-all"
+                className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 focus:bg-white transition-all"
               />
             </div>
           </div>
 
           {/* Password Input */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+            <label className="block text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider">
               Password
             </label>
             <div className="relative">
@@ -160,7 +160,7 @@ export default function AdminLoginPage() {
                 required
                 maxLength={200}
                 placeholder="••••••••"
-                className="w-full pl-4 pr-11 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 focus:bg-white transition-all"
+                className="w-full pl-3.5 sm:pl-4 pr-11 py-2.5 sm:py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 focus:bg-white transition-all"
               />
               <button
                 type="button"
@@ -185,26 +185,26 @@ export default function AdminLoginPage() {
           {/* Math Captcha Verification (Server Signed) */}
           <div className="space-y-1.5 pt-1">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              <label className="block text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider">
                 Verifikasi Keamanan
               </label>
-              <span className="text-[11px] text-slate-400 font-medium">Hitung hasil di bawah</span>
+              <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium">Hitung hasil di bawah</span>
             </div>
 
             <div className="flex items-center gap-2">
               {/* Captcha Challenge Box */}
-              <div className="flex-1 bg-gradient-to-r from-orange-50 to-amber-50/80 border border-orange-200/80 rounded-xl px-3 py-2.5 flex items-center justify-between shadow-inner select-none">
-                <div className="flex items-center gap-1 text-slate-800 font-mono font-black text-base sm:text-lg tracking-wider">
-                  <span className="text-orange-600 bg-orange-100/70 px-2 py-0.5 rounded-md">
+              <div className="flex-1 bg-gradient-to-r from-orange-50 to-amber-50/80 border border-orange-200/80 rounded-xl px-2.5 sm:px-3 py-2 sm:py-2.5 flex items-center justify-between shadow-inner select-none">
+                <div className="flex items-center gap-1 text-slate-800 font-mono font-black text-sm sm:text-base tracking-wider">
+                  <span className="text-orange-600 bg-orange-100/70 px-1.5 sm:px-2 py-0.5 rounded-md">
                     {captcha ? captcha.num1 : "..."}
                   </span>
-                  <span className="text-slate-600 font-bold px-1">
+                  <span className="text-slate-600 font-bold px-0.5 sm:px-1">
                     {captcha ? captcha.operator : "+"}
                   </span>
-                  <span className="text-orange-600 bg-orange-100/70 px-2 py-0.5 rounded-md">
+                  <span className="text-orange-600 bg-orange-100/70 px-1.5 sm:px-2 py-0.5 rounded-md">
                     {captcha ? captcha.num2 : "..."}
                   </span>
-                  <span className="text-slate-500 font-bold px-1">=</span>
+                  <span className="text-slate-500 font-bold px-0.5 sm:px-1">=</span>
                   <span className="text-slate-400 font-semibold">?</span>
                 </div>
 
@@ -213,7 +213,7 @@ export default function AdminLoginPage() {
                   type="button"
                   onClick={generateCaptcha}
                   title="Ganti soal captcha"
-                  className="p-1.5 text-slate-400 hover:text-orange-600 hover:bg-orange-100/60 rounded-lg transition-all focus:outline-none"
+                  className="p-1 text-slate-400 hover:text-orange-600 hover:bg-orange-100/60 rounded-lg transition-all focus:outline-none"
                 >
                   <svg
                     className={`w-4 h-4 transition-transform duration-300 ${isRotating ? "rotate-180 text-orange-600" : ""}`}
@@ -240,7 +240,7 @@ export default function AdminLoginPage() {
                 onChange={(e) => setCaptchaInput(e.target.value)}
                 required
                 placeholder="Jawaban"
-                className="w-24 sm:w-28 px-3 py-2.5 text-center font-bold text-slate-900 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 focus:bg-white transition-all placeholder:text-slate-400"
+                className="w-20 sm:w-28 px-2 sm:px-3 py-2 sm:py-2.5 text-center font-bold text-slate-900 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 focus:bg-white transition-all placeholder:text-slate-400"
               />
             </div>
           </div>
