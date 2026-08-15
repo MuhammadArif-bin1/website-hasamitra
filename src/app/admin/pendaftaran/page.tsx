@@ -294,6 +294,9 @@ export default function AdminPendaftaranPage() {
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Pendaftaran Nasabah Online
           </h1>
+          <p className="text-xs sm:text-sm text-slate-500">
+            Pantau dan kelola data permohonan pembukaan tabungan, deposito, dan cicil emas nasabah secara real-time.
+          </p>
         </div>
 
         {/* Action Buttons: Refresh, Delete Data & Export */}
@@ -429,17 +432,22 @@ export default function AdminPendaftaranPage() {
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <span className="text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Status:</span>
           <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl w-full sm:w-auto overflow-x-auto">
-            {["Semua", "Baru", "Diproses", "Selesai"].map((st) => (
+            {[
+              { key: "Semua", label: "Semua" },
+              { key: "Baru", label: "Baru" },
+              { key: "Diproses", label: "Sedang Diproses" },
+              { key: "Selesai", label: "Selesai" },
+            ].map((st) => (
               <button
-                key={st}
-                onClick={() => setStatusFilter(st)}
+                key={st.key}
+                onClick={() => setStatusFilter(st.key)}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                  statusFilter === st
+                  statusFilter === st.key
                     ? "bg-white text-orange-600 shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                {st}
+                {st.label}
               </button>
             ))}
           </div>
@@ -449,10 +457,10 @@ export default function AdminPendaftaranPage() {
       {/* Data Table */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div className="overflow-x-auto w-full">
-          <table className="w-full min-w-[760px] text-left border-collapse">
+          <table className="w-full min-w-[960px] text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                <th className="px-4 py-4 w-10 text-center">
+                <th className="px-4 py-4 w-12 text-center">
                   <input
                     type="checkbox"
                     checked={isAllSelected}
@@ -461,12 +469,12 @@ export default function AdminPendaftaranPage() {
                     aria-label="Pilih semua data"
                   />
                 </th>
-                <th className="px-4 py-4">ID &amp; Tanggal</th>
-                <th className="px-6 py-4">Nama Pemohon</th>
-                <th className="px-6 py-4">Produk &amp; Pilihan</th>
-                <th className="px-6 py-4">Kontak (WhatsApp / Email)</th>
-                <th className="px-6 py-4 text-center">Status</th>
-                <th className="px-6 py-4 text-right">Aksi</th>
+                <th className="px-5 py-4 min-w-[130px]">ID &amp; Tanggal</th>
+                <th className="px-6 py-4 min-w-[220px]">Nama Pemohon</th>
+                <th className="px-6 py-4 min-w-[200px]">Produk &amp; Pilihan</th>
+                <th className="px-6 py-4 min-w-[220px]">Kontak (WhatsApp / Email)</th>
+                <th className="px-6 py-4 min-w-[180px] text-center">Status</th>
+                <th className="px-6 py-4 w-36 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -488,6 +496,9 @@ export default function AdminPendaftaranPage() {
               ) : (
                 registrations.map((reg) => {
                   const isSelected = selectedIds.includes(reg.id);
+                  const isSelesai = reg.status === "Selesai";
+                  const isDiproses = reg.status === "Diproses" || reg.status === "Sedang Diproses";
+
                   return (
                     <tr
                       key={reg.id}
@@ -507,8 +518,8 @@ export default function AdminPendaftaranPage() {
                       </td>
 
                       {/* ID & Date */}
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span className="inline-block text-xs font-mono font-bold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-200/60">
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        <span className="inline-block text-xs font-mono font-bold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-200/60 shadow-2xs">
                           REG-{String(reg.id).padStart(4, "0")}
                         </span>
                         <p className="text-xs text-slate-400 mt-1 font-mono">
@@ -522,32 +533,32 @@ export default function AdminPendaftaranPage() {
 
                       {/* Name & Address */}
                       <td className="px-6 py-4">
-                        <p className="text-sm font-extrabold text-slate-900">{reg.nama}</p>
-                        <p className="text-xs text-slate-400 truncate max-w-[220px] mt-0.5" title={reg.alamat}>
+                        <p className="text-sm font-extrabold text-slate-900 leading-snug">{reg.nama}</p>
+                        <p className="text-xs text-slate-500 mt-1 leading-relaxed max-w-[260px] line-clamp-2" title={reg.alamat}>
                           {reg.alamat || "Alamat belum diisi"}
                         </p>
                       </td>
 
-                      {/* Product */}
+                      {/* Product & Pilihan */}
                       <td className="px-6 py-4">
-                        <p className="text-sm font-bold text-slate-800">{reg.produk}</p>
-                        <span className="inline-flex px-2.5 py-0.5 bg-slate-100 text-slate-700 text-xs font-semibold rounded-md mt-0.5 border border-slate-200/60">
+                        <p className="text-sm font-extrabold text-slate-900 leading-snug whitespace-nowrap">{reg.produk}</p>
+                        <span className="inline-flex items-center whitespace-nowrap px-2.5 py-0.5 bg-slate-100 text-slate-700 text-xs font-semibold rounded-md mt-1 border border-slate-200/70">
                           {reg.pilihan || "Standard"}
                         </span>
                       </td>
 
                       {/* Contact */}
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <p className="text-xs text-slate-600 font-medium">{reg.email || "-"}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs font-mono font-semibold text-slate-800">{reg.telepon || "-"}</span>
+                          <span className="text-xs font-mono font-semibold text-slate-900">{reg.telepon || "-"}</span>
                           {reg.telepon && (
                             <a
                               href={formatWhatsAppUrl(reg.telepon, reg.nama, reg.produk)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md hover:bg-emerald-100 transition"
-                              title="Chat WhatsApp"
+                              className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md hover:bg-emerald-100 transition shadow-2xs"
+                              title="Chat WhatsApp Nasabah"
                             >
                               <span>WhatsApp</span> ↗
                             </a>
@@ -555,40 +566,47 @@ export default function AdminPendaftaranPage() {
                         </div>
                       </td>
 
-                      {/* Status */}
+                      {/* Status Dropdown Selector */}
                       <td className="px-6 py-4 text-center whitespace-nowrap">
-                        <div className="inline-flex flex-col items-center gap-1.5">
-                          <span
-                            className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
-                              reg.status === "Selesai"
-                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                                : reg.status === "Diproses"
-                                ? "bg-amber-50 text-amber-700 border border-amber-200"
-                                : "bg-blue-50 text-blue-700 border border-blue-200"
-                            }`}
-                          >
-                            {reg.status || "Baru"}
-                          </span>
+                        <div className="inline-flex items-center justify-center">
+                          <div className="relative">
+                            <select
+                              disabled={updatingId === reg.id}
+                              value={isDiproses ? "Diproses" : reg.status || "Baru"}
+                              onChange={(e) => handleUpdateStatus(reg.id, e.target.value)}
+                              className={`text-xs font-bold pl-7 pr-8 py-1.5 rounded-full border shadow-2xs appearance-none cursor-pointer transition-all focus:outline-none focus:ring-2 disabled:opacity-50 ${
+                                isSelesai
+                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 focus:ring-emerald-500/20"
+                                  : isDiproses
+                                  ? "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 focus:ring-amber-500/20"
+                                  : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 focus:ring-blue-500/20"
+                              }`}
+                              title="Klik untuk mengubah status pendaftaran"
+                            >
+                              <option value="Baru">Baru</option>
+                              <option value="Diproses">Sedang Diproses</option>
+                              <option value="Selesai">Selesai</option>
+                            </select>
 
-                          <div className="flex items-center gap-2 text-[11px]">
-                            {reg.status !== "Diproses" && (
-                              <button
-                                disabled={updatingId === reg.id}
-                                onClick={() => handleUpdateStatus(reg.id, "Diproses")}
-                                className="text-amber-600 hover:text-amber-800 font-bold cursor-pointer"
-                              >
-                                Proses
-                              </button>
-                            )}
-                            {reg.status !== "Selesai" && (
-                              <button
-                                disabled={updatingId === reg.id}
-                                onClick={() => handleUpdateStatus(reg.id, "Selesai")}
-                                className="text-emerald-600 hover:text-emerald-800 font-bold cursor-pointer"
-                              >
-                                Selesai
-                              </button>
-                            )}
+                            {/* Dot indicator */}
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                              <span
+                                className={`w-2 h-2 rounded-full ${
+                                  isSelesai
+                                    ? "bg-emerald-500"
+                                    : isDiproses
+                                    ? "bg-amber-500"
+                                    : "bg-blue-500"
+                                }`}
+                              ></span>
+                            </div>
+
+                            {/* Caret arrow */}
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-current opacity-70">
+                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -763,32 +781,36 @@ export default function AdminPendaftaranPage() {
                     className={`inline-flex px-3 py-1 rounded-full text-xs font-bold mt-1 ${
                       selectedReg.status === "Selesai"
                         ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                        : selectedReg.status === "Diproses"
+                        : selectedReg.status === "Diproses" || selectedReg.status === "Sedang Diproses"
                         ? "bg-amber-50 text-amber-700 border border-amber-200"
                         : "bg-blue-50 text-blue-700 border border-blue-200"
                     }`}
                   >
-                    {selectedReg.status || "Baru"}
+                    {selectedReg.status === "Diproses" ? "Sedang Diproses" : selectedReg.status || "Baru"}
                   </span>
                 </div>
               </div>
 
               {/* Status Update Quick Buttons */}
               <div className="pt-4 border-t border-slate-100 space-y-2">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Ubah Status Cepat:</p>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Ubah Status Pendaftaran:</p>
                 <div className="grid grid-cols-3 gap-2">
-                  {["Baru", "Diproses", "Selesai"].map((st) => (
+                  {[
+                    { key: "Baru", label: "Baru" },
+                    { key: "Diproses", label: "Sedang Diproses" },
+                    { key: "Selesai", label: "Selesai" },
+                  ].map((st) => (
                     <button
-                      key={st}
-                      disabled={updatingId === selectedReg.id || selectedReg.status === st}
-                      onClick={() => handleUpdateStatus(selectedReg.id, st)}
+                      key={st.key}
+                      disabled={updatingId === selectedReg.id || selectedReg.status === st.key}
+                      onClick={() => handleUpdateStatus(selectedReg.id, st.key)}
                       className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                        selectedReg.status === st
+                        selectedReg.status === st.key
                           ? "bg-slate-900 text-white border-slate-900 shadow-xs"
                           : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                       }`}
                     >
-                      {st}
+                      {st.label}
                     </button>
                   ))}
                 </div>

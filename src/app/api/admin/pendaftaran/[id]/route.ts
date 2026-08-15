@@ -20,7 +20,11 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { status } = body;
+    let { status } = body;
+
+    if (status === "Sedang Diproses") {
+      status = "Diproses";
+    }
 
     const validStatuses = ["Baru", "Diproses", "Selesai"];
     if (!status || !validStatuses.includes(status)) {

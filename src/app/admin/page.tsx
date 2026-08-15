@@ -230,15 +230,24 @@ export default function AdminDashboard() {
                     </td>
                     <td className="px-5 sm:px-6 py-3.5">
                       <span
-                        className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
                           reg.status === "Selesai"
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : reg.status === "Diproses"
+                            : reg.status === "Diproses" || reg.status === "Sedang Diproses"
                             ? "bg-amber-50 text-amber-700 border border-amber-200"
                             : "bg-blue-50 text-blue-700 border border-blue-200"
                         }`}
                       >
-                        {reg.status}
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            reg.status === "Selesai"
+                              ? "bg-emerald-500"
+                              : reg.status === "Diproses" || reg.status === "Sedang Diproses"
+                              ? "bg-amber-500"
+                              : "bg-blue-500"
+                          }`}
+                        ></span>
+                        <span>{reg.status === "Diproses" ? "Sedang Diproses" : reg.status || "Baru"}</span>
                       </span>
                     </td>
                     <td className="px-5 sm:px-6 py-3.5 text-xs text-slate-500 text-right font-mono">

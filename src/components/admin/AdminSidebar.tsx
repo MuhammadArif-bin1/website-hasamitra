@@ -96,7 +96,7 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
               </div>
               <div className="space-y-0.5">
                 <p className="text-white font-black text-sm tracking-wide leading-tight">Hasamitra</p>
-                <p className="text-orange-100 text-xs font-bold tracking-wider uppercase">Admin Portal</p>
+                <p className="text-orange-100 text-xs font-bold tracking-wider uppercase">ADMIN MAS DENI</p>
               </div>
             </div>
 

@@ -88,6 +88,22 @@ Memecah file monolit `src/app/page.tsx` yang sebelumnya berukuran >560 baris kod
 
 ---
 
+### 🎨 5. Penyelarasan Tata Letak & Selector Status pada Portal Admin
+
+Berdasarkan tinjauan visual antarmuka Admin:
+- **Tabel Pendaftaran Nasabah (`/admin/pendaftaran`)**:
+  - **Selector Status Interaktif**: Mengubah tombol aksi status menjadi dropdown selector elegan dengan 3 pilihan jelas: **`Baru`**, **`Sedang Diproses`**, dan **`Selesai`** yang dilengkapi indikator titik warna (biru, kuning/amber, hijau) dan real-time update.
+  - **Anti-Wrap Produk & Pilihan**: Menambahkan `whitespace-nowrap` pada nama produk dan badge jangka waktu (contoh: `12 Bulan` tidak lagi patah menjadi 2 baris).
+  - **Alamat & Kontak**: Mengoptimalkan tata letak nama pemohon, alamat (line-clamp), kontak email/nomor WhatsApp agar proporsional dan tidak terdesak.
+  - **Filter Status**: Menyelaraskan tab filter status: `Semua`, `Baru`, `Sedang Diproses`, `Selesai`.
+  - **Modal Detail**: Menyelaraskan 3 tombol ubah status cepat (**Baru**, **Sedang Diproses**, **Selesai**).
+- **Tabel Kelola Produk (`/admin/produk`)**:
+  - **Pencegahan Teks Terpotong**: Menghapus `truncate max-w-[180px]` pada badge fitur keunggulan sehingga teks ditampilkan utuh tanpa terpotong di tengah huruf.
+  - **Anti-Wrap Slug URL**: Menambahkan `whitespace-nowrap font-mono` agar string slug (`tabungan-sabar`, `deposito-sideka`) tidak terbelah ke baris baru.
+  - **Kategori Berwarna**: Menambahkan skema warna badge kategori (Tabungan: oranye, Deposito: biru, Investasi Emas: amber).
+
+---
+
 ### 📦 Ringkasan File yang Dibuat / Dimodifikasi Hari Ini
 
 | File | Status | Keterangan |
@@ -101,10 +117,15 @@ Memecah file monolit `src/app/page.tsx` yang sebelumnya berukuran >560 baris kod
 | `src/app/page.tsx` | **Dimodifikasi** | Refaktorisasi modular ~115 baris kode. |
 | `src/components/layout/Navbar.tsx` | **Dimodifikasi** | Penambahan navigasi PRODUK, PIAGAM, FORMULIR & smooth scroll. |
 | `src/data/navigation.ts` | **Dimodifikasi** | Penyesuaian data array `mainNavigation`. |
+| `src/app/admin/pendaftaran/page.tsx` | **Dimodifikasi** | Perbaikan layout tabel, anti-wrap, dan selector status Baru/Sedang Diproses/Selesai. |
+| `src/app/admin/produk/page.tsx` | **Dimodifikasi** | Perbaikan layout slug, fitur badges, dan kategori. |
+| `src/app/admin/page.tsx` | **Dimodifikasi** | Penyelarasan badge status pada dashboard pendaftaran terbaru. |
+| `src/app/api/admin/pendaftaran/[id]/route.ts` | **Dimodifikasi** | Dukungan status update fleksibel Baru, Diproses / Sedang Diproses, Selesai. |
 | `src/lib/auth.ts` | **Dimodifikasi** | Penambahan fungsi cryptographic HMAC captcha & same-origin check. |
 | `src/app/api/admin/auth/login/route.ts` | **Dimodifikasi** | Validasi captcha server-side & proteksi CSRF. |
 | `src/app/api/admin/export/route.ts` | **Dimodifikasi** | Sanitasi anti CSV/Excel Formula Injection. |
 | `src/app/admin/login/page.tsx` | **Dimodifikasi** | Integrasi captcha server-signed pada form login admin. |
 | `next.config.ts` | **Dimodifikasi** | Pemasangan HTTP Security Headers OWASP. |
 | `14 File / Folder Unused` | **Dihapus** | Pembersihan dead code & aset usang (lihat `doc/PEMBERSIHAN_CODEBASE.md`). |
+
 
