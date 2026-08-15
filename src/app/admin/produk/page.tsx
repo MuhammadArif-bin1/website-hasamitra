@@ -244,6 +244,9 @@ export default function AdminProdukPage() {
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Kelola Produk Perbankan
           </h1>
+          <p className="text-xs sm:text-sm text-slate-500">
+            Kelola daftar produk simpanan, deposito, dan program investasi yang tampil di website utama.
+          </p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -278,30 +281,36 @@ export default function AdminProdukPage() {
 
       {/* Success/Error Alerts */}
       {successMsg && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-5 py-3.5 rounded-xl flex items-center gap-3 shadow-xs">
-          <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs">✓</span>
-          <span>{successMsg}</span>
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-5 py-3.5 rounded-xl flex items-center justify-between shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs">✓</span>
+            <span>{successMsg}</span>
+          </div>
+          <button onClick={() => setSuccessMsg("")} className="text-emerald-600 hover:text-emerald-800 font-bold cursor-pointer">✕</button>
         </div>
       )}
       {error && !showModal && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 text-sm px-5 py-3.5 rounded-xl flex items-center gap-3 shadow-xs">
-          <span className="w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-xs">✕</span>
-          <span>{error}</span>
+        <div className="bg-rose-50 border border-rose-200 text-rose-800 text-sm px-5 py-3.5 rounded-xl flex items-center justify-between shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <span className="w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-xs">✕</span>
+            <span>{error}</span>
+          </div>
+          <button onClick={() => setError("")} className="text-rose-600 hover:text-rose-800 font-bold cursor-pointer">✕</button>
         </div>
       )}
 
       {/* Modern Products Table Container */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div className="overflow-x-auto w-full">
-          <table className="w-full min-w-[640px]">
+          <table className="w-full min-w-[920px] text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                <th className="px-6 py-4 text-left">Urutan</th>
-                <th className="px-6 py-4 text-left">Nama &amp; Kategori</th>
-                <th className="px-6 py-4 text-left">Slug</th>
-                <th className="px-6 py-4 text-left">Fitur Keunggulan</th>
-                <th className="px-6 py-4 text-center">Status</th>
-                <th className="px-6 py-4 text-right">Aksi</th>
+                <th className="px-5 py-4 w-20 text-center">Urutan</th>
+                <th className="px-6 py-4 min-w-[200px]">Nama &amp; Kategori</th>
+                <th className="px-5 py-4 min-w-[170px]">Slug URL</th>
+                <th className="px-6 py-4 min-w-[340px]">Fitur Keunggulan</th>
+                <th className="px-5 py-4 w-32 text-center">Status</th>
+                <th className="px-6 py-4 w-36 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -321,80 +330,89 @@ export default function AdminProdukPage() {
                   </td>
                 </tr>
               ) : (
-                products.map((product) => (
-                  <tr key={product.id} className="hover:bg-slate-50/60 transition-colors">
-                    {/* Order */}
-                    <td className="px-6 py-4">
-                      <span className="w-8 h-8 rounded-xl bg-slate-100 font-bold text-slate-600 text-xs flex items-center justify-center font-mono">
-                        {product.order}
-                      </span>
-                    </td>
+                products.map((product) => {
+                  const catLower = (product.category || "").toLowerCase();
+                  let catBadgeStyle = "bg-orange-50 text-orange-700 border-orange-200/70";
+                  if (catLower.includes("deposito")) {
+                    catBadgeStyle = "bg-blue-50 text-blue-700 border-blue-200/70";
+                  } else if (catLower.includes("emas") || catLower.includes("investasi") || catLower.includes("kredit")) {
+                    catBadgeStyle = "bg-amber-50 text-amber-800 border-amber-200/70";
+                  }
 
-                    {/* Name & Category */}
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-extrabold text-slate-900">{product.name}</p>
-                      <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-orange-50 text-orange-700 border border-orange-200/60">
-                        {product.category || "Produk"}
-                      </span>
-                    </td>
+                  return (
+                    <tr key={product.id} className="hover:bg-slate-50/60 transition-colors">
+                      {/* Order */}
+                      <td className="px-5 py-4 text-center">
+                        <span className="w-8 h-8 mx-auto rounded-xl bg-slate-100 font-bold text-slate-700 text-xs flex items-center justify-center font-mono border border-slate-200/60 shadow-2xs">
+                          {product.order}
+                        </span>
+                      </td>
 
-                    {/* Slug */}
-                    <td className="px-6 py-4 text-xs text-slate-500 font-mono">
-                      <span className="bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
-                        {product.slug}
-                      </span>
-                    </td>
+                      {/* Name & Category */}
+                      <td className="px-6 py-4">
+                        <p className="text-sm font-extrabold text-slate-900 whitespace-nowrap">{product.name}</p>
+                        <span className={`inline-flex items-center mt-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md border ${catBadgeStyle}`}>
+                          {product.category || "Tabungan"}
+                        </span>
+                      </td>
 
-                    {/* Features */}
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-1.5 max-w-sm">
-                        {product.features.slice(0, 2).map((f, i) => (
-                          <span key={i} className="inline-flex px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium truncate max-w-[180px]">
-                            {f}
-                          </span>
-                        ))}
-                        {product.features.length > 2 && (
-                          <span className="inline-flex px-2 py-1 bg-slate-200 text-slate-600 rounded-lg text-xs font-semibold">
-                            +{product.features.length - 2} lagi
-                          </span>
-                        )}
-                      </div>
-                    </td>
+                      {/* Slug */}
+                      <td className="px-5 py-4">
+                        <span className="inline-flex items-center px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-mono font-medium border border-slate-200/80 whitespace-nowrap shadow-2xs">
+                          {product.slug}
+                        </span>
+                      </td>
 
-                    {/* Status Pill Toggle */}
-                    <td className="px-6 py-4 text-center">
-                      <button
-                        onClick={() => toggleActive(product)}
-                        className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer ${
-                          product.isActive
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
-                            : "bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200"
-                        }`}
-                      >
-                        <span className={`w-2 h-2 rounded-full ${product.isActive ? "bg-emerald-500" : "bg-slate-400"}`}></span>
-                        <span>{product.isActive ? "Aktif" : "Nonaktif"}</span>
-                      </button>
-                    </td>
+                      {/* Features */}
+                      <td className="px-6 py-4">
+                        <div className="flex flex-wrap gap-1.5 max-w-md">
+                          {product.features.map((f, i) => (
+                            <span
+                              key={i}
+                              className="inline-flex items-center px-2.5 py-1 bg-slate-100/90 text-slate-700 rounded-lg text-xs font-medium border border-slate-200/60 leading-normal"
+                            >
+                              {f}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
 
-                    {/* Actions */}
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      {/* Status Pill Toggle */}
+                      <td className="px-5 py-4 text-center whitespace-nowrap">
                         <button
-                          onClick={() => openEdit(product)}
-                          className="px-3.5 py-1.5 text-xs font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-xl transition-all border border-orange-200 cursor-pointer"
+                          onClick={() => toggleActive(product)}
+                          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer border ${
+                            product.isActive
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                              : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200"
+                          }`}
+                          title={product.isActive ? "Klik untuk menonaktifkan" : "Klik untuk mengaktifkan"}
                         >
-                          Edit
+                          <span className={`w-2 h-2 rounded-full ${product.isActive ? "bg-emerald-500" : "bg-slate-400"}`}></span>
+                          <span>{product.isActive ? "Aktif" : "Nonaktif"}</span>
                         </button>
-                        <button
-                          onClick={() => handleDelete(product)}
-                          className="px-3.5 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-all border border-rose-200 cursor-pointer"
-                        >
-                          Hapus
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+
+                      {/* Actions */}
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => openEdit(product)}
+                            className="px-3.5 py-1.5 text-xs font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-xl transition-all border border-orange-200 cursor-pointer"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(product)}
+                            className="px-3.5 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-all border border-rose-200 cursor-pointer"
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
