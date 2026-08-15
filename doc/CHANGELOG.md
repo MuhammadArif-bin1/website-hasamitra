@@ -14,7 +14,9 @@ Semua catatan perubahan, pembaruan fitur, refaktorisasi arsitektur, dan perbaika
 ---
 
 ### 🛡️ 1. Penguatan Keamanan Sistem (Strict Security Hardening)
+
 Berdasarkan audit keamanan OWASP Top 10 dan standar CIS Web Application Security Benchmark:
+
 - **Cryptographic Server-Side Math Captcha**:
   - Membuat endpoint baru `GET /api/admin/auth/captcha` yang menghasilkan soal matematika acak (`+`, `-`, `×`) dan ditandatangani menggunakan `HMAC-SHA256` oleh server.
   - Memverifikasi token captcha dan jawaban pengguna pada `POST /api/admin/auth/login` menggunakan `crypto.timingSafeEqual` dengan masa berlaku 5 menit.
@@ -37,7 +39,9 @@ Berdasarkan audit keamanan OWASP Top 10 dan standar CIS Web Application Security
 ---
 
 ### 🏛️ 2. Refaktorisasi Landing Page ke Component-Based Architecture
+
 Memecah file monolit `src/app/page.tsx` yang sebelumnya berukuran >560 baris kode menjadi modul komponen yang terstruktur, bersih, dan mudah dirawat:
+
 - **Folder Baru:** `src/components/landingpage/`
   - `types.ts` — Interface `ProductItem` & fallback data katalog produk.
   - `HeroSection.tsx` — Section Hero dengan background ambient profil, headline, dan tombol aksi.
@@ -56,6 +60,7 @@ Memecah file monolit `src/app/page.tsx` yang sebelumnya berukuran >560 baris kod
 ---
 
 ### 🧭 3. Pembaruan Navigasi Header & Perbaikan Smooth Scrolling
+
 - **Penambahan Menu Header**:
   - Memperbarui `src/data/navigation.ts` dan `src/components/layout/Navbar.tsx` dengan menambahkan menu:
     - **`PRODUK`** (`/#produk`)
@@ -63,21 +68,31 @@ Memecah file monolit `src/app/page.tsx` yang sebelumnya berukuran >560 baris kod
     - **`FORMULIR`** (`/#formulir`)
 - **Perbaikan Scrolling Form**:
   - Menyelaraskan anchor ID `id="formulir"` dan alias `id="unduh"` pada `src/components/landingpage/DownloadHubSection.tsx`.
-  - Menambahkan event handler `handleNavClick` pada `Navbar.tsx` untuk memastikan animasi *smooth scrolling* berjalan mulus dan instan pada perangkat desktop maupun mobile.
+  - Menambahkan event handler `handleNavClick` pada `Navbar.tsx` untuk memastikan animasi _smooth scrolling_ berjalan mulus dan instan pada perangkat desktop maupun mobile.
 
 ---
 
-### 📋 4. Audit & Dokumentasi Kolaborasi
-- Menarik update terbaru dari repositori (`git pull origin main`).
-- Menganalisis restrukturisasi rute, pembersihan modul berita yang tidak digunakan, serta fitur hapus data pendaftaran terpilih di panel admin.
-- Mendokumentasikan seluruh audit perubahan ke dalam file `doc/AUDIT_PERUBAHAN.md`.
+### 🧹 4. Pembersihan Codebase & Penghapusan Folder/File Tidak Terpakai
+
+- **Audit & Penyelarasan Navigasi Navbar**:
+  - Memastikan seluruh menu navbar (`PRODUK`, `PIAGAM`, `FORMULIR`) mengarah ke section aktif dan bersih dari tautan usang.
+- **Pembersihan 14 File & Folder Tidak Terpakai**:
+  - `src/components/news/` (`ArticleDetailView.tsx`, `ArticleGallery.tsx`).
+  - `src/components/common/` (`PageHeader.tsx`, `SectionTitle.tsx`).
+  - `src/components/forms/ContactForm.tsx` & `src/app/api/contact/route.ts`.
+  - `src/data/company.ts`, `src/data/management.ts`, `src/data/csv/pendaftaran-hasamitra.csv`.
+  - `scripts/seed.ts`.
+  - `public/images/company-profile/` (4 aset foto manajemen lama).
+- **Dokumentasi Terdedikasi**:
+  - Menyusun laporan lengkap di `doc/PEMBERSIHAN_CODEBASE.md`.
 
 ---
 
 ### 📦 Ringkasan File yang Dibuat / Dimodifikasi Hari Ini
 
 | File | Status | Keterangan |
-|---|---|---|
+| --- | --- | --- |
+| `doc/PEMBERSIHAN_CODEBASE.md` | **Baru** | Laporan audit pembersihan navbar dan file/folder tidak terpakai. |
 | `doc/CHANGELOG.md` | **Baru** | Catatan changelog resmi pengembangan per tanggal 15 Agustus 2026. |
 | `doc/SECURITY_AUDIT.md` | **Baru** | Laporan audit dan mitigasi keamanan role admin dan web application. |
 | `doc/AUDIT_PERUBAHAN.md` | **Baru** | Laporan audit komprehensif pembaruan arsitektur sistem. |
@@ -91,3 +106,5 @@ Memecah file monolit `src/app/page.tsx` yang sebelumnya berukuran >560 baris kod
 | `src/app/api/admin/export/route.ts` | **Dimodifikasi** | Sanitasi anti CSV/Excel Formula Injection. |
 | `src/app/admin/login/page.tsx` | **Dimodifikasi** | Integrasi captcha server-signed pada form login admin. |
 | `next.config.ts` | **Dimodifikasi** | Pemasangan HTTP Security Headers OWASP. |
+| `14 File / Folder Unused` | **Dihapus** | Pembersihan dead code & aset usang (lihat `doc/PEMBERSIHAN_CODEBASE.md`). |
+
