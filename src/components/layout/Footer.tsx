@@ -39,7 +39,7 @@ export default function Footer() {
           {/* Navigasi Cepat */}
           <div>
             <h3 className="text-white font-bold text-base mb-4 tracking-wide uppercase">
-              Navigasi Fitur
+              TAUTAN
             </h3>
             <ul className="space-y-2.5 text-sm">
               {footerNavigation.map((item) => (
@@ -86,7 +86,7 @@ export default function Footer() {
               Layanan Nasabah
             </h3>
             <div className="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 space-y-3 shadow-lg">
-              <span className="text-xs text-slate-400 block font-medium">Customer Service Resmi</span>
+              <span className="text-xs text-slate-400 block font-medium">Butuh Bantuan? Chat Sekarang</span>
               <WhatsAppButton text="HUBUNGI CS" variant="primary" className="w-full font-bold tracking-wide rounded-xl py-3 shadow-md shadow-emerald-600/20" />
             </div>
 
@@ -124,7 +124,7 @@ export default function Footer() {
         </div>
 
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>© {new Date().getFullYear()} PT BPR Hasamitra Jawa Barat. Berizin dan diawasi oleh OJK.</p>
+          <p>© {new Date().getFullYear()} PT BPR Hasamitra Jawa Barat. Berizin dan diawasi oleh OJK dan LPS</p>
           <div className="flex items-center gap-6">
             <a href={`https://wa.me/${contactData.whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors">
               HUBUNGI CS
