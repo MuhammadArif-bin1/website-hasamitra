@@ -10,14 +10,14 @@ export default function HeroSection() {
     >
       {/* Background Image with Ambient Glow Overlays */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        {/* Background Image: Scaled on mobile to show full image without severe cropping */}
-        <div className="absolute top-0 left-0 right-0 h-[300px] xs:h-[340px] sm:h-full sm:inset-0">
+        {/* Background Image: Scaled and shifted towards right on mobile so Hasamitra Jabar text is fully visible */}
+        <div className="absolute top-0 left-0 right-0 h-[320px] xs:h-[360px] sm:h-full sm:inset-0">
           <Image
             src="/images/profil/gambar background hasamitra.png"
             alt="Background Bank Hasamitra Jawa Barat"
             fill
             priority
-            className="object-cover object-center transition-all duration-700"
+            className="object-cover object-[80%_center] sm:object-center transition-all duration-700"
           />
           {/* Mobile vertical gradient fade so image is clearly visible and fades smoothly to dark content area */}
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-slate-950/70 to-slate-950 sm:hidden"></div>
