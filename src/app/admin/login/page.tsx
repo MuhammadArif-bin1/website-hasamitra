@@ -23,8 +23,8 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
 
   // Fetch server-signed cryptographic math captcha
-  const generateCaptcha = useCallback(async () => {
-    setIsRotating(true);
+  const generateCaptcha = useCallback(async (isManual = false) => {
+    if (isManual) setIsRotating(true);
     setCaptchaInput("");
 
     try {
@@ -36,13 +36,28 @@ export default function AdminLoginPage() {
     } catch {
       setError("Gagal memuat verifikasi keamanan. Silakan refresh halaman.");
     } finally {
-      setTimeout(() => setIsRotating(false), 400);
+      if (isManual) setTimeout(() => setIsRotating(false), 400);
     }
   }, []);
 
   useEffect(() => {
-    generateCaptcha();
-  }, [generateCaptcha]);
+    let isMounted = true;
+    const initCaptcha = async () => {
+      try {
+        const res = await fetch("/api/admin/auth/captcha", { cache: "no-store" });
+        const data = await res.json();
+        if (isMounted && data.success && data.captcha) {
+          setCaptcha(data.captcha);
+        }
+      } catch {
+        if (isMounted) setError("Gagal memuat verifikasi keamanan. Silakan refresh halaman.");
+      }
+    };
+    initCaptcha();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,34 +109,30 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-slate-50 to-amber-50/60 px-4 py-8 sm:py-12 relative overflow-hidden">
-      {/* Decorative Background Accent Blobs */}
-      <div className="absolute -top-28 -left-28 w-80 sm:w-96 h-80 sm:h-96 bg-orange-200/40 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute -bottom-28 -right-28 w-80 sm:w-96 h-80 sm:h-96 bg-amber-200/40 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div className="w-full max-w-md bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-10 shadow-xl sm:shadow-2xl border border-slate-100/90 relative z-10">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-8 sm:py-12 relative">
+      <div className="w-full max-w-[420px] bg-white rounded-xl p-6 sm:p-8 shadow-sm border border-slate-200 relative z-10">
         {/* Header & Logo Badge */}
-        <div className="text-center mb-5 sm:mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white p-1.5 shadow-lg border border-slate-100 mb-3 sm:mb-4 transition-transform hover:scale-105">
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-white p-2 border border-slate-200/80 shadow-2xs mb-3">
             <Image
               src="/images/logo/logo-bulat.png"
               alt="Logo Hasamitra"
-              width={70}
-              height={70}
+              width={56}
+              height={56}
               className="w-full h-full object-contain"
               priority
             />
           </div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Admin Portal</h1>
-          <p className="text-[11px] sm:text-xs font-bold text-orange-600 uppercase tracking-wider mt-1">
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Admin Portal</h1>
+          <p className="text-[11px] sm:text-xs font-semibold text-orange-600 uppercase tracking-wider mt-1">
             PT BPR Hasamitra Jawa Barat
           </p>
         </div>
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="p-3 sm:p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm font-medium rounded-xl flex items-start gap-2.5 animate-shake">
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-medium rounded-lg flex items-start gap-2.5">
               <svg className="w-4 h-4 shrink-0 text-red-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -131,7 +142,7 @@ export default function AdminLoginPage() {
 
           {/* Email Input */}
           <div className="space-y-1.5">
-            <label className="block text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider">
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
               Email Address
             </label>
             <div className="relative">
@@ -142,14 +153,14 @@ export default function AdminLoginPage() {
                 required
                 maxLength={150}
                 placeholder="admin@hasamitrajabar.com"
-                className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 focus:bg-white transition-all"
+                className="w-full h-10 sm:h-11 px-3.5 rounded-lg bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
               />
             </div>
           </div>
 
           {/* Password Input */}
           <div className="space-y-1.5">
-            <label className="block text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider">
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
               Password
             </label>
             <div className="relative">
@@ -160,20 +171,20 @@ export default function AdminLoginPage() {
                 required
                 maxLength={200}
                 placeholder="••••••••"
-                className="w-full pl-3.5 sm:pl-4 pr-11 py-2.5 sm:py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 focus:bg-white transition-all"
+                className="w-full h-10 sm:h-11 pl-3.5 pr-10 rounded-lg bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors cursor-pointer"
                 title={showPassword ? "Sembunyikan password" : "Tampilkan password"}
               >
                 {showPassword ? (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
@@ -183,40 +194,40 @@ export default function AdminLoginPage() {
           </div>
 
           {/* Math Captcha Verification (Server Signed) */}
-          <div className="space-y-1.5 pt-1">
+          <div className="space-y-1.5 pt-0.5">
             <div className="flex items-center justify-between">
-              <label className="block text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
                 Verifikasi Keamanan
               </label>
-              <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium">Hitung hasil di bawah</span>
+              <span className="text-[11px] text-slate-400 font-medium">Hitung hasil di bawah</span>
             </div>
 
             <div className="flex items-center gap-2">
               {/* Captcha Challenge Box */}
-              <div className="flex-1 bg-gradient-to-r from-orange-50 to-amber-50/80 border border-orange-200/80 rounded-xl px-2.5 sm:px-3 py-2 sm:py-2.5 flex items-center justify-between shadow-inner select-none">
-                <div className="flex items-center gap-1 text-slate-800 font-mono font-black text-sm sm:text-base tracking-wider">
-                  <span className="text-orange-600 bg-orange-100/70 px-1.5 sm:px-2 py-0.5 rounded-md">
+              <div className="flex-1 h-10 sm:h-11 bg-slate-50 border border-slate-200 rounded-lg px-3 flex items-center justify-between select-none">
+                <div className="flex items-center gap-1 text-slate-800 font-mono font-bold text-xs sm:text-sm tracking-wide">
+                  <span className="text-orange-700 bg-orange-50 border border-orange-200/60 px-1.5 py-0.5 rounded">
                     {captcha ? captcha.num1 : "..."}
                   </span>
-                  <span className="text-slate-600 font-bold px-0.5 sm:px-1">
+                  <span className="text-slate-600 font-semibold px-0.5">
                     {captcha ? captcha.operator : "+"}
                   </span>
-                  <span className="text-orange-600 bg-orange-100/70 px-1.5 sm:px-2 py-0.5 rounded-md">
+                  <span className="text-orange-700 bg-orange-50 border border-orange-200/60 px-1.5 py-0.5 rounded">
                     {captcha ? captcha.num2 : "..."}
                   </span>
-                  <span className="text-slate-500 font-bold px-0.5 sm:px-1">=</span>
+                  <span className="text-slate-500 font-semibold px-0.5">=</span>
                   <span className="text-slate-400 font-semibold">?</span>
                 </div>
 
                 {/* Refresh Captcha Button */}
                 <button
                   type="button"
-                  onClick={generateCaptcha}
+                  onClick={() => generateCaptcha(true)}
                   title="Ganti soal captcha"
-                  className="p-1 text-slate-400 hover:text-orange-600 hover:bg-orange-100/60 rounded-lg transition-all focus:outline-none"
+                  className="p-1 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors focus:outline-none cursor-pointer"
                 >
                   <svg
-                    className={`w-4 h-4 transition-transform duration-300 ${isRotating ? "rotate-180 text-orange-600" : ""}`}
+                    className={`w-3.5 h-3.5 transition-transform duration-300 ${isRotating ? "rotate-180 text-orange-600" : ""}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -224,7 +235,7 @@ export default function AdminLoginPage() {
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth={2.2}
+                      strokeWidth={2}
                       d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                     />
                   </svg>
@@ -240,7 +251,7 @@ export default function AdminLoginPage() {
                 onChange={(e) => setCaptchaInput(e.target.value)}
                 required
                 placeholder="Jawaban"
-                className="w-20 sm:w-28 px-2 sm:px-3 py-2 sm:py-2.5 text-center font-bold text-slate-900 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 focus:bg-white transition-all placeholder:text-slate-400"
+                className="w-24 sm:w-28 h-10 sm:h-11 px-2.5 text-center font-bold text-slate-900 rounded-lg bg-white border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors placeholder:text-slate-400"
               />
             </div>
           </div>
@@ -250,7 +261,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 px-4 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-lg shadow-orange-500/25 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full h-11 sm:h-12 px-4 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-semibold text-xs sm:text-sm rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -267,8 +278,9 @@ export default function AdminLoginPage() {
           </div>
         </form>
 
-        <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-slate-100 text-center">
-          <p className="text-[11px] sm:text-xs text-slate-400 font-medium">
+        {/* Footer */}
+        <div className="mt-6 pt-5 border-t border-slate-100 text-center">
+          <p className="text-[11px] text-slate-400 font-normal">
             © 2026 PT BPR Hasamitra Jawa Barat — All Rights Reserved
           </p>
         </div>

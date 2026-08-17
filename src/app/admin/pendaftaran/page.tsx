@@ -32,7 +32,6 @@ export default function AdminPendaftaranPage() {
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-  const [lastSyncTime, setLastSyncTime] = useState<string>("");
 
   // Multi-select & Bulk Delete state
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -48,20 +47,22 @@ export default function AdminPendaftaranPage() {
     statusFilterRef.current = statusFilter;
   }, [search, statusFilter]);
 
-  const broadcastChange = () => {
+  const broadcastChange = useCallback(() => {
     try {
-      if (typeof window !== "undefined" && "BroadcastChannel" in window) {
-        const bc = new BroadcastChannel("hasamitra_sync_channel");
-        bc.postMessage({ type: "NEW_REGISTRATION", timestamp: Date.now() });
-        bc.close();
+      if (typeof window !== "undefined") {
+        const now = Date.now();
+        if ("BroadcastChannel" in window) {
+          const bc = new BroadcastChannel("hasamitra_sync_channel");
+          bc.postMessage({ type: "NEW_REGISTRATION", timestamp: now });
+          bc.close();
+        }
+        localStorage.setItem("hasamitra_last_registration", String(now));
       }
-      localStorage.setItem("hasamitra_last_registration", String(Date.now()));
     } catch {}
-  };
+  }, []);
 
   const fetchRegistrations = useCallback(async (isSilent = false) => {
-    if (!isSilent) setLoading(true);
-    setIsRefreshing(true);
+    if (!isSilent) setIsRefreshing(true);
     try {
       const query = new URLSearchParams();
       if (searchRef.current) query.append("search", searchRef.current);
@@ -77,7 +78,6 @@ export default function AdminPendaftaranPage() {
       if (data.success) {
         setRegistrations(data.data);
         if (data.stats) setStats(data.stats);
-        setLastSyncTime(new Date().toLocaleTimeString("id-ID"));
       }
     } catch {
       if (!isSilent) setErrorMsg("Gagal memuat data pendaftaran.");
@@ -287,28 +287,29 @@ export default function AdminPendaftaranPage() {
   };
 
   return (
-    <div className="space-y-5 sm:space-y-8">
+    <div className="space-y-6">
       {/* Top Header Card */}
-      <div className="bg-white rounded-2xl p-4 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="bg-white rounded-xl p-5 sm:p-6 border border-slate-200 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
             Pendaftaran Nasabah Online
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500">
             Pantau dan kelola data permohonan pembukaan tabungan, deposito, dan cicil emas nasabah secara real-time.
           </p>
         </div>
 
-        {/* Action Buttons: Refresh, Delete Data & Export */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 w-full lg:w-auto">
+        {/* Action Buttons: Hierarchy */}
+        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+          {/* Secondary: Perbarui */}
           <button
             onClick={() => fetchRegistrations(false)}
             disabled={isRefreshing}
-            className="flex-1 sm:flex-initial px-3 sm:px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs transition border border-slate-200 cursor-pointer inline-flex items-center justify-center gap-2"
+            className="flex-1 sm:flex-initial px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs transition-colors border border-slate-200 cursor-pointer inline-flex items-center justify-center gap-2 shadow-2xs"
             title="Perbarui data sekarang"
           >
             <svg
-              className={`w-3.5 h-3.5 text-slate-600 ${isRefreshing ? "animate-spin text-orange-500" : ""}`}
+              className={`w-3.5 h-3.5 text-slate-500 ${isRefreshing ? "animate-spin text-orange-600" : ""}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -318,12 +319,12 @@ export default function AdminPendaftaranPage() {
             <span>Perbarui</span>
           </button>
 
-          {/* Delete All / Clear Data Button */}
+          {/* Destructive: Hapus Semua */}
           <button
             onClick={() => setShowDeleteAllModal(true)}
             disabled={registrations.length === 0}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 text-xs font-bold rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-            title="Hapus / kosongkan semua data pendaftaran"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 text-xs font-medium rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-2xs"
+            title="Hapus semua data pendaftaran"
           >
             <svg className="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -331,11 +332,12 @@ export default function AdminPendaftaranPage() {
             <span>Hapus Semua</span>
           </button>
 
+          {/* Primary: Export CSV */}
           <button
             onClick={handleExportCSV}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer shrink-0"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-lg transition-colors shadow-2xs cursor-pointer shrink-0"
           >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
             </svg>
             <span>Export CSV</span>
@@ -343,27 +345,27 @@ export default function AdminPendaftaranPage() {
         </div>
       </div>
 
-      {/* Floating Bulk Action Bar when items selected */}
+      {/* Floating Bulk Action Bar */}
       {selectedIds.length > 0 && (
-        <div className="bg-slate-900 text-white px-4 sm:px-5 py-3 sm:py-3.5 rounded-xl shadow-lg flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 animate-fade-in border border-slate-800">
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <span className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center shrink-0">
+        <div className="bg-slate-900 text-white px-4 py-3 rounded-lg shadow-md flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 animate-fade-in border border-slate-800">
+          <div className="flex items-center gap-2.5">
+            <span className="w-5 h-5 rounded-full bg-orange-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
               {selectedIds.length}
             </span>
-            <span className="text-xs sm:text-sm font-semibold">
+            <span className="text-xs sm:text-sm font-medium">
               {selectedIds.length} data pendaftaran dipilih
             </span>
           </div>
-          <div className="flex items-center justify-end gap-2 sm:gap-3">
+          <div className="flex items-center justify-end gap-2">
             <button
               onClick={() => setSelectedIds([])}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+              className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
             >
               Batal
             </button>
             <button
               onClick={() => setShowDeleteSelectedModal(true)}
-              className="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -376,48 +378,48 @@ export default function AdminPendaftaranPage() {
 
       {/* Messages */}
       {successMsg && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm px-4 sm:px-5 py-3 rounded-xl flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-2.5">
-            <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0">✓</span>
-            <span className="leading-snug">{successMsg}</span>
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm px-4 py-3 rounded-lg flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-2">
+            <span className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">✓</span>
+            <span>{successMsg}</span>
           </div>
-          <button onClick={() => setSuccessMsg("")} className="text-emerald-600 hover:text-emerald-800 font-bold cursor-pointer shrink-0 ml-2">✕</button>
+          <button onClick={() => setSuccessMsg("")} className="text-emerald-700 hover:text-emerald-900 font-medium text-xs cursor-pointer ml-2">✕</button>
         </div>
       )}
       {errorMsg && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm px-4 sm:px-5 py-3 rounded-xl flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-2.5">
-            <span className="w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-xs shrink-0">✕</span>
-            <span className="leading-snug">{errorMsg}</span>
+        <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm px-4 py-3 rounded-lg flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-2">
+            <span className="w-4 h-4 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">✕</span>
+            <span>{errorMsg}</span>
           </div>
-          <button onClick={() => setErrorMsg("")} className="text-rose-600 hover:text-rose-800 font-bold cursor-pointer shrink-0 ml-2">✕</button>
+          <button onClick={() => setErrorMsg("")} className="text-rose-700 hover:text-rose-900 font-medium text-xs cursor-pointer ml-2">✕</button>
         </div>
       )}
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-xs">
-          <p className="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Total Pendaftar</p>
-          <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 mt-1">{stats.total}</p>
+      {/* Compact Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-2xs">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Total Pendaftar</p>
+          <p className="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">{stats.total}</p>
         </div>
-        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-xs">
-          <p className="text-[11px] sm:text-xs font-bold text-blue-600 uppercase tracking-wider truncate">Baru Masuk</p>
-          <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-blue-600 mt-1">{stats.baru}</p>
+        <div className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-2xs">
+          <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider truncate">Baru Masuk</p>
+          <p className="text-2xl sm:text-3xl font-bold text-blue-700 mt-1">{stats.baru}</p>
         </div>
-        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-xs">
-          <p className="text-[11px] sm:text-xs font-bold text-amber-600 uppercase tracking-wider truncate">Sedang Diproses</p>
-          <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-amber-600 mt-1">{stats.diproses}</p>
+        <div className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-2xs">
+          <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider truncate">Sedang Diproses</p>
+          <p className="text-2xl sm:text-3xl font-bold text-amber-700 mt-1">{stats.diproses}</p>
         </div>
-        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/80 shadow-xs">
-          <p className="text-[11px] sm:text-xs font-bold text-emerald-600 uppercase tracking-wider truncate">Selesai</p>
-          <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-emerald-600 mt-1">{stats.selesai}</p>
+        <div className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-2xs">
+          <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wider truncate">Selesai</p>
+          <p className="text-2xl sm:text-3xl font-bold text-emerald-700 mt-1">{stats.selesai}</p>
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="bg-white rounded-2xl p-3.5 sm:p-4 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="bg-white rounded-xl p-3.5 sm:p-4 border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="relative w-full sm:w-80 md:w-96">
-          <svg className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 absolute left-3.5 top-2.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -425,13 +427,13 @@ export default function AdminPendaftaranPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari nama nasabah, produk, WhatsApp..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+            className="w-full pl-10 pr-3.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
           />
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
-          <span className="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap hidden sm:inline">Status:</span>
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl w-full sm:w-auto overflow-x-auto">
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap hidden sm:inline">Status:</span>
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg w-full sm:w-auto overflow-x-auto">
             {[
               { key: "Semua", label: "Semua" },
               { key: "Baru", label: "Baru" },
@@ -441,9 +443,9 @@ export default function AdminPendaftaranPage() {
               <button
                 key={st.key}
                 onClick={() => setStatusFilter(st.key)}
-                className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer text-center ${
+                className={`flex-1 sm:flex-initial px-3 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap cursor-pointer text-center ${
                   statusFilter === st.key
-                    ? "bg-white text-orange-600 shadow-xs"
+                    ? "bg-white text-slate-900 shadow-2xs font-semibold"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -455,24 +457,24 @@ export default function AdminPendaftaranPage() {
       </div>
 
       {/* Registrations List Container */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
         {/* Mobile Header Bar on Card List */}
-        <div className="md:hidden px-4 py-3 bg-slate-50/80 border-b border-slate-200/80 flex items-center justify-between">
-          <label className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 cursor-pointer">
+        <div className="md:hidden px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <label className="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
             <input
               type="checkbox"
               checked={isAllSelected}
               onChange={handleSelectAll}
               className="w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
             />
-            <span>Pilih Semua Data ({registrations.length})</span>
+            <span>Pilih Semua ({registrations.length})</span>
           </label>
-          <span className="text-[11px] text-slate-400 font-medium font-mono">
+          <span className="text-xs text-slate-500 font-mono">
             {registrations.length} data
           </span>
         </div>
 
-        {/* Mobile Card List View (Visible on screens < md) */}
+        {/* Mobile Card List View */}
         <div className="block md:hidden divide-y divide-slate-100">
           {loading && registrations.length === 0 ? (
             <div className="p-8 text-center text-xs text-slate-400">
@@ -494,11 +496,11 @@ export default function AdminPendaftaranPage() {
               return (
                 <div
                   key={reg.id}
-                  className={`p-4 space-y-3 transition-colors ${
-                    isSelected ? "bg-orange-50/40" : "hover:bg-slate-50/50"
+                  className={`p-4 space-y-2.5 transition-colors ${
+                    isSelected ? "bg-orange-50/40" : "hover:bg-slate-50/60"
                   }`}
                 >
-                  {/* Card Top: Selection Checkbox + ID Badge + Date */}
+                  {/* Card Top: Checkbox + ID + Date */}
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <input
@@ -508,11 +510,11 @@ export default function AdminPendaftaranPage() {
                         className="w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
                         aria-label={`Pilih pendaftaran ${reg.nama}`}
                       />
-                      <span className="inline-block text-[11px] font-mono font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200/60 shadow-2xs">
+                      <span className="font-mono text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
                         REG-{String(reg.id).padStart(4, "0")}
                       </span>
                     </div>
-                    <span className="text-[11px] text-slate-400 font-mono">
+                    <span className="text-xs text-slate-400 font-mono">
                       {new Date(reg.createdAt).toLocaleDateString("id-ID", {
                         day: "numeric",
                         month: "short",
@@ -522,25 +524,23 @@ export default function AdminPendaftaranPage() {
                   </div>
 
                   {/* Customer Info */}
-                  <div className="space-y-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-sm font-extrabold text-slate-900 leading-snug">{reg.nama}</h3>
-                    </div>
+                  <div className="space-y-0.5">
+                    <h3 className="text-sm font-semibold text-slate-900 leading-snug">{reg.nama}</h3>
                     {reg.alamat && (
-                      <p className="text-xs text-slate-500 line-clamp-1 leading-relaxed" title={reg.alamat}>
+                      <p className="text-xs text-slate-500 line-clamp-1" title={reg.alamat}>
                         {reg.alamat}
                       </p>
                     )}
                   </div>
 
                   {/* Product & Option */}
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="px-2.5 py-0.5 bg-orange-50 text-orange-700 text-xs font-bold rounded-md border border-orange-200/60">
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <span className="font-medium text-slate-800">
                       {reg.produk}
                     </span>
                     {reg.pilihan && (
-                      <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[11px] font-semibold rounded-md border border-slate-200/70">
-                        {reg.pilihan}
+                      <span className="text-slate-500 font-normal">
+                        ({reg.pilihan})
                       </span>
                     )}
                   </div>
@@ -548,8 +548,8 @@ export default function AdminPendaftaranPage() {
                   {/* Contact & WhatsApp Button */}
                   <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100">
                     <div className="min-w-0">
-                      <p className="text-xs font-mono font-bold text-slate-900 truncate">{reg.telepon || "-"}</p>
-                      {reg.email && <p className="text-[11px] text-slate-400 truncate">{reg.email}</p>}
+                      <p className="text-xs font-mono font-medium text-slate-800 truncate">{reg.telepon || "-"}</p>
+                      {reg.email && <p className="text-[11px] text-slate-500 truncate">{reg.email}</p>}
                     </div>
 
                     {reg.telepon && (
@@ -557,7 +557,7 @@ export default function AdminPendaftaranPage() {
                         href={formatWhatsAppUrl(reg.telepon, reg.nama, reg.produk)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg hover:bg-emerald-100 transition shadow-2xs shrink-0"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded hover:bg-emerald-100 transition-colors shrink-0"
                         title="Chat WhatsApp Nasabah"
                       >
                         <span>WhatsApp</span> ↗
@@ -565,7 +565,7 @@ export default function AdminPendaftaranPage() {
                     )}
                   </div>
 
-                  {/* Card Bottom: Status Selector + Action Buttons */}
+                  {/* Card Bottom: Status Selector + Actions */}
                   <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
                     {/* Status Dropdown */}
                     <div className="relative">
@@ -573,12 +573,12 @@ export default function AdminPendaftaranPage() {
                         disabled={updatingId === reg.id}
                         value={isDiproses ? "Diproses" : reg.status || "Baru"}
                         onChange={(e) => handleUpdateStatus(reg.id, e.target.value)}
-                        className={`text-[11px] font-bold pl-6 pr-6 py-1 rounded-full border shadow-2xs appearance-none cursor-pointer transition-all focus:outline-none focus:ring-2 disabled:opacity-50 ${
+                        className={`text-xs font-medium pl-6 pr-6 py-1 rounded-md border appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 disabled:opacity-50 ${
                           isSelesai
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200/80"
                             : isDiproses
-                            ? "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
-                            : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+                            ? "bg-amber-50 text-amber-700 border-amber-200/80"
+                            : "bg-blue-50 text-blue-700 border-blue-200/80"
                         }`}
                         title="Ubah status"
                       >
@@ -597,7 +597,7 @@ export default function AdminPendaftaranPage() {
 
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1.5 text-current opacity-70">
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
                     </div>
@@ -606,13 +606,13 @@ export default function AdminPendaftaranPage() {
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => setSelectedReg(reg)}
-                        className="px-2.5 py-1 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition cursor-pointer"
+                        className="px-2.5 py-1 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 rounded-md transition-colors border border-slate-200 cursor-pointer"
                       >
                         Detail
                       </button>
                       <button
                         onClick={() => handleDeleteSingle(reg)}
-                        className="px-2.5 py-1 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition border border-rose-200 cursor-pointer"
+                        className="px-2.5 py-1 text-xs font-medium text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-md transition-colors border border-rose-200/80 cursor-pointer"
                       >
                         Hapus
                       </button>
@@ -624,12 +624,12 @@ export default function AdminPendaftaranPage() {
           )}
         </div>
 
-        {/* Desktop Table View (Hidden on screens < md) */}
+        {/* Desktop Table View */}
         <div className="hidden md:block overflow-x-auto w-full">
-          <table className="w-full min-w-[960px] text-left border-collapse">
+          <table className="w-full min-w-[940px] text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                <th className="px-4 py-4 w-12 text-center">
+              <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <th className="px-4 py-3.5 w-10 text-center">
                   <input
                     type="checkbox"
                     checked={isAllSelected}
@@ -638,18 +638,18 @@ export default function AdminPendaftaranPage() {
                     aria-label="Pilih semua data"
                   />
                 </th>
-                <th className="px-5 py-4 min-w-[130px]">ID &amp; Tanggal</th>
-                <th className="px-6 py-4 min-w-[220px]">Nama Pemohon</th>
-                <th className="px-6 py-4 min-w-[200px]">Produk &amp; Pilihan</th>
-                <th className="px-6 py-4 min-w-[220px]">Kontak (WhatsApp / Email)</th>
-                <th className="px-6 py-4 min-w-[180px] text-center">Status</th>
-                <th className="px-6 py-4 w-36 text-right">Aksi</th>
+                <th className="px-5 py-3.5 min-w-[130px]">ID &amp; Tanggal</th>
+                <th className="px-6 py-3.5 min-w-[220px]">Nama Pemohon</th>
+                <th className="px-6 py-3.5 min-w-[200px]">Produk &amp; Pilihan</th>
+                <th className="px-6 py-3.5 min-w-[220px]">Kontak</th>
+                <th className="px-6 py-3.5 min-w-[160px] text-center">Status</th>
+                <th className="px-6 py-3.5 w-32 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading && registrations.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-16 text-center text-sm text-slate-400">
+                  <td colSpan={7} className="px-6 py-12 text-center text-sm text-slate-400">
                     <div className="inline-flex items-center gap-2">
                       <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
                       <span>Memuat data pendaftaran...</span>
@@ -658,7 +658,7 @@ export default function AdminPendaftaranPage() {
                 </tr>
               ) : registrations.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-16 text-center text-sm text-slate-400">
+                  <td colSpan={7} className="px-6 py-12 text-center text-sm text-slate-400">
                     Tidak ada data pendaftaran yang tersimpan.
                   </td>
                 </tr>
@@ -672,11 +672,11 @@ export default function AdminPendaftaranPage() {
                     <tr
                       key={reg.id}
                       className={`transition-colors ${
-                        isSelected ? "bg-orange-50/50" : "hover:bg-slate-50/60"
+                        isSelected ? "bg-orange-50/40" : "hover:bg-slate-50/70"
                       }`}
                     >
                       {/* Checkbox Selection */}
-                      <td className="px-4 py-4 text-center">
+                      <td className="px-4 py-3.5 text-center">
                         <input
                           type="checkbox"
                           checked={isSelected}
@@ -687,8 +687,8 @@ export default function AdminPendaftaranPage() {
                       </td>
 
                       {/* ID & Date */}
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        <span className="inline-block text-xs font-mono font-bold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-200/60 shadow-2xs">
+                      <td className="px-5 py-3.5 whitespace-nowrap">
+                        <span className="font-mono text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
                           REG-{String(reg.id).padStart(4, "0")}
                         </span>
                         <p className="text-xs text-slate-400 mt-1 font-mono">
@@ -701,56 +701,54 @@ export default function AdminPendaftaranPage() {
                       </td>
 
                       {/* Name & Address */}
-                      <td className="px-6 py-4">
-                        <p className="text-sm font-extrabold text-slate-900 leading-snug">{reg.nama}</p>
-                        <p className="text-xs text-slate-500 mt-1 leading-relaxed max-w-[260px] line-clamp-2" title={reg.alamat}>
+                      <td className="px-6 py-3.5">
+                        <p className="text-sm font-semibold text-slate-900 leading-snug">{reg.nama}</p>
+                        <p className="text-xs text-slate-500 mt-0.5 max-w-[240px] line-clamp-1" title={reg.alamat}>
                           {reg.alamat || "Alamat belum diisi"}
                         </p>
                       </td>
 
                       {/* Product & Pilihan */}
-                      <td className="px-6 py-4">
-                        <p className="text-sm font-extrabold text-slate-900 leading-snug whitespace-nowrap">{reg.produk}</p>
-                        <span className="inline-flex items-center whitespace-nowrap px-2.5 py-0.5 bg-slate-100 text-slate-700 text-xs font-semibold rounded-md mt-1 border border-slate-200/70">
-                          {reg.pilihan || "Standard"}
-                        </span>
+                      <td className="px-6 py-3.5">
+                        <p className="text-sm font-semibold text-slate-900 leading-snug whitespace-nowrap">{reg.produk}</p>
+                        <p className="text-xs text-slate-500 mt-0.5">{reg.pilihan || "Standard"}</p>
                       </td>
 
                       {/* Contact */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <p className="text-xs text-slate-600 font-medium">{reg.email || "-"}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs font-mono font-semibold text-slate-900">{reg.telepon || "-"}</span>
+                      <td className="px-6 py-3.5 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-mono font-medium text-slate-900">{reg.telepon || "-"}</span>
                           {reg.telepon && (
                             <a
                               href={formatWhatsAppUrl(reg.telepon, reg.nama, reg.produk)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md hover:bg-emerald-100 transition shadow-2xs"
+                              className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded hover:bg-emerald-100 transition-colors"
                               title="Chat WhatsApp Nasabah"
                             >
                               <span>WhatsApp</span> ↗
                             </a>
                           )}
                         </div>
+                        <p className="text-xs text-slate-500 mt-0.5">{reg.email || "-"}</p>
                       </td>
 
-                      {/* Status Dropdown Selector */}
-                      <td className="px-6 py-4 text-center whitespace-nowrap">
+                      {/* Status Dropdown */}
+                      <td className="px-6 py-3.5 text-center whitespace-nowrap">
                         <div className="inline-flex items-center justify-center">
                           <div className="relative">
                             <select
                               disabled={updatingId === reg.id}
                               value={isDiproses ? "Diproses" : reg.status || "Baru"}
                               onChange={(e) => handleUpdateStatus(reg.id, e.target.value)}
-                              className={`text-xs font-bold pl-7 pr-8 py-1.5 rounded-full border shadow-2xs appearance-none cursor-pointer transition-all focus:outline-none focus:ring-2 disabled:opacity-50 ${
+                              className={`text-xs font-medium pl-6 pr-6 py-1 rounded-md border appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 disabled:opacity-50 ${
                                 isSelesai
-                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 focus:ring-emerald-500/20"
+                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200/80 focus:ring-emerald-500/20"
                                   : isDiproses
-                                  ? "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 focus:ring-amber-500/20"
-                                  : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 focus:ring-blue-500/20"
+                                  ? "bg-amber-50 text-amber-700 border-amber-200/80 focus:ring-amber-500/20"
+                                  : "bg-blue-50 text-blue-700 border-blue-200/80 focus:ring-blue-500/20"
                               }`}
-                              title="Klik untuk mengubah status pendaftaran"
+                              title="Ubah status pendaftaran"
                             >
                               <option value="Baru">Baru</option>
                               <option value="Diproses">Sedang Diproses</option>
@@ -758,9 +756,9 @@ export default function AdminPendaftaranPage() {
                             </select>
 
                             {/* Dot indicator */}
-                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2">
                               <span
-                                className={`w-2 h-2 rounded-full ${
+                                className={`w-1.5 h-1.5 rounded-full ${
                                   isSelesai
                                     ? "bg-emerald-500"
                                     : isDiproses
@@ -771,9 +769,9 @@ export default function AdminPendaftaranPage() {
                             </div>
 
                             {/* Caret arrow */}
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-current opacity-70">
-                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1.5 text-current opacity-70">
+                              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                               </svg>
                             </div>
                           </div>
@@ -781,17 +779,17 @@ export default function AdminPendaftaranPage() {
                       </td>
 
                       {/* Actions */}
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="px-6 py-3.5 whitespace-nowrap text-right">
+                        <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => setSelectedReg(reg)}
-                            className="px-3.5 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer"
+                            className="px-2.5 py-1 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 rounded-md transition-colors border border-slate-200 cursor-pointer"
                           >
                             Detail
                           </button>
                           <button
                             onClick={() => handleDeleteSingle(reg)}
-                            className="px-3.5 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition border border-rose-200 cursor-pointer"
+                            className="px-2.5 py-1 text-xs font-medium text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-md transition-colors border border-rose-200/80 cursor-pointer"
                           >
                             Hapus
                           </button>
@@ -808,29 +806,29 @@ export default function AdminPendaftaranPage() {
 
       {/* Confirmation Modal: Delete ALL Data */}
       {showDeleteAllModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-200 p-5 sm:p-7 space-y-4 sm:space-y-5 text-center">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-inner">
-              <svg className="w-7 h-7 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="bg-white rounded-xl w-full max-w-md overflow-hidden shadow-xl border border-slate-200 p-6 space-y-4 text-center">
+            <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </div>
 
-            <div className="space-y-1.5 sm:space-y-2">
-              <h3 className="text-lg sm:text-xl font-black text-slate-900">
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-slate-900">
                 Hapus Seluruh Data Pendaftaran?
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Tindakan ini akan mengosongkan <strong>seluruh ({registrations.length}) data pendaftaran</strong> nasabah di database secara permanen. Data yang telah dihapus tidak dapat dipulihkan kembali.
+              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                Tindakan ini akan mengosongkan seluruh <strong>({registrations.length}) data pendaftaran</strong> secara permanen. Data yang telah dihapus tidak dapat dipulihkan.
               </p>
             </div>
 
-            <div className="pt-2 sm:pt-3 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3">
+            <div className="pt-2 flex items-center justify-center gap-2.5">
               <button
                 type="button"
                 onClick={() => setShowDeleteAllModal(false)}
                 disabled={deletingBulk}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold hover:bg-slate-100 transition cursor-pointer"
+                className="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 text-xs font-medium hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 Batal
               </button>
@@ -838,7 +836,7 @@ export default function AdminPendaftaranPage() {
                 type="button"
                 onClick={handleDeleteAll}
                 disabled={deletingBulk}
-                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold shadow-lg shadow-rose-600/25 transition flex items-center justify-center gap-2 cursor-pointer"
+                className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
               >
                 {deletingBulk ? "Menghapus..." : "Ya, Kosongkan Semua"}
               </button>
@@ -849,29 +847,29 @@ export default function AdminPendaftaranPage() {
 
       {/* Confirmation Modal: Delete Selected Data */}
       {showDeleteSelectedModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-200 p-5 sm:p-7 space-y-4 sm:space-y-5 text-center">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-inner">
-              <svg className="w-7 h-7 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="bg-white rounded-xl w-full max-w-md overflow-hidden shadow-xl border border-slate-200 p-6 space-y-4 text-center">
+            <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </div>
 
-            <div className="space-y-1.5 sm:space-y-2">
-              <h3 className="text-lg sm:text-xl font-black text-slate-900">
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-slate-900">
                 Hapus {selectedIds.length} Data Terpilih?
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Anda akan menghapus <strong>{selectedIds.length} data pendaftaran</strong> yang ditandai. Tindakan ini tidak dapat dibatalkan.
+              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                Anda akan menghapus <strong>{selectedIds.length} data pendaftaran</strong> yang dipilih. Tindakan ini tidak dapat dibatalkan.
               </p>
             </div>
 
-            <div className="pt-2 sm:pt-3 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3">
+            <div className="pt-2 flex items-center justify-center gap-2.5">
               <button
                 type="button"
                 onClick={() => setShowDeleteSelectedModal(false)}
                 disabled={deletingBulk}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold hover:bg-slate-100 transition cursor-pointer"
+                className="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 text-xs font-medium hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 Batal
               </button>
@@ -879,7 +877,7 @@ export default function AdminPendaftaranPage() {
                 type="button"
                 onClick={handleDeleteSelected}
                 disabled={deletingBulk}
-                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold shadow-lg shadow-rose-600/25 transition flex items-center justify-center gap-2 cursor-pointer"
+                className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
               >
                 {deletingBulk ? "Menghapus..." : `Ya, Hapus (${selectedIds.length}) Data`}
               </button>
@@ -890,69 +888,71 @@ export default function AdminPendaftaranPage() {
 
       {/* Modern Detail Modal */}
       {selectedReg && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-lg max-h-[88vh] overflow-y-auto shadow-2xl border border-slate-200 flex flex-col">
-            <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 text-white p-5 sm:p-7 flex items-center justify-between shadow-md shrink-0">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="bg-white rounded-xl w-full max-w-lg max-h-[88vh] overflow-y-auto shadow-xl border border-slate-200 flex flex-col">
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <div className="min-w-0 pr-2">
-                <span className="text-[11px] sm:text-xs uppercase tracking-wider text-orange-100 font-mono font-bold">
+                <span className="text-xs font-mono font-semibold text-slate-500 uppercase">
                   REG-{String(selectedReg.id).padStart(4, "0")}
                 </span>
-                <h2 className="text-lg sm:text-xl font-black truncate">{selectedReg.nama}</h2>
+                <h2 className="text-base font-bold text-slate-900 truncate">{selectedReg.nama}</h2>
               </div>
               <button
                 onClick={() => setSelectedReg(null)}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors cursor-pointer text-sm font-bold shrink-0"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer text-sm font-semibold shrink-0"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-5 sm:p-7 space-y-4 text-xs sm:text-sm text-slate-700 flex-1 overflow-y-auto">
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 pb-3 sm:pb-4 border-b border-slate-100">
+            {/* Body */}
+            <div className="p-6 space-y-4 text-xs sm:text-sm text-slate-700 flex-1 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-4 pb-3 border-b border-slate-100">
                 <div>
-                  <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Produk Pengajuan</p>
-                  <p className="font-extrabold text-slate-900 mt-0.5 leading-snug">{selectedReg.produk}</p>
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Produk Pengajuan</p>
+                  <p className="font-semibold text-slate-900 mt-0.5">{selectedReg.produk}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Pilihan / Jangka Waktu</p>
-                  <p className="font-extrabold text-orange-600 mt-0.5 leading-snug">{selectedReg.pilihan || "Standard"}</p>
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Pilihan</p>
+                  <p className="font-semibold text-slate-900 mt-0.5">{selectedReg.pilihan || "Standard"}</p>
                 </div>
               </div>
 
               <div>
-                <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Alamat Domisili</p>
-                <p className="font-medium text-slate-800 mt-1 bg-slate-50 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200/80 leading-relaxed text-xs sm:text-sm">
+                <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Alamat Domisili</p>
+                <p className="font-normal text-slate-800 mt-1 bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs sm:text-sm">
                   {selectedReg.alamat || "Alamat tidak diisi"}
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Email</p>
-                  <p className="font-medium text-slate-800 mt-0.5 truncate">{selectedReg.email || "-"}</p>
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Email</p>
+                  <p className="font-normal text-slate-800 mt-0.5 truncate">{selectedReg.email || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Nomor Telepon / WA</p>
-                  <p className="font-mono font-bold text-slate-900 mt-0.5">{selectedReg.telepon || "-"}</p>
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Nomor Telepon / WhatsApp</p>
+                  <p className="font-mono font-medium text-slate-900 mt-0.5">{selectedReg.telepon || "-"}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-slate-100">
+              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-slate-100">
                 <div>
-                  <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Tanggal Masuk</p>
-                  <p className="font-medium text-slate-800 mt-0.5 text-xs sm:text-sm">
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Tanggal Masuk</p>
+                  <p className="font-normal text-slate-800 mt-0.5 text-xs">
                     {new Date(selectedReg.createdAt).toLocaleString("id-ID")}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Status</p>
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Status Saat Ini</p>
                   <span
-                    className={`inline-flex px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold mt-1 ${
+                    className={`inline-flex px-2.5 py-0.5 rounded-md text-xs font-medium mt-1 ${
                       selectedReg.status === "Selesai"
-                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80"
                         : selectedReg.status === "Diproses" || selectedReg.status === "Sedang Diproses"
-                        ? "bg-amber-50 text-amber-700 border border-amber-200"
-                        : "bg-blue-50 text-blue-700 border border-blue-200"
+                        ? "bg-amber-50 text-amber-700 border border-amber-200/80"
+                        : "bg-blue-50 text-blue-700 border border-blue-200/80"
                     }`}
                   >
                     {selectedReg.status === "Diproses" ? "Sedang Diproses" : selectedReg.status || "Baru"}
@@ -961,8 +961,8 @@ export default function AdminPendaftaranPage() {
               </div>
 
               {/* Status Update Quick Buttons */}
-              <div className="pt-3 sm:pt-4 border-t border-slate-100 space-y-2">
-                <p className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Ubah Status Pendaftaran:</p>
+              <div className="pt-3 border-t border-slate-100 space-y-2">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Ubah Status:</p>
                 <div className="grid grid-cols-3 gap-2">
                   {[
                     { key: "Baru", label: "Baru" },
@@ -973,10 +973,10 @@ export default function AdminPendaftaranPage() {
                       key={st.key}
                       disabled={updatingId === selectedReg.id || selectedReg.status === st.key}
                       onClick={() => handleUpdateStatus(selectedReg.id, st.key)}
-                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${
+                      className={`py-1.5 px-3 rounded-lg text-xs font-medium border transition-colors cursor-pointer text-center ${
                         selectedReg.status === st.key
-                          ? "bg-slate-900 text-white border-slate-900 shadow-xs"
-                          : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                          ? "bg-slate-900 text-white border-slate-900 font-semibold"
+                          : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                       }`}
                     >
                       {st.label}
@@ -986,18 +986,19 @@ export default function AdminPendaftaranPage() {
               </div>
             </div>
 
-            <div className="p-4 sm:p-6 bg-slate-50/80 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 shrink-0">
+            {/* Footer */}
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-2.5 shrink-0">
               <a
                 href={formatWhatsAppUrl(selectedReg.telepon, selectedReg.nama, selectedReg.produk)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-emerald-600/20 text-center"
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-lg transition-colors shadow-2xs"
               >
                 <span>Hubungi via WhatsApp</span> ↗
               </a>
               <button
                 onClick={() => setSelectedReg(null)}
-                className="px-4 sm:px-5 py-2.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 transition cursor-pointer text-center"
+                className="px-4 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 Tutup
               </button>

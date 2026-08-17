@@ -36,24 +36,24 @@ export default function AdminProdukPage() {
     order: 0,
   });
 
-  const broadcastProductUpdate = () => {
+  const broadcastProductUpdate = useCallback(() => {
     try {
       if (typeof window !== "undefined") {
+        const now = Date.now();
         if ("BroadcastChannel" in window) {
           const bc = new BroadcastChannel("hasamitra_sync_channel");
-          bc.postMessage({ type: "PRODUCTS_UPDATED", timestamp: Date.now() });
+          bc.postMessage({ type: "PRODUCTS_UPDATED", timestamp: now });
           bc.close();
         }
-        localStorage.setItem("hasamitra_last_product_update", String(Date.now()));
+        localStorage.setItem("hasamitra_last_product_update", String(now));
       }
     } catch {
       // Ignore
     }
-  };
+  }, []);
 
   const fetchProducts = useCallback(async (isSilent = false) => {
-    if (!isSilent) setLoading(true);
-    setIsRefreshing(true);
+    if (!isSilent) setIsRefreshing(true);
     try {
       const res = await fetch("/api/admin/produk", {
         cache: "no-store",
@@ -70,7 +70,22 @@ export default function AdminProdukPage() {
   }, []);
 
   useEffect(() => {
-    fetchProducts(false);
+    let isMounted = true;
+    const initFetch = async () => {
+      try {
+        const res = await fetch("/api/admin/produk", {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" },
+        });
+        const data = await res.json();
+        if (isMounted && data.success) setProducts(data.data);
+      } catch {
+        if (isMounted) setError("Gagal memuat data produk.");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+    initFetch();
 
     // Auto-polling every 5 seconds
     const interval = setInterval(() => {
@@ -94,6 +109,7 @@ export default function AdminProdukPage() {
     window.addEventListener("focus", handleFocus);
 
     return () => {
+      isMounted = false;
       clearInterval(interval);
       if (bc) bc.close();
       window.removeEventListener("focus", handleFocus);
@@ -237,27 +253,27 @@ export default function AdminProdukPage() {
   };
 
   return (
-    <div className="space-y-5 sm:space-y-8">
-      {/* Page Header Banner */}
-      <div className="bg-white rounded-2xl p-4 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="bg-white rounded-xl p-5 sm:p-6 border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
             Kelola Produk Perbankan
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
-            Kelola daftar produk simpanan, deposito, dan program investasi yang tampil di website utama.
+          <p className="text-xs sm:text-sm text-slate-500">
+            Kelola data produk simpanan, deposito, dan program investasi yang tampil di website utama.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
           <button
             onClick={() => fetchProducts(false)}
             disabled={isRefreshing}
-            className="flex-1 sm:flex-initial px-3 sm:px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs transition border border-slate-200 cursor-pointer inline-flex items-center justify-center gap-2"
+            className="flex-1 sm:flex-initial px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs transition-colors border border-slate-200 cursor-pointer inline-flex items-center justify-center gap-2 shadow-2xs"
             title="Perbarui daftar produk"
           >
             <svg
-              className={`w-3.5 h-3.5 text-slate-600 ${isRefreshing ? "animate-spin text-orange-500" : ""}`}
+              className={`w-3.5 h-3.5 text-slate-500 ${isRefreshing ? "animate-spin text-orange-600" : ""}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -269,10 +285,10 @@ export default function AdminProdukPage() {
 
           <button
             onClick={openCreate}
-            className="flex-1 sm:flex-initial px-4 sm:px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl transition-all shadow-xs inline-flex items-center justify-center gap-2 cursor-pointer shrink-0"
+            className="flex-1 sm:flex-initial px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-lg transition-colors shadow-2xs inline-flex items-center justify-center gap-2 cursor-pointer shrink-0"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             <span>Tambah Produk</span>
           </button>
@@ -281,27 +297,27 @@ export default function AdminProdukPage() {
 
       {/* Success/Error Alerts */}
       {successMsg && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm px-4 sm:px-5 py-3 rounded-xl flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-2.5">
-            <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0">✓</span>
-            <span className="leading-snug">{successMsg}</span>
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm px-4 py-3 rounded-lg flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-2">
+            <span className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">✓</span>
+            <span>{successMsg}</span>
           </div>
-          <button onClick={() => setSuccessMsg("")} className="text-emerald-600 hover:text-emerald-800 font-bold cursor-pointer shrink-0 ml-2">✕</button>
+          <button onClick={() => setSuccessMsg("")} className="text-emerald-700 hover:text-emerald-900 font-medium text-xs cursor-pointer ml-2">✕</button>
         </div>
       )}
       {error && !showModal && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm px-4 sm:px-5 py-3 rounded-xl flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-2.5">
-            <span className="w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-xs shrink-0">✕</span>
-            <span className="leading-snug">{error}</span>
+        <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm px-4 py-3 rounded-lg flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-2">
+            <span className="w-4 h-4 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">✕</span>
+            <span>{error}</span>
           </div>
-          <button onClick={() => setError("")} className="text-rose-600 hover:text-rose-800 font-bold cursor-pointer shrink-0 ml-2">✕</button>
+          <button onClick={() => setError("")} className="text-rose-700 hover:text-rose-900 font-medium text-xs cursor-pointer ml-2">✕</button>
         </div>
       )}
 
-      {/* Modern Products Container */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-        {/* Mobile Card List View (Visible on screens < md) */}
+      {/* Products Table Container */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+        {/* Mobile Card List View */}
         <div className="block md:hidden divide-y divide-slate-100">
           {loading && products.length === 0 ? (
             <div className="p-8 text-center text-xs text-slate-400">
@@ -315,101 +331,85 @@ export default function AdminProdukPage() {
               Belum ada produk terdaftar. Klik &quot;Tambah Produk&quot; untuk memulai.
             </div>
           ) : (
-            products.map((product) => {
-              const catLower = (product.category || "").toLowerCase();
-              let catBadgeStyle = "bg-orange-50 text-orange-700 border-orange-200/70";
-              if (catLower.includes("deposito")) {
-                catBadgeStyle = "bg-blue-50 text-blue-700 border-blue-200/70";
-              } else if (catLower.includes("emas") || catLower.includes("investasi") || catLower.includes("kredit")) {
-                catBadgeStyle = "bg-amber-50 text-amber-800 border-amber-200/70";
-              }
-
-              return (
-                <div key={product.id} className="p-4 space-y-3 hover:bg-slate-50/50 transition-colors">
-                  {/* Top: Order + Category Badge */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-lg bg-slate-100 font-bold text-slate-700 text-[11px] flex items-center justify-center font-mono border border-slate-200/60 shadow-2xs">
-                        #{product.order}
-                      </span>
-                      <span className={`inline-flex items-center text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${catBadgeStyle}`}>
-                        {product.category || "Tabungan"}
-                      </span>
-                    </div>
-
-                    {/* Status Pill Toggle */}
-                    <button
-                      onClick={() => toggleActive(product)}
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold transition-all shadow-xs cursor-pointer border ${
-                        product.isActive
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
-                          : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200"
-                      }`}
-                      title={product.isActive ? "Klik untuk menonaktifkan" : "Klik untuk mengaktifkan"}
-                    >
-                      <span className={`w-1.5 h-1.5 rounded-full ${product.isActive ? "bg-emerald-500" : "bg-slate-400"}`}></span>
-                      <span>{product.isActive ? "Aktif" : "Nonaktif"}</span>
-                    </button>
+            products.map((product) => (
+              <div key={product.id} className="p-4 space-y-3 hover:bg-slate-50/60 transition-colors">
+                {/* Top: Order & Status */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-semibold text-slate-500">
+                      #{product.order}
+                    </span>
+                    <span className="text-xs text-slate-500 font-medium">
+                      {product.category || "Tabungan"}
+                    </span>
                   </div>
 
-                  {/* Name & Slug */}
-                  <div className="space-y-1">
-                    <h3 className="text-sm font-extrabold text-slate-900 leading-snug">{product.name}</h3>
-                    <p className="text-[11px] font-mono text-slate-400 truncate">/{product.slug}</p>
-                  </div>
-
-                  {/* Features Badges */}
-                  {product.features && product.features.length > 0 && (
-                    <div className="flex flex-wrap gap-1 pt-0.5">
-                      {product.features.map((f, i) => (
-                        <span
-                          key={i}
-                          className="inline-flex items-center px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md text-[11px] font-medium border border-slate-200/60 leading-normal"
-                        >
-                          {f}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Bottom: Action buttons */}
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-                    <button
-                      onClick={() => openEdit(product)}
-                      className="px-3 py-1 text-xs font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-all border border-orange-200 cursor-pointer"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(product)}
-                      className="px-3 py-1 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-all border border-rose-200 cursor-pointer"
-                    >
-                      Hapus
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => toggleActive(product)}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium transition-colors cursor-pointer border ${
+                      product.isActive
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200/80 hover:bg-emerald-100"
+                        : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200"
+                    }`}
+                    title={product.isActive ? "Klik untuk menonaktifkan" : "Klik untuk mengaktifkan"}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${product.isActive ? "bg-emerald-500" : "bg-slate-400"}`}></span>
+                    <span>{product.isActive ? "Aktif" : "Nonaktif"}</span>
+                  </button>
                 </div>
-              );
-            })
+
+                {/* Name & Slug */}
+                <div className="space-y-0.5">
+                  <h3 className="text-sm font-semibold text-slate-900 leading-snug">{product.name}</h3>
+                  <p className="text-xs font-mono text-slate-500">/{product.slug}</p>
+                </div>
+
+                {/* Features */}
+                {product.features && product.features.length > 0 && (
+                  <ul className="text-xs text-slate-600 space-y-1 pl-4 list-disc">
+                    {product.features.map((f, i) => (
+                      <li key={i}>{f}</li>
+                    ))}
+                  </ul>
+                )}
+
+                {/* Bottom: Action buttons */}
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                  <button
+                    onClick={() => openEdit(product)}
+                    className="px-3 py-1 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 rounded-md transition-colors border border-slate-200 cursor-pointer"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(product)}
+                    className="px-3 py-1 text-xs font-medium text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-md transition-colors border border-rose-200/80 cursor-pointer"
+                  >
+                    Hapus
+                  </button>
+                </div>
+              </div>
+            ))
           )}
         </div>
 
-        {/* Desktop Table View (Hidden on screens < md) */}
+        {/* Desktop Table View */}
         <div className="hidden md:block overflow-x-auto w-full">
-          <table className="w-full min-w-[920px] text-left border-collapse">
+          <table className="w-full min-w-[880px] text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                <th className="px-5 py-4 w-20 text-center">Urutan</th>
-                <th className="px-6 py-4 min-w-[200px]">Nama &amp; Kategori</th>
-                <th className="px-5 py-4 min-w-[170px]">Slug URL</th>
-                <th className="px-6 py-4 min-w-[340px]">Fitur Keunggulan</th>
-                <th className="px-5 py-4 w-32 text-center">Status</th>
-                <th className="px-6 py-4 w-36 text-right">Aksi</th>
+              <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <th className="px-5 py-3.5 w-16 text-center">Urutan</th>
+                <th className="px-6 py-3.5 min-w-[200px]">Nama &amp; Kategori</th>
+                <th className="px-5 py-3.5 min-w-[150px]">Slug URL</th>
+                <th className="px-6 py-3.5 min-w-[300px]">Fitur Keunggulan</th>
+                <th className="px-5 py-3.5 w-28 text-center">Status</th>
+                <th className="px-6 py-3.5 w-32 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading && products.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center text-sm text-slate-400">
+                  <td colSpan={6} className="px-6 py-12 text-center text-sm text-slate-400">
                     <div className="inline-flex items-center gap-2">
                       <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
                       <span>Memuat data produk...</span>
@@ -418,94 +418,77 @@ export default function AdminProdukPage() {
                 </tr>
               ) : products.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center text-sm text-slate-400">
+                  <td colSpan={6} className="px-6 py-12 text-center text-sm text-slate-400">
                     Belum ada produk terdaftar. Klik &quot;Tambah Produk&quot; untuk memulai.
                   </td>
                 </tr>
               ) : (
-                products.map((product) => {
-                  const catLower = (product.category || "").toLowerCase();
-                  let catBadgeStyle = "bg-orange-50 text-orange-700 border-orange-200/70";
-                  if (catLower.includes("deposito")) {
-                    catBadgeStyle = "bg-blue-50 text-blue-700 border-blue-200/70";
-                  } else if (catLower.includes("emas") || catLower.includes("investasi") || catLower.includes("kredit")) {
-                    catBadgeStyle = "bg-amber-50 text-amber-800 border-amber-200/70";
-                  }
+                products.map((product) => (
+                  <tr key={product.id} className="hover:bg-slate-50/70 transition-colors">
+                    {/* Order */}
+                    <td className="px-5 py-3.5 text-center">
+                      <span className="font-mono text-xs font-semibold text-slate-600">
+                        {product.order}
+                      </span>
+                    </td>
 
-                  return (
-                    <tr key={product.id} className="hover:bg-slate-50/60 transition-colors">
-                      {/* Order */}
-                      <td className="px-5 py-4 text-center">
-                        <span className="w-8 h-8 mx-auto rounded-xl bg-slate-100 font-bold text-slate-700 text-xs flex items-center justify-center font-mono border border-slate-200/60 shadow-2xs">
-                          {product.order}
-                        </span>
-                      </td>
+                    {/* Name & Category */}
+                    <td className="px-6 py-3.5">
+                      <p className="text-sm font-semibold text-slate-900">{product.name}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{product.category || "Tabungan"}</p>
+                    </td>
 
-                      {/* Name & Category */}
-                      <td className="px-6 py-4">
-                        <p className="text-sm font-extrabold text-slate-900 whitespace-nowrap">{product.name}</p>
-                        <span className={`inline-flex items-center mt-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md border ${catBadgeStyle}`}>
-                          {product.category || "Tabungan"}
-                        </span>
-                      </td>
+                    {/* Slug */}
+                    <td className="px-5 py-3.5">
+                      <span className="inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-xs font-mono">
+                        {product.slug}
+                      </span>
+                    </td>
 
-                      {/* Slug */}
-                      <td className="px-5 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-mono font-medium border border-slate-200/80 whitespace-nowrap shadow-2xs">
-                          {product.slug}
-                        </span>
-                      </td>
+                    {/* Features */}
+                    <td className="px-6 py-3.5">
+                      <ul className="text-xs text-slate-600 space-y-0.5 list-disc pl-4">
+                        {product.features.map((f, i) => (
+                          <li key={i}>{f}</li>
+                        ))}
+                      </ul>
+                    </td>
 
-                      {/* Features */}
-                      <td className="px-6 py-4">
-                        <div className="flex flex-wrap gap-1.5 max-w-md">
-                          {product.features.map((f, i) => (
-                            <span
-                              key={i}
-                              className="inline-flex items-center px-2.5 py-1 bg-slate-100/90 text-slate-700 rounded-lg text-xs font-medium border border-slate-200/60 leading-normal"
-                            >
-                              {f}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
+                    {/* Status Toggle */}
+                    <td className="px-5 py-3.5 text-center whitespace-nowrap">
+                      <button
+                        onClick={() => toggleActive(product)}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer border ${
+                          product.isActive
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200/80 hover:bg-emerald-100"
+                            : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200"
+                        }`}
+                        title={product.isActive ? "Klik untuk menonaktifkan" : "Klik untuk mengaktifkan"}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${product.isActive ? "bg-emerald-500" : "bg-slate-400"}`}></span>
+                        <span>{product.isActive ? "Aktif" : "Nonaktif"}</span>
+                      </button>
+                    </td>
 
-                      {/* Status Pill Toggle */}
-                      <td className="px-5 py-4 text-center whitespace-nowrap">
+                    {/* Actions */}
+                    <td className="px-6 py-3.5 whitespace-nowrap text-right">
+                      <div className="flex items-center justify-end gap-1.5">
                         <button
-                          onClick={() => toggleActive(product)}
-                          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer border ${
-                            product.isActive
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
-                              : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200"
-                          }`}
-                          title={product.isActive ? "Klik untuk menonaktifkan" : "Klik untuk mengaktifkan"}
+                          onClick={() => openEdit(product)}
+                          className="px-2.5 py-1 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 rounded-md transition-colors border border-slate-200 cursor-pointer"
                         >
-                          <span className={`w-2 h-2 rounded-full ${product.isActive ? "bg-emerald-500" : "bg-slate-400"}`}></span>
-                          <span>{product.isActive ? "Aktif" : "Nonaktif"}</span>
+                          Edit
                         </button>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => openEdit(product)}
-                            className="px-3.5 py-1.5 text-xs font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-xl transition-all border border-orange-200 cursor-pointer"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(product)}
-                            className="px-3.5 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-all border border-rose-200 cursor-pointer"
-                          >
-                            Hapus
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
+                        <button
+                          onClick={() => handleDelete(product)}
+                          className="px-2.5 py-1 text-xs font-medium text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-md transition-colors border border-rose-200/80 cursor-pointer"
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
@@ -514,30 +497,30 @@ export default function AdminProdukPage() {
 
       {/* Modern Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="bg-white rounded-xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-xl border border-slate-200">
             {/* Header */}
-            <div className="px-5 sm:px-7 py-5 sm:py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <div>
-                <span className="text-[11px] sm:text-xs font-bold text-orange-600 uppercase tracking-wider">
-                  Formulir Produk
-                </span>
-                <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
+                <h2 className="text-base font-bold text-slate-900">
                   {editingProduct ? "Edit Detail Produk" : "Tambah Produk Baru"}
                 </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Lengkapi data produk perbankan untuk website utama
+                </p>
               </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer text-sm font-bold"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer text-sm font-semibold"
               >
                 ✕
               </button>
             </div>
 
             {/* Body */}
-            <div className="px-5 sm:px-7 py-5 sm:py-6 space-y-4 sm:space-y-5">
+            <div className="p-6 space-y-4">
               {error && (
-                <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs px-4 py-3 rounded-xl flex items-center gap-2">
+                <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs px-3.5 py-2.5 rounded-lg flex items-center gap-2">
                   <span>⚠️</span>
                   <span>{error}</span>
                 </div>
@@ -545,7 +528,7 @@ export default function AdminProdukPage() {
 
               {/* Name */}
               <div>
-                <label className="block text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Nama Produk <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -553,13 +536,13 @@ export default function AdminProdukPage() {
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="Contoh: New Tabungan Sabar"
-                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs sm:text-sm transition-all"
+                  className="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs sm:text-sm transition-colors"
                 />
               </div>
 
               {/* Slug */}
               <div>
-                <label className="block text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Slug URL <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -567,14 +550,14 @@ export default function AdminProdukPage() {
                   value={form.slug}
                   onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
                   placeholder="Contoh: new-tabungan-sabar"
-                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs sm:text-sm font-mono transition-all"
+                  className="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs sm:text-sm font-mono transition-colors"
                 />
               </div>
 
               {/* Category & Order */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Kategori
                   </label>
                   <input
@@ -582,39 +565,39 @@ export default function AdminProdukPage() {
                     value={form.category}
                     onChange={(e) => setForm({ ...form, category: e.target.value })}
                     placeholder="Tabungan / Deposito / Emas"
-                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs sm:text-sm transition-all"
+                    className="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs sm:text-sm transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Urutan Tampil
                   </label>
                   <input
                     type="number"
                     value={form.order}
                     onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs sm:text-sm transition-all"
+                    className="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs sm:text-sm transition-colors"
                   />
                 </div>
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Deskripsi Singkat
                 </label>
                 <textarea
-                  rows={3}
+                  rows={2}
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   placeholder="Penjelasan ringkas mengenai produk..."
-                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs sm:text-sm transition-all"
+                  className="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs sm:text-sm transition-colors"
                 />
               </div>
 
-              {/* Features (One per line) */}
+              {/* Features */}
               <div>
-                <label className="block text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Fitur Keunggulan (1 baris per poin)
                 </label>
                 <textarea
@@ -622,13 +605,13 @@ export default function AdminProdukPage() {
                   value={form.features}
                   onChange={(e) => setForm({ ...form, features: e.target.value })}
                   placeholder="Bebas biaya administrasi bulanan&#10;Setoran awal terjangkau&#10;Dijamin oleh LPS"
-                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs sm:text-sm transition-all font-mono"
+                  className="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs sm:text-sm transition-colors"
                 />
               </div>
 
               {/* Button Text */}
               <div>
-                <label className="block text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Teks Tombol Aksi
                 </label>
                 <input
@@ -636,12 +619,12 @@ export default function AdminProdukPage() {
                   value={form.buttonText}
                   onChange={(e) => setForm({ ...form, buttonText: e.target.value })}
                   placeholder="Daftar Tabungan Online"
-                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs sm:text-sm transition-all"
+                  className="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs sm:text-sm transition-colors"
                 />
               </div>
 
               {/* Is Active Toggle */}
-              <div className="flex items-center gap-3 pt-1">
+              <div className="flex items-center gap-2.5 pt-1">
                 <input
                   type="checkbox"
                   id="isActive"
@@ -649,18 +632,18 @@ export default function AdminProdukPage() {
                   onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
                   className="w-4 h-4 text-orange-600 rounded border-slate-300 focus:ring-orange-500 cursor-pointer"
                 />
-                <label htmlFor="isActive" className="text-xs sm:text-sm font-semibold text-slate-800 cursor-pointer">
-                  Tampilkan produk ini di landing page (Aktif)
+                <label htmlFor="isActive" className="text-xs font-medium text-slate-700 cursor-pointer">
+                  Tampilkan produk ini di website utama (Aktif)
                 </label>
               </div>
             </div>
 
             {/* Footer Actions */}
-            <div className="px-5 sm:px-7 py-4 sm:py-5 border-t border-slate-100 bg-slate-50/50 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
+            <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-2.5">
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold hover:bg-slate-100 transition-colors cursor-pointer text-center"
+                className="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 text-xs font-medium hover:bg-white transition-colors cursor-pointer"
               >
                 Batal
               </button>
@@ -668,7 +651,7 @@ export default function AdminProdukPage() {
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs sm:text-sm font-bold shadow-md shadow-orange-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer text-center"
+                className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium shadow-2xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
               >
                 {saving ? "Menyimpan..." : editingProduct ? "Simpan Perubahan" : "Tambahkan Produk"}
               </button>
