@@ -9,16 +9,22 @@ export default function HeroSection() {
       className="relative bg-slate-950 text-white min-h-[540px] sm:min-h-[600px] lg:min-h-[680px] flex items-center overflow-hidden border-b border-slate-800/80"
     >
       {/* Background Image with Ambient Glow Overlays */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/images/profil/gambar background hasamitra.png"
-          alt="Background Bank Hasamitra Jawa Barat"
-          fill
-          priority
-          className="object-cover object-center transition-all duration-700"
-        />
-        {/* Deep modern radial and gradient overlay optimized for mobile & desktop */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/60 to-slate-950/85 sm:bg-gradient-to-r sm:from-slate-950/95 sm:via-slate-950/80 sm:to-slate-950/50"></div>
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        {/* Background Image: Scaled on mobile to show full image without severe cropping */}
+        <div className="absolute top-0 left-0 right-0 h-[300px] xs:h-[340px] sm:h-full sm:inset-0">
+          <Image
+            src="/images/profil/gambar background hasamitra.png"
+            alt="Background Bank Hasamitra Jawa Barat"
+            fill
+            priority
+            className="object-cover object-center transition-all duration-700"
+          />
+          {/* Mobile vertical gradient fade so image is clearly visible and fades smoothly to dark content area */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-slate-950/70 to-slate-950 sm:hidden"></div>
+        </div>
+
+        {/* Desktop Gradient Overlay */}
+        <div className="hidden sm:block absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-slate-950/50"></div>
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-orange-600/15 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-0 left-10 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
       </div>
