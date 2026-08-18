@@ -12,37 +12,17 @@ interface RecentRegistration {
   createdAt: string;
 }
 
-interface RecentAtkRequest {
-  id: number;
-  requestNumber: string;
-  requestType: "PURCHASE" | "REQUEST";
-  namaKaryawan: string;
-  departemen: string;
-  jabatan: string;
-  namaBarang?: string | null;
-  pilihBarangAtk?: string | null;
-  jumlah: number;
-  status: string;
-  createdAt: string;
-}
-
 interface DashboardData {
   totalRegistrations: number;
   totalProducts: number;
-  totalAtkRequests?: number;
-  pendingAtkRequests?: number;
   recentRegistrations: RecentRegistration[];
-  recentAtkRequests?: RecentAtkRequest[];
 }
 
 export default function AdminDashboard() {
   const [data, setData] = useState<DashboardData>({
     totalRegistrations: 0,
     totalProducts: 0,
-    totalAtkRequests: 0,
-    pendingAtkRequests: 0,
     recentRegistrations: [],
-    recentAtkRequests: [],
   });
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -136,22 +116,11 @@ export default function AdminDashboard() {
     {
       label: "Katalog Produk Aktif",
       value: data.totalProducts,
-      subtext: "Produk perbankan aktif di website",
+      subtext: "Produk perbankan aktif di website utama",
       href: "/admin/produk",
       icon: (
         <svg className="w-5 h-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-        </svg>
-      ),
-    },
-    {
-      label: "Pengajuan ATK",
-      value: data.totalAtkRequests || 0,
-      subtext: `${data.pendingAtkRequests || 0} pengajuan menunggu approval`,
-      href: "/admin/pengajuan-atk",
-      icon: (
-        <svg className="w-5 h-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
         </svg>
       ),
     },
@@ -185,52 +154,6 @@ export default function AdminDashboard() {
     );
   };
 
-  const getAtkStatusBadge = (status: string) => {
-    switch (status) {
-      case "PENDING":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200/80">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-            <span>Menunggu</span>
-          </span>
-        );
-      case "PROCESSING":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200/80">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-            <span>Diproses</span>
-          </span>
-        );
-      case "APPROVED":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200/80">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-            <span>Disetujui</span>
-          </span>
-        );
-      case "COMPLETED":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            <span>Selesai</span>
-          </span>
-        );
-      case "REJECTED":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200/80">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-            <span>Ditolak</span>
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200">
-            <span>{status}</span>
-          </span>
-        );
-    }
-  };
-
   return (
     <div className="space-y-6 w-full max-w-full">
       {/* Page Header */}
@@ -262,8 +185,8 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      {/* Stats Grid: 3 Core Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+      {/* Stats Grid: 2 Core Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {stats.map((stat) => (
           <Link
             key={stat.label}
@@ -286,139 +209,6 @@ export default function AdminDashboard() {
             </div>
           </Link>
         ))}
-      </div>
-
-      {/* Recent ATK Requests Card */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
-        <div className="p-4 sm:px-6 sm:py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h2 className="font-semibold text-base text-slate-900">Pengajuan ATK Terbaru</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Daftar permohonan pembelian dan permintaan ATK internal</p>
-          </div>
-          <Link
-            href="/admin/pengajuan-atk"
-            className="w-full sm:w-auto text-center px-3.5 py-1.5 rounded-lg text-xs font-semibold text-orange-600 hover:text-orange-700 hover:bg-orange-50 border border-transparent hover:border-orange-200 transition-colors inline-flex items-center justify-center gap-1.5"
-          >
-            <span>Kelola Semua Pengajuan ATK</span>
-            <span>→</span>
-          </Link>
-        </div>
-
-        {/* Mobile Card List View */}
-        <div className="block sm:hidden divide-y divide-slate-100">
-          {loading && (!data.recentAtkRequests || data.recentAtkRequests.length === 0) ? (
-            <div className="p-8 text-center text-xs text-slate-400">
-              <div className="inline-flex items-center gap-2">
-                <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
-                <span>Memuat data...</span>
-              </div>
-            </div>
-          ) : !data.recentAtkRequests || data.recentAtkRequests.length === 0 ? (
-            <div className="p-8 text-center text-xs text-slate-400">
-              Belum ada pengajuan ATK yang masuk.
-            </div>
-          ) : (
-            data.recentAtkRequests.map((atk) => (
-              <div key={atk.id} className="p-4 space-y-2.5 hover:bg-slate-50/60 transition-colors">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-7 h-7 rounded-md bg-orange-50 text-orange-700 font-semibold text-xs flex items-center justify-center shrink-0 border border-orange-100">
-                      {atk.namaKaryawan ? atk.namaKaryawan.charAt(0).toUpperCase() : "A"}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-slate-900 truncate">{atk.namaKaryawan}</p>
-                      <p className="text-xs text-slate-400 font-mono">{atk.requestNumber}</p>
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-mono text-slate-400 shrink-0">
-                    {new Date(atk.createdAt).toLocaleDateString("id-ID", {
-                      day: "2-digit",
-                      month: "short",
-                    })}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between gap-2 pt-1 text-xs">
-                  <span className="text-slate-600 truncate max-w-[55%] font-medium">
-                    {atk.requestType === "PURCHASE" ? atk.namaBarang : atk.pilihBarangAtk} ({atk.jumlah} unit)
-                  </span>
-                  {getAtkStatusBadge(atk.status)}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Desktop Table View */}
-        <div className="hidden sm:block overflow-x-auto w-full">
-          <table className="w-full min-w-[640px] text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                <th className="px-5 sm:px-6 py-3">No. Pengajuan</th>
-                <th className="px-5 sm:px-6 py-3">Pemohon</th>
-                <th className="px-5 sm:px-6 py-3">Jenis</th>
-                <th className="px-5 sm:px-6 py-3">Barang &amp; Jumlah</th>
-                <th className="px-5 sm:px-6 py-3">Status</th>
-                <th className="px-5 sm:px-6 py-3 text-right">Tanggal</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {loading && (!data.recentAtkRequests || data.recentAtkRequests.length === 0) ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-sm text-slate-400">
-                    <div className="inline-flex items-center gap-2">
-                      <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
-                      <span>Memuat data...</span>
-                    </div>
-                  </td>
-                </tr>
-              ) : !data.recentAtkRequests || data.recentAtkRequests.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-sm text-slate-400">
-                    Belum ada pengajuan ATK yang masuk.
-                  </td>
-                </tr>
-              ) : (
-                data.recentAtkRequests.map((atk) => (
-                  <tr key={atk.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="px-5 sm:px-6 py-3.5 text-xs font-mono font-bold text-orange-600">
-                      {atk.requestNumber}
-                    </td>
-                    <td className="px-5 sm:px-6 py-3.5">
-                      <p className="text-sm font-semibold text-slate-900">{atk.namaKaryawan}</p>
-                      <p className="text-xs text-slate-400">{atk.departemen} - {atk.jabatan}</p>
-                    </td>
-                    <td className="px-5 sm:px-6 py-3.5 text-xs font-medium">
-                      <span
-                        className={`inline-block px-2 py-0.5 rounded text-[11px] font-bold ${
-                          atk.requestType === "PURCHASE"
-                            ? "bg-orange-100 text-orange-800"
-                            : "bg-amber-100 text-amber-800"
-                        }`}
-                      >
-                        {atk.requestType === "PURCHASE" ? "Pembelian" : "Permintaan"}
-                      </span>
-                    </td>
-                    <td className="px-5 sm:px-6 py-3.5 text-xs font-medium text-slate-700">
-                      <span>{atk.requestType === "PURCHASE" ? atk.namaBarang : atk.pilihBarangAtk}</span>
-                      <span className="text-slate-400 font-mono ml-1.5">({atk.jumlah} unit)</span>
-                    </td>
-                    <td className="px-5 sm:px-6 py-3.5">
-                      {getAtkStatusBadge(atk.status)}
-                    </td>
-                    <td className="px-5 sm:px-6 py-3.5 text-xs text-slate-500 text-right font-mono">
-                      {new Date(atk.createdAt).toLocaleDateString("id-ID", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
       </div>
 
       {/* Recent Registrations Card */}
