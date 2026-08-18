@@ -61,6 +61,7 @@ function AdminPengajuanAtkContent() {
   const searchRef = useRef(search);
   const statusFilterRef = useRef(statusFilter);
   const typeFilterRef = useRef(typeFilter);
+  const detailHandledRef = useRef(false);
 
   useEffect(() => {
     searchRef.current = search;
@@ -80,6 +81,14 @@ function AdminPengajuanAtkContent() {
         localStorage.setItem("hasamitra_last_atk_request", String(now));
       }
     } catch {}
+  }, []);
+
+  const handleCloseDetailModal = useCallback(() => {
+    setSelectedReq(null);
+    setAdminNotesInput("");
+    if (typeof window !== "undefined" && window.location.search.includes("detail")) {
+      window.history.replaceState({}, "", "/admin/pengajuan-atk");
+    }
   }, []);
 
   const fetchRequests = useCallback(async (isSilent = false) => {
@@ -102,18 +111,6 @@ function AdminPengajuanAtkContent() {
       if (data.success) {
         setRequests(data.data || []);
         if (data.stats) setStats(data.stats);
-
-        // Check if query param detail matches any request
-        const detailParam = searchParams.get("detail");
-        if (detailParam && !selectedReq) {
-          const matched = (data.data as AtkRequest[])?.find(
-            (r) => String(r.id) === detailParam || r.requestNumber === detailParam
-          );
-          if (matched) {
-            setSelectedReq(matched);
-            setAdminNotesInput(matched.adminNotes || "");
-          }
-        }
       }
     } catch {
       if (!isSilent) setErrorMsg("Gagal memuat data pengajuan ATK.");
@@ -121,7 +118,24 @@ function AdminPengajuanAtkContent() {
       setLoading(false);
       setIsRefreshing(false);
     }
-  }, [searchParams, selectedReq]);
+  }, []);
+
+  // Initial load and URL param detail handler (runs once)
+  useEffect(() => {
+    const detailParam = searchParams.get("detail");
+    if (detailParam && !detailHandledRef.current) {
+      detailHandledRef.current = true;
+      fetch(`/api/admin/atk/${encodeURIComponent(detailParam)}`, { cache: "no-store" })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.data) {
+            setSelectedReq(data.data);
+            setAdminNotesInput(data.data.adminNotes || "");
+          }
+        })
+        .catch(() => {});
+    }
+  }, [searchParams]);
 
   // Debounced search / filter change
   useEffect(() => {
@@ -210,7 +224,7 @@ function AdminPengajuanAtkContent() {
         setSuccessMsg("Data pengajuan ATK berhasil dihapus.");
         setRequests((prev) => prev.filter((item) => item.id !== id));
         if (selectedReq?.id === id) {
-          setSelectedReq(null);
+          handleCloseDetailModal();
         }
         setDeleteConfirmId(null);
         broadcastChange();
@@ -589,7 +603,7 @@ function AdminPengajuanAtkContent() {
                 <h3 className="text-xl sm:text-2xl font-black font-mono">{selectedReq.requestNumber}</h3>
               </div>
               <button
-                onClick={() => setSelectedReq(null)}
+                onClick={handleCloseDetailModal}
                 className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors cursor-pointer text-sm font-bold"
                 aria-label="Tutup modal"
               >
@@ -806,7 +820,7 @@ function AdminPengajuanAtkContent() {
 
               <button
                 type="button"
-                onClick={() => setSelectedReq(null)}
+                onClick={handleCloseDetailModal}
                 className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold transition-colors cursor-pointer"
               >
                 Tutup
