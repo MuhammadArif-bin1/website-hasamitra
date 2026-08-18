@@ -58,7 +58,9 @@ export const ModelName = {
   BranchOffice: 'BranchOffice',
   Management: 'Management',
   Award: 'Award',
-  User: 'User'
+  User: 'User',
+  AtkRequest: 'AtkRequest',
+  AdminNotification: 'AdminNotification'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -194,6 +196,42 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const AtkRequestScalarFieldEnum = {
+  id: 'id',
+  requestNumber: 'requestNumber',
+  requestType: 'requestType',
+  namaKaryawan: 'namaKaryawan',
+  departemen: 'departemen',
+  jabatan: 'jabatan',
+  jenisAtk: 'jenisAtk',
+  namaBarang: 'namaBarang',
+  pilihBarangAtk: 'pilihBarangAtk',
+  jumlah: 'jumlah',
+  alasan: 'alasan',
+  keperluan: 'keperluan',
+  status: 'status',
+  adminNotes: 'adminNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  processedAt: 'processedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type AtkRequestScalarFieldEnum = (typeof AtkRequestScalarFieldEnum)[keyof typeof AtkRequestScalarFieldEnum]
+
+
+export const AdminNotificationScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  message: 'message',
+  link: 'link',
+  isRead: 'isRead',
+  createdAt: 'createdAt'
+} as const
+
+export type AdminNotificationScalarFieldEnum = (typeof AdminNotificationScalarFieldEnum)[keyof typeof AdminNotificationScalarFieldEnum]
 
 
 export const SortOrder = {

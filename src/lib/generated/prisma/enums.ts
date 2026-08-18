@@ -9,7 +9,20 @@
 * 🟢 You can import this file directly.
 */
 
+export const AtkRequestType = {
+  PURCHASE: 'PURCHASE',
+  REQUEST: 'REQUEST'
+} as const
+
+export type AtkRequestType = (typeof AtkRequestType)[keyof typeof AtkRequestType]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const AtkStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  COMPLETED: 'COMPLETED'
+} as const
+
+export type AtkStatus = (typeof AtkStatus)[keyof typeof AtkStatus]

@@ -81,3 +81,13 @@ export type Award = Prisma.AwardModel
  * 
  */
 export type User = Prisma.UserModel
+/**
+ * Model AtkRequest
+ * 
+ */
+export type AtkRequest = Prisma.AtkRequestModel
+/**
+ * Model AdminNotification
+ * 
+ */
+export type AdminNotification = Prisma.AdminNotificationModel

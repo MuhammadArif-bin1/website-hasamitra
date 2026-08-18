@@ -11,15 +11,23 @@ export async function GET() {
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }
 
-    const [totalRegistrations, totalProducts] = await Promise.all([
+    const [totalRegistrations, totalProducts, totalAtkRequests, pendingAtkRequests] = await Promise.all([
       prisma.registration.count(),
       prisma.product.count(),
+      prisma.atkRequest.count(),
+      prisma.atkRequest.count({ where: { status: "PENDING" } }),
     ]);
 
-    const recentRegistrations = await prisma.registration.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 6,
-    });
+    const [recentRegistrations, recentAtkRequests] = await Promise.all([
+      prisma.registration.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 6,
+      }),
+      prisma.atkRequest.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 6,
+      }),
+    ]);
 
     return NextResponse.json(
       {
@@ -27,7 +35,10 @@ export async function GET() {
         data: {
           totalRegistrations,
           totalProducts,
+          totalAtkRequests,
+          pendingAtkRequests,
           recentRegistrations,
+          recentAtkRequests,
         },
       },
       {

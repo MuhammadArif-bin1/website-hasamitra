@@ -2,12 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import TabunganFormModal from "@/components/forms/TabunganFormModal";
+import AtkPurchaseFormModal from "@/components/forms/AtkPurchaseFormModal";
+import AtkRequestFormModal from "@/components/forms/AtkRequestFormModal";
 import {
   HeroSection,
   TrustMetricsSection,
   ProductsSection,
   PiagamSection,
   DownloadHubSection,
+  AtkServiceSection,
   ComplianceNoticeSection,
   PiagamPreviewModal,
   ProductItem,
@@ -19,6 +22,8 @@ export default function Home() {
   const [, setLoadingProducts] = useState(true);
 
   const [tabunganModalOpen, setTabunganModalOpen] = useState(false);
+  const [atkPurchaseModalOpen, setAtkPurchaseModalOpen] = useState(false);
+  const [atkRequestModalOpen, setAtkRequestModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState("New Tabungan Sabar");
   const [piagamPreviewOpen, setPiagamPreviewOpen] = useState(false);
 
@@ -98,7 +103,13 @@ export default function Home() {
       {/* 5. Pusat Unduhan Berkas & Formulir Pengajuan */}
       <DownloadHubSection onOpenForm={openProductForm} />
 
-      {/* 6. Compliance & Legal Notices */}
+      {/* 6. Layanan Pengajuan ATK Internal */}
+      <AtkServiceSection
+        onOpenPurchaseModal={() => setAtkPurchaseModalOpen(true)}
+        onOpenRequestModal={() => setAtkRequestModalOpen(true)}
+      />
+
+      {/* 7. Compliance & Legal Notices */}
       <ComplianceNoticeSection />
 
       {/* Modal: Pendaftaran Produk Terpadu (Tabungan, Deposito, Cicil Emas) */}
@@ -106,6 +117,18 @@ export default function Home() {
         isOpen={tabunganModalOpen}
         onClose={() => setTabunganModalOpen(false)}
         productName={selectedProduct}
+      />
+
+      {/* Modal: Pengajuan Pembelian ATK */}
+      <AtkPurchaseFormModal
+        isOpen={atkPurchaseModalOpen}
+        onClose={() => setAtkPurchaseModalOpen(false)}
+      />
+
+      {/* Modal: Pengajuan ATK */}
+      <AtkRequestFormModal
+        isOpen={atkRequestModalOpen}
+        onClose={() => setAtkRequestModalOpen(false)}
       />
 
       {/* Modal: Full View Piagam & Penghargaan Preview */}

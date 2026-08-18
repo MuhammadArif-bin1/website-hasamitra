@@ -404,7 +404,9 @@ export const ModelName = {
   BranchOffice: 'BranchOffice',
   Management: 'Management',
   Award: 'Award',
-  User: 'User'
+  User: 'User',
+  AtkRequest: 'AtkRequest',
+  AdminNotification: 'AdminNotification'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -420,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "registration" | "contactMessage" | "product" | "article" | "branchOffice" | "management" | "award" | "user"
+    modelProps: "registration" | "contactMessage" | "product" | "article" | "branchOffice" | "management" | "award" | "user" | "atkRequest" | "adminNotification"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1016,6 +1018,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AtkRequest: {
+      payload: Prisma.$AtkRequestPayload<ExtArgs>
+      fields: Prisma.AtkRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AtkRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AtkRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AtkRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AtkRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.AtkRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AtkRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AtkRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AtkRequestPayload>
+        }
+        findMany: {
+          args: Prisma.AtkRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AtkRequestPayload>[]
+        }
+        create: {
+          args: Prisma.AtkRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AtkRequestPayload>
+        }
+        createMany: {
+          args: Prisma.AtkRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AtkRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AtkRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.AtkRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AtkRequestPayload>
+        }
+        update: {
+          args: Prisma.AtkRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AtkRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.AtkRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AtkRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AtkRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AtkRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.AtkRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AtkRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.AtkRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAtkRequest>
+        }
+        groupBy: {
+          args: Prisma.AtkRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AtkRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AtkRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AtkRequestCountAggregateOutputType> | number
+        }
+      }
+    }
+    AdminNotification: {
+      payload: Prisma.$AdminNotificationPayload<ExtArgs>
+      fields: Prisma.AdminNotificationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AdminNotificationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminNotificationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AdminNotificationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminNotificationPayload>
+        }
+        findFirst: {
+          args: Prisma.AdminNotificationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminNotificationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AdminNotificationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminNotificationPayload>
+        }
+        findMany: {
+          args: Prisma.AdminNotificationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminNotificationPayload>[]
+        }
+        create: {
+          args: Prisma.AdminNotificationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminNotificationPayload>
+        }
+        createMany: {
+          args: Prisma.AdminNotificationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AdminNotificationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminNotificationPayload>[]
+        }
+        delete: {
+          args: Prisma.AdminNotificationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminNotificationPayload>
+        }
+        update: {
+          args: Prisma.AdminNotificationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminNotificationPayload>
+        }
+        deleteMany: {
+          args: Prisma.AdminNotificationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AdminNotificationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AdminNotificationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminNotificationPayload>[]
+        }
+        upsert: {
+          args: Prisma.AdminNotificationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminNotificationPayload>
+        }
+        aggregate: {
+          args: Prisma.AdminNotificationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAdminNotification>
+        }
+        groupBy: {
+          args: Prisma.AdminNotificationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AdminNotificationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AdminNotificationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AdminNotificationCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1174,6 +1324,42 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const AtkRequestScalarFieldEnum = {
+  id: 'id',
+  requestNumber: 'requestNumber',
+  requestType: 'requestType',
+  namaKaryawan: 'namaKaryawan',
+  departemen: 'departemen',
+  jabatan: 'jabatan',
+  jenisAtk: 'jenisAtk',
+  namaBarang: 'namaBarang',
+  pilihBarangAtk: 'pilihBarangAtk',
+  jumlah: 'jumlah',
+  alasan: 'alasan',
+  keperluan: 'keperluan',
+  status: 'status',
+  adminNotes: 'adminNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  processedAt: 'processedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type AtkRequestScalarFieldEnum = (typeof AtkRequestScalarFieldEnum)[keyof typeof AtkRequestScalarFieldEnum]
+
+
+export const AdminNotificationScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  message: 'message',
+  link: 'link',
+  isRead: 'isRead',
+  createdAt: 'createdAt'
+} as const
+
+export type AdminNotificationScalarFieldEnum = (typeof AdminNotificationScalarFieldEnum)[keyof typeof AdminNotificationScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1250,6 +1436,34 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'AtkRequestType'
+ */
+export type EnumAtkRequestTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AtkRequestType'>
+    
+
+
+/**
+ * Reference to a field of type 'AtkRequestType[]'
+ */
+export type ListEnumAtkRequestTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AtkRequestType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'AtkStatus'
+ */
+export type EnumAtkStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AtkStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'AtkStatus[]'
+ */
+export type ListEnumAtkStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AtkStatus[]'>
     
 
 
@@ -1425,6 +1639,8 @@ export type GlobalOmitConfig = {
   management?: Prisma.ManagementOmit
   award?: Prisma.AwardOmit
   user?: Prisma.UserOmit
+  atkRequest?: Prisma.AtkRequestOmit
+  adminNotification?: Prisma.AdminNotificationOmit
 }
 
 /* Types for Logging */

@@ -112,3 +112,48 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// 9. Pengajuan ATK (Pembelian & Permintaan)
+enum AtkRequestType {
+  PURCHASE
+  REQUEST
+}
+
+enum AtkStatus {
+  PENDING
+  PROCESSING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+model AtkRequest {
+  id             Int            @id @default(autoincrement())
+  requestNumber  String         @unique
+  requestType    AtkRequestType
+  namaKaryawan   String
+  departemen     String
+  jabatan        String
+  jenisAtk       String?
+  namaBarang     String?
+  pilihBarangAtk String?
+  jumlah         Int
+  alasan         String?
+  keperluan      String?
+  status         AtkStatus      @default(PENDING)
+  adminNotes     String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  processedAt    DateTime?
+  completedAt    DateTime?
+}
+
+// 10. Notifikasi Admin
+model AdminNotification {
+  id        Int      @id @default(autoincrement())
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
