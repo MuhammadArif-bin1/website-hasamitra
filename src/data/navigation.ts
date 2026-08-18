@@ -10,11 +10,7 @@ export const mainNavigation: NavItem[] = [
 ];
 
 export const footerNavigation: NavItem[] = [
-  { name: "HASAMITRA", href: "/" },
-  { name: "Produk & Layanan", href: "/#produk" },
-  { name: "Piagam & Legalitas", href: "/#piagam" },
-  { name: "Pusat Unduhan Formulir", href: "/#formulir" },
-  { name: "Pusat Informasi Publik", href: "/informasi" },
-  { name: "Karir & Lowongan", href: "/informasi/karir" },
-  { name: "Laporan Keuangan Triwulan", href: "/informasi/laporan-triwulan" },
+  { name: "Produk", href: "/#produk" },
+  { name: "Piagam", href: "/#piagam" },
+  { name: "Formulir", href: "/#formulir" },
 ];
