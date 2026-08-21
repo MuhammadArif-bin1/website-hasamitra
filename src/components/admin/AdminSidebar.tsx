@@ -85,20 +85,15 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
         <div className="flex flex-col flex-1 overflow-hidden">
           {/* Brand Header */}
           <div className="px-5 py-4 border-b border-orange-500/50 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-white p-1 flex items-center justify-center shrink-0 shadow-2xs">
-                <Image
-                  src="/images/logo/logo-bulat.png"
-                  alt="Logo Hasamitra"
-                  width={32}
-                  height={32}
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <div className="min-w-0">
-                <p className="text-white font-bold text-sm tracking-tight leading-none">Hasamitra</p>
-                <p className="text-orange-200 text-[11px] font-semibold tracking-wider uppercase mt-1">ADMIN MAS DENI</p>
-              </div>
+            <div className="bg-white px-3.5 py-2 rounded-xl shadow-xs flex items-center justify-center">
+              <Image
+                src="/images/logo/logo-hasamitra.png"
+                alt="Bank Hasamitra Jawa Barat"
+                width={160}
+                height={40}
+                className="h-8 w-auto object-contain"
+                priority
+              />
             </div>
 
             {/* Close button on mobile */}
